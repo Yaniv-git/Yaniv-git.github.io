@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Playing Dominos with Moodle&#39;s Security (2/2) - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#From-Self-XSS-to-Account-Takeover-CVE-2023-40320"><span class="toc-text">From Self-XSS to Account Takeover (CVE-2023-40320)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Exploitation-strategies"><span class="toc-text">Exploitation strategies</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#OAuth-Authentication-Flows"><span class="toc-text">OAuth Authentication Flows</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Exploitation"><span class="toc-text">Exploitation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Playing Dominos with Moodle's Security (2/2)    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2023-08-28 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#moodle" title="moodle">moodle</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#ato" title="ato">ato</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#account take over" title="account take over">account take over</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#oauth" title="oauth">oauth</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+        <span class="attr">/
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2023-40320" title="CVE-2023-40320">CVE-2023-40320</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/playing-dominos-with-moodles-security-2/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>In our endeavor to enhance the security of the open-source realm and gain a deeper understanding of real-world vulnerabilities, we are constantly conducting audits of open-source projects, and the outcomes of this are presented in our two articles on Moodle security. This is the second blog covering another critical finding we discovered when auditing Moodle for security vulnerabilities. </p>
+<p>In the first blog, we demonstrated how an unauthorized attacker could turn an arbitrary folder creation into a Cross-Site Scripting (XSS) vulnerability, ultimately resulting in Remote Code Execution (RCE). The second part of the series follows the same line of starting with a considerably low-impact bug at first glance, but with some steps, attackers can leverage it to a full account takeover. </p>
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>Moodle versions before 4.2.2, 4.1.5, 4.0.10, 3.11.16, and 3.9.23 are susceptible to Account Takeover (ATO) via self-XSS in the WYSIWYG editor – this is tracked as CVE-2023-40320. On Moodle instances where <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/OAuth">OAuth</a> authentication is enabled, victims’ accounts can be compromised with a simple click on a link.</p>
+<iframe width="100%" height="414" src="https://www.youtube.com/embed/njeXbu85yzM" title="Demonstration of Moodle vulnerabilities (CVE-2023-40320) on a test instance" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><p>In this section, we will discuss the technical details of the vulnerability and explain how attackers might exploit this kind of vulnerability.</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>A self-XSS vulnerability is when an attacker can execute arbitrary JavaScript code but the only one being affected by it is the attacker itself. To exploit this type of XSS, an attacker usually would need a high level of victim interaction, such as copying and pasting the payload to the vulnerable website. In many cases, this issue would not be considered a vulnerability, and even in the case of the Moodle vulnerability disclosure program, self-XSS is <a target="_blank" rel="noopener" href="https://moodle.org/mod/page/view.php?id=8722#:~:text=Self%2DXSS%20(unless%20there%20is%20a%20proven%20impact%20on%20other%20users)">out of scope</a> <strong>“(unless there is a proven impact on other users).”</strong></p>
+<h1 id="From-Self-XSS-to-Account-Takeover-CVE-2023-40320"><a href="#From-Self-XSS-to-Account-Takeover-CVE-2023-40320" class="headerlink" title="From Self-XSS to Account Takeover (CVE-2023-40320)"></a>From Self-XSS to Account Takeover (CVE-2023-40320)</h1><p>One of the initial steps we do when auditing an application is to use it as intended. Doing so helps us understand how it is supposed to behave and also brings many ideas to mind on how to manipulate the intended behavior the same way an attacker would. Pretty quickly we ran into the WYSIWYG editor in Moodle. </p>
+<p>Being one of the core features of Moodle, it appears when editing a description of a user, writing an answer to a forum, submitting assignments, and many more.</p>
+<p>We noticed that there is the possibility to input arbitrary HTML which will be rendered and executed in the editor (making this a self-XSS). But when submitting the payload to a public page (such as a forum, assignment, etc.), it gets sanitized on the server side and dangerous elements are removed – other users will never be affected by the payload. </p>
+<img src="/img/blogs/Moodle/image-2.webp" style="width: 100%;"/>
+
+<p>In addition, the editor has a feature that automatically saves a user’s WYSIWYG content by sending the unsanitized data periodically after a couple of seconds to the <code>/lib/editor/atto/autosave-ajax.php</code> endpoint:</p>
+<img src="/img/blogs/Moodle/image-3.webp" style="width: 100%;"/>
+
+<p>When loading the page again, the autosaved data is fetched from the same endpoint using the <code>actions[0][action]</code> parameter set to <code>resume</code>. In case a malicious payload was stored before, it will execute again by visiting the WYSIWYG page – this just became a Stored Self-XSS!</p>
+<h1 id="Exploitation-strategies"><a href="#Exploitation-strategies" class="headerlink" title="Exploitation strategies"></a>Exploitation strategies</h1><p>One of the ways an attacker could leverage this type of bug to an impactful one is by manipulating a victim into logging in to a malicious account -&gt; triggering the self-XSS -&gt; raising the impact depending on the application. With it, this was the first exploitation idea we tested. After a small check, we saw that the login and logout features are CSRF-protected, meaning an attacker can’t log in or out on the victim’s behalf by manipulating them to visit a malicious website. </p>
+<p>In this case, an attacker needs to find some kind of “magic link” (a single link that logs in a user without a password, usually using a one-time token). The first idea we wanted to test is via an OAuth login. Yet again this endpoint was protected by a GET parameter <code>sesskey</code> which acts as a CSRF token. At this point, we decided that code auditing would yield better results than quick tests. </p>
+<p>Following the normal login procedure, the function that logs in a user is called <code>complete_user_login</code>. This function is called after the authentication is verified and would also log out the current user if there is one. Upon examining all the calls made to this function, we discovered several endpoints. However, we observed that they either verifying new accounts (Moodle accounts must be verified before users can access them, meaning an attacker can’t pre-deploy the self-XSS) or prohibited logging in if a session already existed. Changing the email of an existing account would send a confirmation message but the link provided only confirms and does not login, unlike the confirmation link when registering a new account.</p>
+<h1 id="OAuth-Authentication-Flows"><a href="#OAuth-Authentication-Flows" class="headerlink" title="OAuth Authentication Flows"></a>OAuth Authentication Flows</h1><p>But then we came across <code>auth/oauth2/confirm-linkedlogin.php</code> </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$token</span> = required_param(<span class="string">&#x27;token&#x27;</span>, PARAM_RAW);</span><br><span class="line"><span class="variable">$username</span> = required_param(<span class="string">&#x27;username&#x27;</span>, PARAM_USERNAME);</span><br><span class="line"><span class="variable">$userid</span> = required_param(<span class="string">&#x27;userid&#x27;</span>, PARAM_INT);</span><br><span class="line"><span class="variable">$issuerid</span> = required_param(<span class="string">&#x27;issuerid&#x27;</span>, PARAM_INT);</span><br><span class="line"><span class="variable">$redirect</span> = optional_param(<span class="string">&#x27;redirect&#x27;</span>, <span class="string">&#x27;&#x27;</span>, PARAM_LOCALURL);    <span class="comment">// Where to </span></span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"><span class="variable">$confirmed</span> = \auth_oauth2\api::confirm_link_login(<span class="variable">$userid</span>, <span class="variable">$username</span>, <span class="variable">$issuerid</span>, <span class="variable">$token</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$confirmed</span>) &#123;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">   <span class="keyword">if</span> (!<span class="variable">$user</span>-&gt;suspended) &#123;</span><br><span class="line">       complete_user_login(<span class="variable">$user</span>);</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">       <span class="keyword">if</span> (!<span class="keyword">empty</span>(<span class="variable">$redirect</span>)) &#123;</span><br><span class="line">           redirect(<span class="variable">$redirect</span>);</span><br><span class="line">       &#125;</span><br><span class="line"><span class="comment">//...</span></span><br></pre></td></tr></table></figure>
+
+<p>Here, if the link is valid, a login will happen. Without any verification that another user is already logged in, this is the only endpoint that does that. In addition to that, there is the possibility to pass a local <code>$redirect</code> URL that will redirect the user after the login!</p>
+<p>But what is <code>oauth2/confirm-linkedlogin.php</code> and how an attacker would get here?<br>First, we need to understand that this is possible only in a Moodle instance with some kind of OAuth enabled. In it, a user can log in via their OAuth account or link/unlink OAuth to an existing account. In case it’s the first OAuth login a new account will be created with linked OAuth. <strong>But</strong> in case there is already an account with the same email address as the OAuth account, Moodle will link those accounts and send this <code>confirm-linkedlogin</code> confirmation link by email.</p>
+<img src="/img/blogs/Moodle/image-4.webp" style="width: 100%;"/>
+
+<h1 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h1><p>Here are the specific number of steps an attacker would need to do to craft an account takeover attack:</p>
+<ol>
+<li><p>The attacker has an account with a controlled email same as the OAuth provider (for example, if Moodle has Google’s OAuth then the email should be a Gmail address). In this demonstration, let’s say an attacker is logged in with <a href="mailto:&#97;&#x74;&#116;&#x61;&#x63;&#x6b;&#101;&#x72;&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#111;&#x6d;">&#97;&#x74;&#116;&#x61;&#x63;&#x6b;&#101;&#x72;&#64;&#x67;&#109;&#97;&#x69;&#108;&#46;&#x63;&#111;&#x6d;</a>. </p>
+</li>
+<li><p>The attacker’s account shouldn’t be linked to OAuth (can be unlinked in the user options in case it’s already linked).</p>
+</li>
+<li><p>Attacker creates a self-XSS payload that logs in using the current browser’s OAuth (done automatically without requiring credentials) using an iframe pointing to:<br><code>/auth/oauth2/login.php?id=2&amp;wantsurl=%2F&amp;sesskey=$&#123;M.cfg.sesskey&#125;</code> (the <code>M.cfg.sesskey</code> is the current session’s CSRF protection). Since the Iframe has the same origin as the main page, the XSS code can freely access the newly created session in the Iframe.</p>
+</li>
+<li><p>An attacker account adds the self-XSS payload to a WYSIWYG input and waits for the autosave.</p>
+</li>
+<li><p>Attacker logs out.</p>
+</li>
+<li><p>The attacker logs in with <strong>OAuth</strong> (using <a href="mailto:&#97;&#x74;&#x74;&#97;&#99;&#107;&#x65;&#114;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#x6f;&#x6d;">&#97;&#x74;&#x74;&#97;&#99;&#107;&#x65;&#114;&#64;&#103;&#x6d;&#97;&#105;&#108;&#x2e;&#x63;&#x6f;&#x6d;</a>). Moodle will see that there is already an account with the same email address and will generate a confirmation URL that links the Moodle account to the OAuth. That URL will be sent by email. </p>
+</li>
+<li><p>Attacker adds the <code>redirect</code> parameter to the URL that will point to the self-XSS containing page: <code>http://moodle-domain/auth/oauth2/confirm-linkedlogin.php?token=...&amp;userid=11&amp;username=...&amp;issuerid=...&amp;redirect=http://moodle-domain/user/edit.php?id=11%231</code></p>
+</li>
+<li><p>Any user who clicks on the newly crafted link will be logged in to the attacker’s account and redirected to the self-XSS page.</p>
+</li>
+</ol>
+<img src="/img/blogs/Moodle/image-5.webp" style="width: 100%;"/>
+
+<ol start="9">
+<li>The victim triggers the self-XSS payload in the context of the attacker’s account. It creates a new frame in which the victim is authenticated back in their own account via OAuth. Both the parent document (attacker’s session) and the frame (victim’s session) share the same origin, so the payload has full access to everything inside the frame. </li>
+</ol>
+<img src="/img/blogs/Moodle/image-6.webp" style="width: 100%;"/>
+
+<ol start="10">
+<li>From here, the attacker has full control over the victim’s account. For example, using the following iframe’s onload event code will show an alert with the victim’s cookie: <code>alert(&#39;hijacked cookie:&#39; + document.cookie);</code>. Any other action can be done directly in the frame on the victim’s behalf. In case the victim account has admin privileges, code execution on the server can be achieved (as demonstrated in our <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/playing-dominos-with-moodles-security-1/">previous</a> blog).</li>
+</ol>
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p>The vulnerability was <a target="_blank" rel="noopener" href="https://github.com/moodle/moodle/commit/3d3dd827fae6db06f8f2a265ef38cfd5566d0c17">fixed</a> in versions 4.2.2, 4.1.5, 4.0.10, 3.11.16, and 3.9.23 by removing the call to the <code>complete_user_login</code> function, causing the <code>confirm-linkedlogin.php</code> endpoint to not automatically login the user by clicking the link. </p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="deletion">- if (!$user-&gt;suspended) &#123;</span></span><br><span class="line"><span class="deletion">-         complete_user_login($user);</span></span><br><span class="line"><span class="deletion">-         \core\session\manager::apply_concurrent_login_limit($user-&gt;id, session_id());</span></span><br><span class="line"></span><br><span class="line"><span class="addition">+    if ($user-&gt;id == $USER-&gt;id) &#123;</span></span><br><span class="line">//...</span><br></pre></td></tr></table></figure>
+
+<p>Clicking a malicious link now will not log in to the attacker’s account and thus no self-XSS is executed on the victim (though stored self-XSS is still possible in the WYSIWYG editor).</p>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2023-03-22</td>
+<td>We report all issues to the vendor</td>
+</tr>
+<tr>
+<td>2023-08-10</td>
+<td>Vendor patched the vulnerability</td>
+</tr>
+<tr>
+<td>2023-08-21</td>
+<td>Vendor released security advisory and CVE-2023-40320 was assigned</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>In this article, covering our second critical vulnerability found in Moodle, we demonstrated how attackers can leverage the self-XSS vulnerability to an impactful Account Takeover. Considering that, in addition to our first blog in the series covering another innocent initial bug to RCE, it is important to not overlook those innocuous issues. </p>
+<p>By focusing on clean code practices, developers write software that is clear, maintainable, and understandable. These qualities make it easier to spot and address vulnerabilities during development, reducing the risk of introducing security flaws that could be exploited by attackers. It is important to address all security issues in order to reduce the chance of bug chains.</p>
+<p>We would also like to thank Moodle again for their responsiveness and great communication.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

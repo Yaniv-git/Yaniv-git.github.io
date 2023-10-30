@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Pimcore: One click, two security vulnerabilities - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Pimcore-Vulnerabilities-Impact"><span class="toc-text">Pimcore Vulnerabilities Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Limited-Arbitrary-File-Write-and-Path-Traversal"><span class="toc-text">Limited Arbitrary File Write and Path Traversal</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1st-SQL-Injection-sink"><span class="toc-text">1st SQL Injection sink</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2nd-SQL-Injection-sink"><span class="toc-text">2nd SQL Injection sink</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Exploitation-connecting-everything-together"><span class="toc-text">Exploitation - connecting everything together</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Pimcore: One click, two security vulnerabilities    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2023-05-15 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#php" title="php">php</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#sqli" title="sqli">sqli</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#path traversal" title="path traversal">path traversal</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+        <span class="attr">/
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2023-28438" title="CVE-2023-28438">CVE-2023-28438</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/pimcore-one-click-two-security-vulnerabilities">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>The Pimcore Platform provides software for central management of corporate data. With over 100,000 clients across 56 countries, including some major vendors, it has become a trusted choice for businesses worldwide. Available in both an Enterprise subscription as well as an Open Source Community Edition with a growing community of developers and users.</p>
+<p>We make a consistent effort to enhance the technology powering our Clean Code solution by frequently scanning open-source projects and assessing the outcomes. In the case of Pimcore, our engine reported an interesting limited directory traversal vulnerability. After analyzing the finding we found an additional SQL Injection vulnerability in the same endpoint. Leveraging those two vulnerabilities, an admin that clicks on an attacker’s crafted link will execute arbitrary code on the server.</p>
+<h1 id="Pimcore-Vulnerabilities-Impact"><a href="#Pimcore-Vulnerabilities-Impact" class="headerlink" title="Pimcore Vulnerabilities Impact"></a>Pimcore Vulnerabilities Impact</h1><p>Pimcore versions prior to 10.5.19 are susceptible to both a <strong>path traversal</strong> and an <strong>SQL injection</strong> vulnerability in the <code>create-csv</code> endpoint tracked as CVE-2023-28438. The two vulnerabilities can be exploited with a single GET request. Because of this, an attacker can create a malicious link, which can cause the <strong>execution of arbitrary code</strong> when accessed by an admin. </p>
+<iframe width="100%" height="414" src="https://www.youtube.com/embed/7ODgHHyhuqg" title="Demonstration of Pimcore vulnerabilities on a test instance" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><p>In this section, we will discuss the technical details of the vulnerabilities and explain how an attacker could combine them to create a one-click exploit that will deploy a web shell on the server.</p>
+<h2 id="Limited-Arbitrary-File-Write-and-Path-Traversal"><a href="#Limited-Arbitrary-File-Write-and-Path-Traversal" class="headerlink" title="Limited Arbitrary File Write and Path Traversal"></a>Limited Arbitrary File Write and Path Traversal</h2><p>Scanning Pimcore with SonarCloud uncovered an interesting path traversal issue caused by passing user-controlled data as the filename parameter of <code>fopen</code>. You can inspect the finding directly on SonarCloud:</p>
+<p><a target="_blank" rel="noopener" href="https://sonarcloud.io/project/issues?resolved=false&types=VULNERABILITY&id=SonarSourceResearch_pimcore-blogpost&open=AYbwBqEGzBX2hF8LIsrC&_gl=1*h7icnc*_gcl_au*OTE1ODQ0MTAxLjE2OTg1MTM1NzM.*_ga*MTIwOTcxMTcxNi4xNjk4NTEzNTcz*_ga_9JZ0GZ5TC6*MTY5ODU5NTQzMS4yLjEuMTY5ODU5NTQ3Ny4xNC4wLjA.">Try it by yourself on SonarCloud!</a></p>
+<p>The underlined feature is in the admin panel of Pimcore which enables the display of statistical reports on various aspects of the website. An admin can create custom reports, view them directly from the panel, or download the data in CSV format:</p>
+<img src="/img/blogs/pimcore/image1.webp" style="width: 100%;"/>
+
+<p>Upon further inspection of the vulnerable function <code>createCsvAction</code>, we found out that the user-controlled data is passed through the <code>admin/reports/custom-report/create-csv</code> endpoint’s <code>exportFile</code> parameter. Although this endpoint is only accessible by admins, it is a GET request endpoint with no CSRF protection, thus manipulating an admin to click on a link is enough.</p>
+<p>The value of the <code>exportFile</code> parameter is appended to the web root path without prior sanitization, allowing an attacker to control the extension as well as traverse back in the folder path. </p>
+<p>On continued inspection of the code, we can see that the user-controlled path will end up opening a file in “append” mode. Writing the <code>getData</code> function’s output to it using <code>fputcsv</code>:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">createCsvAction</span>(<span class="params">Request <span class="variable">$request</span></span>)</span></span><br><span class="line"><span class="function">   </span>&#123;</span><br><span class="line">       <span class="comment">//...</span></span><br><span class="line">       <span class="variable">$filters</span> = <span class="variable">$request</span>-&gt;get(<span class="string">&#x27;filter&#x27;</span>) ? json_decode(urldecode(<span class="variable">$request</span>-&gt;get(<span class="string">&#x27;filter&#x27;</span>)), <span class="literal">true</span>) : <span class="literal">null</span>;</span><br><span class="line">       <span class="variable">$drillDownFilters</span> = <span class="variable">$request</span>-&gt;get(<span class="string">&#x27;drillDownFilters&#x27;</span>, <span class="literal">null</span>);</span><br><span class="line">       <span class="comment">//...</span></span><br><span class="line">       <span class="variable">$result</span> = <span class="variable">$adapter</span>-&gt;getData(<span class="variable">$filters</span>, <span class="variable">$sort</span>, <span class="variable">$dir</span>, <span class="variable">$offset</span> * <span class="variable">$limit</span>, <span class="variable">$limit</span>, <span class="variable">$fields</span>, <span class="variable">$drillDownFilters</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (!(<span class="variable">$exportFile</span> = <span class="variable">$request</span>-&gt;get(<span class="string">&#x27;exportFile&#x27;</span>))) &#123;</span><br><span class="line">           <span class="variable">$exportFile</span> = PIMCORE_SYSTEM_TEMP_DIRECTORY . <span class="string">&#x27;/report-export-&#x27;</span> . uniqid() . <span class="string">&#x27;.csv&#x27;</span>;</span><br><span class="line">           @unlink(<span class="variable">$exportFile</span>);</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           <span class="variable">$exportFile</span> = PIMCORE_SYSTEM_TEMP_DIRECTORY.<span class="string">&#x27;/&#x27;</span>.<span class="variable">$exportFile</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       <span class="variable">$fp</span> = fopen(<span class="variable">$exportFile</span>, <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (<span class="variable">$includeHeaders</span>) &#123;</span><br><span class="line">           fputcsv(<span class="variable">$fp</span>, <span class="variable">$fields</span>, <span class="string">&#x27;;&#x27;</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       <span class="keyword">foreach</span> (<span class="variable">$result</span>[<span class="string">&#x27;data&#x27;</span>] <span class="keyword">as</span> <span class="variable">$row</span>) &#123;</span><br><span class="line">           <span class="variable">$row</span> = Service::escapeCsvRecord(<span class="variable">$row</span>);</span><br><span class="line">           fputcsv(<span class="variable">$fp</span>, array_values(<span class="variable">$row</span>), <span class="string">&#x27;;&#x27;</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       <span class="comment">//...</span></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://github.com/pimcore/pimcore/blob/928a964c13a5c9992cff4b5abdb25847529604d3/bundles/CustomReportsBundle/src/Controller/Reports/CustomReportController.php#L422%C2%A0">File in Github</a></p>
+<p>Up until now, an attacker can control the CSV output file path, name, and extension. Although this allows the creation of PHP files on the server, an attacker will need to control the file content as well in order to execute arbitrary code. Here enters the second vulnerability, an SQL Injection in the <code>getData</code> function.</p>
+<h2 id="1st-SQL-Injection-sink"><a href="#1st-SQL-Injection-sink" class="headerlink" title="1st SQL Injection sink"></a>1st SQL Injection sink</h2><p>Looking at the <code>createCsvAction</code> function from earlier, the inputs an attacker can control are <code>$drillDownFilters</code> and <code>$filters</code>, which are passed on to <code>getBaseQuery</code>:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params"><span class="variable">$filters</span>, <span class="variable">$sort</span>, <span class="variable">$dir</span>, <span class="variable">$offset</span>, <span class="variable">$limit</span>, <span class="variable">$fields</span> = <span class="literal">null</span>, <span class="variable">$drillDownFilters</span> = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function">  </span>&#123;</span><br><span class="line">      <span class="variable">$db</span> = Db::get();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      <span class="variable">$baseQuery</span> = <span class="keyword">$this</span>-&gt;getBaseQuery(<span class="variable">$filters</span>, <span class="variable">$fields</span>, <span class="literal">false</span>, <span class="variable">$drillDownFilters</span>);</span><br><span class="line">      <span class="comment">//...</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="variable">$baseQuery</span>) &#123;</span><br><span class="line">          <span class="variable">$total</span> = <span class="variable">$db</span>-&gt;fetchOne(<span class="variable">$baseQuery</span>[<span class="string">&#x27;count&#x27;</span>]);</span><br><span class="line">          <span class="comment">//...</span></span><br><span class="line">          <span class="variable">$sql</span> = <span class="variable">$baseQuery</span>[<span class="string">&#x27;data&#x27;</span>] . <span class="variable">$order</span>;</span><br><span class="line">          <span class="comment">//...</span></span><br><span class="line">          <span class="variable">$data</span> = <span class="variable">$db</span>-&gt;fetchAllAssociative(<span class="variable">$sql</span>);</span><br><span class="line">     <span class="comment">//...</span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://github.com/pimcore/pimcore/blob/v11.0.0-ALPHA5/bundles/CustomReportsBundle/src/Tool/Adapter/Sql.php#L29">File in Github</a></p>
+<p>Two SQL queries are issued with the result of the <code>getBaseQuery</code> function:</p>
+<ol>
+<li><code>$baseQuery[‘count’]</code>: a query that returns the number of results using <code>COUNT(*)</code> will be used in <code>$db-&gt;fetchOne</code>.</li>
+<li><code>$baseQuery[‘data’]</code>: will end up in <code>$db-&gt;fetchAllAssociative</code> and fetch the results.</li>
+</ol>
+<p>This is how the <code>getBaseQuery</code> function that prepares those two queries looks like:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">getBaseQuery</span>(<span class="params"><span class="variable">$filters</span>, <span class="variable">$fields</span>, <span class="variable">$ignoreSelectAndGroupBy</span> = <span class="literal">false</span>, <span class="variable">$drillDownFilters</span> = <span class="literal">null</span>, <span class="variable">$selectField</span> = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function">   </span>&#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">       <span class="variable">$sql</span> = <span class="keyword">$this</span>-&gt;buildQueryString(<span class="keyword">$this</span>-&gt;config, <span class="variable">$ignoreSelectAndGroupBy</span>, <span class="variable">$drillDownFilters</span>, <span class="variable">$selectField</span>);</span><br><span class="line">       <span class="comment">//...</span></span><br><span class="line">               <span class="keyword">foreach</span> (<span class="variable">$filters</span> <span class="keyword">as</span> <span class="variable">$filter</span>) &#123;</span><br><span class="line">                   <span class="variable">$operator</span> = <span class="variable">$filter</span>[<span class="string">&#x27;operator&#x27;</span>];</span><br><span class="line">                   <span class="comment">//..</span></span><br><span class="line">                   <span class="keyword">switch</span> (<span class="variable">$operator</span>) &#123;</span><br><span class="line">			<span class="comment">//..</span></span><br><span class="line">                       <span class="keyword">case</span> <span class="string">&#x27;=&#x27;</span>:</span><br><span class="line">                           <span class="variable">$fields</span>[] = <span class="variable">$filter</span>[<span class="string">&#x27;property&#x27;</span>];</span><br><span class="line">                           <span class="variable">$condition</span>[] = <span class="variable">$db</span>-&gt;quoteIdentifier(<span class="variable">$filter</span>[<span class="string">&#x27;property&#x27;</span>]) . <span class="string">&#x27; = &#x27;</span> . <span class="variable">$db</span>-&gt;quote(<span class="variable">$value</span>);</span><br><span class="line">    		<span class="comment">//...</span></span><br><span class="line">           <span class="variable">$total</span> = <span class="string">&#x27;SELECT COUNT(*) FROM (&#x27;</span> . <span class="variable">$sql</span> . <span class="string">&#x27;) AS somerandxyz WHERE &#x27;</span> . <span class="variable">$condition</span>;</span><br><span class="line">           <span class="keyword">if</span> (<span class="variable">$fields</span> &amp;&amp; !<span class="variable">$extractAllFields</span>) &#123;</span><br><span class="line">               <span class="variable">$data</span> = <span class="string">&#x27;SELECT `&#x27;</span> . implode(<span class="string">&#x27;`,`&#x27;</span>, <span class="variable">$fields</span>) . <span class="string">&#x27;` FROM (&#x27;</span> . <span class="variable">$sql</span> . <span class="string">&#x27;) AS somerandxyz WHERE &#x27;</span> . <span class="variable">$condition</span>;</span><br><span class="line">           &#125;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">       <span class="keyword">return</span> [</span><br><span class="line">           <span class="string">&#x27;data&#x27;</span> =&gt; <span class="variable">$data</span>,</span><br><span class="line">           <span class="string">&#x27;count&#x27;</span> =&gt; <span class="variable">$total</span>,</span><br><span class="line">       ];</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://github.com/pimcore/pimcore/blob/v11.0.0-ALPHA5/bundles/CustomReportsBundle/src/Tool/Adapter/Sql.php#L150">File in Github</a></p>
+<p>At first glance, we noticed an injection at the <code>$data</code> parameter, the SQL query’s <code>SELECT</code> fields are not sanitized. The <code>implode(&#39;`,`&#39;, $fields)</code> can simply be escaped with backticks.</p>
+<p>In order to control the <code>$fields</code> parameter we need to set the <code>$filters[&#39;operator&#39;]</code> attribute accordingly (in the code snippet only ‘=’ is shown but there are other options) and then the <code>&#39;property&#39;</code> attribute will be appended to it. Immediately after a <code>$condition</code> string will be created. So in order to control the <code>$fields</code> value the <code>$condition</code> string will be present. </p>
+<p>However, while it seems like there is a simple SQL injection at <code>$data</code>, the <code>$condition</code> variable is concatenated to the end of both queries (<code>count</code> and <code>data</code>). And due to the quotation escaping (done using the functions <code>$db-&gt;quoteIdentifier</code> and <code>$db-&gt;quote</code>), any field containing a backtick character (`) will be doubled and thus making the query’s syntax invalid.</p>
+<p>We can of course comment out the rest of the query (using <code>--</code> or <code>;</code>) to avoid the syntax breaking <code>$condition</code>. But the <code>$total</code> query also has the broken <code>$condition</code>, and later be used in the line <code>$db-&gt;fetchOne($baseQuery[&#39;count&#39;])</code> before fetching with the SQL Injected <code>data</code> query, thus raising an exception and not executing the SQL Injection.</p>
+<h2 id="2nd-SQL-Injection-sink"><a href="#2nd-SQL-Injection-sink" class="headerlink" title="2nd SQL Injection sink"></a>2nd SQL Injection sink</h2><p>So we have an SQL Injection, but exploiting it will always cause a syntax error. Is there any other way to somehow ignore the <code>$condition</code> string?</p>
+<p>Some of you probably already noticed that before every <code>$condition</code> there is the <code>$sql</code> parameter, which is returned from <code>$this-&gt;getBaseQuery(...)</code>. If there is an SQL Injection in that function as well we can end the query before the syntax error.</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">buildQueryString</span>(<span class="params"><span class="variable">$config</span>, <span class="variable">$ignoreSelectAndGroupBy</span> = <span class="literal">false</span>, <span class="variable">$drillDownFilters</span> = <span class="literal">null</span>, <span class="variable">$selectField</span> = <span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function">   </span>&#123;</span><br><span class="line">       <span class="comment">//...</span></span><br><span class="line">       <span class="keyword">if</span> (<span class="variable">$drillDownFilters</span>) &#123;</span><br><span class="line">           <span class="variable">$havingParts</span> = [];</span><br><span class="line">           <span class="variable">$db</span> = Db::get();</span><br><span class="line">           <span class="keyword">foreach</span> (<span class="variable">$drillDownFilters</span> <span class="keyword">as</span> <span class="variable">$field</span> =&gt; <span class="variable">$value</span>) &#123;</span><br><span class="line">               <span class="keyword">if</span> (<span class="variable">$value</span> !== <span class="string">&#x27;&#x27;</span> &amp;&amp; <span class="variable">$value</span> !== <span class="literal">null</span>) &#123;</span><br><span class="line">                   <span class="variable">$havingParts</span>[] = <span class="string">&quot;<span class="subst">$field</span> = &quot;</span> . <span class="variable">$db</span>-&gt;quote(<span class="variable">$value</span>);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">           <span class="keyword">if</span> (<span class="variable">$havingParts</span>) &#123;</span><br><span class="line">               <span class="variable">$sql</span> .= <span class="string">&#x27; HAVING &#x27;</span> . implode(<span class="string">&#x27; AND &#x27;</span>, <span class="variable">$havingParts</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="variable">$sql</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Auditing the <code>buildQueryString</code> function we found another SQL Injection sink but now using the <code>$drillDownFilters</code> parameter. Though the value is being quoted, the field isn’t. An attacker can use this sync to comment out the broken <code>$condition</code> and execute arbitrary SQL queries.</p>
+<h1 id="Exploitation-connecting-everything-together"><a href="#Exploitation-connecting-everything-together" class="headerlink" title="Exploitation - connecting everything together"></a>Exploitation - connecting everything together</h1><p>So an attacker can control the output file and inject SQL to the function that fetches results which will end up in that file. Having the export file path pointing to a PHP file in the web root is straightforward using: </p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">..<span class="regexp">/../</span>..<span class="regexp">/../</span>..<span class="regexp">/../</span>..<span class="regexp">/../</span>var<span class="regexp">/www/</span>html<span class="regexp">/public/</span>webshell.php</span><br></pre></td></tr></table></figure>
+
+<p>A PHP file will execute also if there is the PHP declaration randomly in the file, meaning a file doesn’t have to start with <code>&lt;?php</code>, so we don’t have to worry about that. </p>
+<p>But how can an attacker exploit the SQL Injection to result in arbitrary content?</p>
+<p>Having multiple queries, one that inserts custom data and another that fetches it is possible but makes the exploit more complicated. Going back to our SQL query, the injection is in the SELECT fields, so we can use the <a target="_blank" rel="noopener" href="https://www.w3schools.com/sql/sql_case.asp">CASE expression</a>.</p>
+<p>Lastly, there are two parameters needed for the get request: </p>
+<ul>
+<li><code>headers=true</code> is to output the field names to the CSV</li>
+<li><code>name=Quality_Attributes</code> is a default name of a report from the demo app (in order to execute the vulnerable function the name has to be a valid report)</li>
+</ul>
+<p>Combining those 2 vulnerabilities from 3 sinks in 1 GET request an attacker could create a malicious link that will deploy a web shell on the server.</p>
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p>Both vulnerabilities were fixed in Pimcore version 10.5.19:</p>
+<ul>
+<li>The SQL Injection was fixed by adding db-&gt;quoteIdentifier(…) in the field name as well.<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$havingParts</span>[] = (<span class="variable">$db</span>-&gt;quoteIdentifier(<span class="variable">$field</span>) .<span class="string">&quot; = &quot;</span> . <span class="variable">$db</span>-&gt;quote(<span class="variable">$value</span>));</span><br></pre></td></tr></table></figure></li>
+<li>The path traversal was fixed by:<ul>
+<li>Verifying that the extension is “.csv”</li>
+<li>Normalizing the path to prevent traversing <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$exportFileName</span> = basename(<span class="variable">$exportFileName</span>);</span><br><span class="line"><span class="keyword">if</span>(!str_ends_with(<span class="variable">$exportFileName</span>, <span class="string">&quot;.csv&quot;</span>)) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">InvalidArgumentException</span>(<span class="variable">$exportFileName</span> . <span class="string">&quot; is not a valid csv file.&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> PIMCORE_SYSTEM_TEMP_DIRECTORY . <span class="string">&#x27;/&#x27;</span> . <span class="variable">$exportFileName</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2023-02-20</td>
+<td>We reported all issues to Vendor</td>
+</tr>
+<tr>
+<td>2023-03-15</td>
+<td>Vendor released patch version 10.5.19</td>
+</tr>
+<tr>
+<td>2023-03-22</td>
+<td>CVE-2023-28438 and <a target="_blank" rel="noopener" href="https://github.com/pimcore/pimcore/security/advisories/GHSA-vf7q-g2pv-jxvx">security advisory</a> released</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>The focus of our blog post was on our success in identifying and utilizing two distinct vulnerabilities with a single GET request, ultimately leading to code execution. This serves as a powerful demonstration of our product’s capability to detect security flaws, and we also highlighted the step-by-step process we followed from analyzing the results to creating a weaponized exploit.</p>
+<p>We would like to thank the maintainers again for the quick response and for handling the situation professionally.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

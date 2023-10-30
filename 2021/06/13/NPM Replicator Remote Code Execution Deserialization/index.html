@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        CVE-2021-33420: NPM Replicator Remote Code Execution Deserialization - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact-Summary"><span class="toc-text">Impact Summary</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Overview"><span class="toc-text">Overview</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Details"><span class="toc-text">Details</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Recommendations"><span class="toc-text">Recommendations</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary-of-Disclosure-and-Events"><span class="toc-text">Summary of Disclosure and Events</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline-of-Disclosure"><span class="toc-text">Timeline of Disclosure</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Final-Words"><span class="toc-text">Final Words</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-text">References</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        CVE-2021-33420: NPM Replicator Remote Code Execution Deserialization    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2021-06-13 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#deserialization" title="deserialization">deserialization</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#npm" title="npm">npm</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+        <span class="attr">/
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-33420" title="CVE-2021-33420">CVE-2021-33420</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://checkmarx.com/blog/npm-replicator-remote-code-execution-deserialization">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>NPM, the package manager for Node.js, is an open source project that serves as a critical part of the JavaScript community and helps support one of the largest developer ecosystems. According to its <a target="_blank" rel="noopener" href="https://www.npmjs.com/">website</a>, “npm is relied upon by more than 11 million developers worldwide. The free npm registry has become the center of JavaScript code sharing, and with more than one million packages, is the largest software registry in the world.”</p>
+<p>Given the breadth of the npm universe and the Checkmarx Security Research Team’s always-on curiosity into performing investigations into open source projects and uncovering 0-days, we recently conducted an npm-focused vulnerability workshop. As a result of our efforts, we discovered an interesting remote code execution (RCE) deserialization issue in the npm <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/replicator">Replicator</a> package.</p>
+<h1 id="Impact-Summary"><a href="#Impact-Summary" class="headerlink" title="Impact Summary"></a>Impact Summary</h1><p>Deserialization of any untrusted input in the npm Replicator package, which sees more than 200,000 downloads per week, could lead to remote code execution and full compromise of the machine.</p>
+<h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p>Replicator is an “advanced JavaScript objects serialization” package in npm. This package wraps around the JSON parse and stringify functions, and provides additional functionalities to it. On top of the JSON key-value pairs, Replicator adds support for the following 9 objects:</p>
+<ul>
+<li>undefined</li>
+<li>NaN</li>
+<li>Date</li>
+<li>RegExp</li>
+<li>Error</li>
+<li>Map</li>
+<li>Set</li>
+<li>ArrayBuffer</li>
+<li>Typed arrays</li>
+</ul>
+<h1 id="Details"><a href="#Details" class="headerlink" title="Details"></a>Details</h1><p>First, let’s get a general idea of how Replicator serializes and deserializes those unsupported JSON objects. When trying to serialize a <em><strong>Set</strong></em> object for example, the following output will be generated:</p>
+<img src="/img/blogs/replicator/Image-1.png" style="width: 100%;"/>
+
+<p>The object <em><strong>Set</strong></em> was changed to a valid JSON with the key “@t” pointing to the type of the object inside the double brackets “[[<em><strong>type</strong></em>]]”, and the parameters passed to the object are under the “data” property.</p>
+<p>When researching these types of packages, it’s interesting to focus on the deserialization component since it is more likely that a user input would be string passed to the deserialization code rather than an object passing to the serialization code.</p>
+<p>After checking how the deserialization is implemented in the code, the first 8 types seemed safe. However, with further examination, we came across an issue at the last object type – <em><strong>TypeArray</strong></em>.</p>
+<img src="/img/blogs/replicator/Image-2.png" style="width: 100%;"/>
+
+<p>The function on the bottom is the one responsible for the deserialization. With that, let’s serialize one of the TypeArrays – <em><strong>Int8Array</strong></em>:</p>
+<img src="/img/blogs/replicator/Image-3.png" style="width: 100%;"/>
+
+<p>The property “ctorName” states the object name of the <em><strong>TypeArray</strong></em> and the “arr” is the object value. But the issue in the code is that there is no validation that the object name in “ctorName” is actually a <em><strong>TypeArray</strong></em> object. When serializing, on the other hand, there is a validation using the list “TYPED_ARRAY_CTORS” defined earlier.</p>
+<img src="/img/blogs/replicator/Image-4.png" style="height: 30%;width: 30%;"/>
+
+<p>Looking at the code shown before we can invoke “new” on every function under the GLOBAL object with our own parameters. Something like this:</p>
+<img src="/img/blogs/replicator/Image-5.png" style="width: 50%;"/>
+
+<p>From here, there are limitations that we need to bypass in order to achieve the code execution.</p>
+<ol>
+<li>From the “fromSerializable” function check, the “ctorName” must be a name of a function.</li>
+<li>The function must be a constructor.<ul>
+<li>Hence, we can’t just call “Eval” because it’s not a constructor.</li>
+</ul>
+</li>
+</ol>
+<img src="/img/blogs/replicator/Image-6.png" style="width: 70%;"/>
+
+<ol start="3">
+<li>Must be a direct descendent of the GLOBAL object.<ul>
+<li>It’s impossible to call a function like “child_process.exec(‘evilcode’)” because we control only the value inside the brackets</li>
+</ul>
+</li>
+</ol>
+<img src="/img/blogs/replicator/image-7.jpg" style="width: 100%;"/>
+
+<ol start="4">
+<li>Must be a valid JSON.<ul>
+<li>As mentioned before, Replicator wraps around JSON parse and stringify. Due to that, the input string given to the decode function gets “JSON.parse” before going into the problematic “fromSerializable” function. So, calling “setImmediate” / “setInterval” / “setTimeout” isn’t possible because it requires a callback function as an input and that isn’t JSON valid.</li>
+</ul>
+</li>
+</ol>
+<img src="/img/blogs/replicator/Image-9.png" style="width: 100%;"/>
+
+<p>The following payload will fail at JSON.parse before invoking a new setTimeout:</p>
+<img src="/img/blogs/replicator/Image-10.png" style="width: 100%;"/>
+
+<p>There is a way to pass a string (which is a JSON valid input) that will be converted to JavaScript code. Using a new “Function” will create an anonymous function with our payload, but it will not get executed.</p>
+<img src="/img/blogs/replicator/Image-11.png" style="width: 70%;"/>
+
+<p>At this point, it looks like we cannot go further, but there are still some security concerns and vulnerabilities despite the limitations:</p>
+<ul>
+<li>Calling an arbitrary function created by the application using replicator, which heavily depends on the application and the specific situation, something like:</li>
+</ul>
+<img src="/img/blogs/replicator/Image-12.png" style="width: 50%;"/>
+
+<ul>
+<li>Local file inclusion using “require” could lead to other vulnerabilities, such as: XSS, RCE, sensitive information disclosure, and more. This, as well, depends on the attack scenario.</li>
+</ul>
+<img src="/img/blogs/replicator/Image-13.png" style="width: 50%;"/>
+
+<ul>
+<li>Etc…</li>
+</ul>
+<p>After fuzzing and some more research, we asked ourselves what happens if we serialize a <em><strong>Set</strong></em> within a <em><strong>Set</strong></em>. What would that look like? Is it done recursively?</p>
+<img src="/img/blogs/replicator/Image-14.png" style="width: 100%;"/>
+
+<p>When understanding that the serialization/deserialization is done recursively, the payload to an RCE was around the corner. As mentioned before, we can create a new “Function”, but nothing will run it, and we can call “setTimeout,” but have to give it a function to execute.</p>
+<p>Combining these two, here is the final payload to trigger code execution:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">replicator.decode(<span class="string">&#x27;[&#123;&quot;@t&quot;:&quot;[[TypedArray]]&quot;,&quot;data&quot;:&#123;&quot;ctorName&quot;:&quot;setTimeout&quot;,&quot;arr&quot;:​&#123;&quot;@t&quot;:&quot;[[TypedArray]]&quot;,&quot;data&quot;:&#123;&quot;ctorName&quot;:&quot;Function&quot;,&quot;arr&quot;:&quot; process.mainModule.require(\&#x27;child_process\&#x27;).exec(\&#x27;calc\&#x27;);&quot;&#125;&#125;​&#125;&#125;]&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<img src="/img/blogs/replicator/Image-15.png" style="width: 100%;"/>
+
+<p>The inner object will create a function with the code input as a string, and the other object, “setTimeout”, receives the function as an argument and runs the code.</p>
+<p>Depends on the scope of the program, the shell exploit code could change. For example, in the picture above, the payload was: <code>require(\&#39;child_process\&#39;).exec(\&#39;calc\&#39;)</code> without <code>process.mainModule</code> because it was run in a REPL console.</p>
+<h1 id="Recommendations"><a href="#Recommendations" class="headerlink" title="Recommendations"></a>Recommendations</h1><p>To avoid issues like this, update the npm Replicator package to version 1.0.4 or later.</p>
+<h1 id="Summary-of-Disclosure-and-Events"><a href="#Summary-of-Disclosure-and-Events" class="headerlink" title="Summary of Disclosure and Events"></a>Summary of Disclosure and Events</h1><p>After discovering and validating the vulnerabilities, we notified npm of our findings and worked with them throughout the remediation process until they informed us the issues were appropriately patched. NPM’s responsiveness and professionalism throughout the process are commendable.</p>
+<h1 id="Timeline-of-Disclosure"><a href="#Timeline-of-Disclosure" class="headerlink" title="Timeline of Disclosure"></a>Timeline of Disclosure</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>March 24, 2021</td>
+<td>Vulnerability was reported responsibly</td>
+</tr>
+<tr>
+<td>March 24, 2021</td>
+<td>Checkmarx SCA customers using npm and Replicator were warned and provided mitigation guidance, * without exposing the technical details of the findings</td>
+</tr>
+<tr>
+<td>May 14, 2021</td>
+<td>Pull request to fix the issue was created</td>
+</tr>
+<tr>
+<td>May 17, 2021</td>
+<td>Fixed version 1.0.4 was released on NPM</td>
+</tr>
+<tr>
+<td>May 17, 2021</td>
+<td>Advisory with the full details was published on the Checkmarx advisory website</td>
+</tr>
+<tr>
+<td>December 15, 2022</td>
+<td>CVE-2021-33420 published</td>
+</tr>
+</tbody></table>
+<h1 id="Final-Words"><a href="#Final-Words" class="headerlink" title="Final Words"></a>Final Words</h1><p>Discovering vulnerabilities like the ones documented in this report is why the Checkmarx Security Research Team performs investigations into open source projects. With open source making up the vast majority of today’s commercial software, security vulnerabilities must be taken seriously and handled carefully across the industry.</p>
+<p>Solutions like <a target="_blank" rel="noopener" href="https://checkmarx.com/product/cxsca-open-source-scanning/">Checkmarx SCA</a> are essential in helping organizations identify, prioritize, and remediate open source vulnerabilities more efficiently to improve their overall software security risk posture. Checkmarx SCA customers receive notice of issues like the ones described above in advance of public disclosure. For more information or to speak to an expert about how to detect, prioritize, and remediate open source risks in your code, contact us.</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/inikulin/replicator/issues/16">Issue</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/inikulin/replicator/pull/17">Pull request</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/inikulin/replicator/commit/2c626242fb4a118855262c64b5731b2ce98e521b">Fixing Commit</a></li>
+<li><a target="_blank" rel="noopener" href="https://advisory.checkmarx.net/advisory/CX-2021-4787">Advisory</a></li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

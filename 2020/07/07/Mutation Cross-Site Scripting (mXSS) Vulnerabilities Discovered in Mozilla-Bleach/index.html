@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Mutation Cross-Site Scripting (mXSS) Vulnerabilities Discovered in Mozilla-Bleach - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Overview"><span class="toc-text">Overview</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Mutation-XSS-mXSS"><span class="toc-text">Mutation XSS (mXSS)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Vulnerability-CVE-2020-6802"><span class="toc-text">Vulnerability: CVE-2020-6802</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Vulnerability-CVE-2020-6816"><span class="toc-text">Vulnerability: CVE-2020-6816</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary-of-Disclosure-and-Events"><span class="toc-text">Summary of Disclosure and Events</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Bugzilla-Tickets"><span class="toc-text">Bugzilla Tickets</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline-of-Disclosure"><span class="toc-text">Timeline of Disclosure</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Final-Words"><span class="toc-text">Final Words</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-text">References</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Mutation Cross-Site Scripting (mXSS) Vulnerabilities Discovered in Mozilla-Bleach    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2020-07-07 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#python" title="python">python</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mozilla" title="mozilla">mozilla</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+        <span class="attr">/
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-6802" title="CVE-2020-6802">CVE-2020-6802</a>
+        <span>/</span>
+        
+        <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2020-6816" title="CVE-2020-6816">CVE-2020-6816</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://checkmarx.com/blog/vulnerabilities-discovered-in-mozilla-bleach/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>As part of the beta testing phase that took place earlier this year for our recently launched Software Composition Analysis solution, <a target="_blank" rel="noopener" href="https://www.checkmarx.com/product/cxsca-open-source-scanning/">CxSCA</a>, the Checkmarx Security Research Team investigated Mozilla-Bleach, finding multiple concerning security vulnerabilities. Patches were released in mid-March 2020, with Checkmarx CxSCA customers using Bleach receiving notice of the issues in advance. Given that the patches have been in-market for some time, giving Bleach users sufficient time to update their software versions, we’re now publishing the full technical report and <a target="_blank" rel="noopener" href="https://youtu.be/cJZg3qj7sz0">proof-of-concept</a> video for educational purposes.</p>
+<h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p>According to documentation, “Bleach is an allowed-list-based HTML sanitizing library that escapes or strips markup and attributes and is intended for sanitizing text from untrusted sources.” In simpler terms, Bleach is a very user-friendly HTML sanitizer, and its main purpose is to disallow arbitrary tags to run (e.g., JavaScript (JS) tags and attributes to prevent cross-site scripting (XSS)). After a bit of fuzzing and using some different approaches, Checkmarx researchers discovered the possibility that a mutation XSS (mXSS) vulnerability may exist. With further digging, these suspicions were confirmed, and several mXSS vulnerabilities were discovered in the Mozilla-Bleach python package. An attacker abusing these vulnerabilities would have the ability to execute an arbitrary JavaScript code on the user end, via various sites or projects that use Bleach.</p>
+<h1 id="Mutation-XSS-mXSS"><a href="#Mutation-XSS-mXSS" class="headerlink" title="Mutation XSS (mXSS)"></a>Mutation XSS (mXSS)</h1><p>A mXSS vulnerability occurs when there is incoherent parsing between the client and the sanitizer. To understand this better, the following example should help. Let’s see how a standard browser interprets invalid HTML. When we enter the data below into the innerHTML of the page:</p>
+<img src="/img/blogs/mozilla-bleach/Image-1.png" style="width: 100%;"/>
+
+<p>The browser will modify the data to make it valid html. In this case, this is what the output looks like:</p>
+<img src="/img/blogs/mozilla-bleach/Image-2.png" style="width: 100%;"/>
+
+<p>Now let’s try to change the <strong>div</strong> tag to a different type of tag, for example:</p>
+<img src="/img/blogs/mozilla-bleach/Image-3.png" style="width: 100%;"/>
+
+<p>Doing so will generate the result below:</p>
+<img src="/img/blogs/mozilla-bleach/Image-4.png" style="width: 100%;"/>
+
+<p>Both examples act differently because the data inside the tags are parsed differently according to the tag type. Now, imagine the parser goes from left to right. In the first case, after entering the <em><strong>div</strong></em> tag, the parser stays as html and opens an <em><strong>a</strong></em> tag with the title attribute (because the “closing” <em><strong>div</strong></em> tag is text in an attribute, it will not close the tag). In the second case, when the parser enters the <em><strong>style</strong></em> tag, it changes to CSS parser, which means no <em><strong>a</strong></em> tag is created, and the <em><strong>style</strong></em> tag will be closed where the attribute was supposed to be. So, how can this information help us in finding vulnerabilities? Imagine a tag that parses differently in different cases, for example, the <em><strong>noscript</strong></em> tag. The trick here is that the <em><strong>noscript</strong></em> tag in HTML is treated differently, whether JavaScript (JS) is enabled or disabled. When JS is enabled, the data inside the tag is parsed as JS. But, when it’s disabled, the data is parsed as html. In nearly all cases, JS is enabled in browsers. Let’s take a look at how the following input is being interpreted with, and without, JS enabled:</p>
+<img src="/img/blogs/mozilla-bleach/Image-5.png" style="width: 100%;"/>
+
+<p>Here, JS is disabled:</p>
+<img src="/img/blogs/mozilla-bleach/Image-6.png" style="width: 100%;"/>
+
+<p>Here, JS is enabled:</p>
+<img src="/img/blogs/mozilla-bleach/Image-7.png" style="width: 100%;"/>
+
+<h1 id="Vulnerability-CVE-2020-6802"><a href="#Vulnerability-CVE-2020-6802" class="headerlink" title="Vulnerability: CVE-2020-6802"></a>Vulnerability: CVE-2020-6802</h1><p>When we tried to pass the above input to Bleach, it sanitized the ‘<em><strong>&lt;</strong></em>‘ characters in the attribute, but also it closed the <em><strong>a</strong></em> tag! This means that it parsed the data in <em><strong>noscript</strong></em> as html.</p>
+<img src="/img/blogs/mozilla-bleach/Image-8.png" style="width: 100%;"/>
+
+<p>In this case, the only thing left is to avoid this sanitization. If that wasn’t enough of a challenge, we attempted to enter another parsing into the equation.</p>
+<img src="/img/blogs/mozilla-bleach/Image-9.png" style="width: 100%;"/>
+
+<p>This provided the outcome we were anticipating. <strong>Sanitizer view</strong>: Enters <em><strong>noscript</strong></em> and the parser is <strong>HTML</strong>, opens a <em><strong>style</strong></em> tag, and starts parsing as CSS (or raw text). Everything after the <em><strong>style</strong></em> tag isn’t parsed as html, so from the sanitizer’s viewpoint, there is no closing <em><strong>noscript</strong></em> tag nor <em><strong>img</strong></em> tag. <strong>Browser view</strong>: Enters <em><strong>noscript</strong></em> and the parser is changed to JavaScript. Now the <em><strong>“&lt;style&gt;”</strong></em> is just text, not a tag. As you can see, the closing tag, in this case, actually closes the <em><strong>noscript</strong></em> tag, and from there, everything is html. The conditions to successful exploitation are: <em><strong>noscript</strong></em> tag allowed as well as html comments, or one of the following tags: <em><strong>title, textarea, script, style, noembed, noframes, iframe, xmp</strong></em>.</p>
+<h1 id="Vulnerability-CVE-2020-6816"><a href="#Vulnerability-CVE-2020-6816" class="headerlink" title="Vulnerability: CVE-2020-6816"></a>Vulnerability: CVE-2020-6816</h1><p>Shortly after, the Checkmarx Security Research Team discovered another mXSS vulnerability in Mozilla-Bleach, this time with the use of <em><strong>svg/math</strong></em> tags. The caveat here is that the parsing inside those tags is like XML. So, if we enter, for example, a <em><strong>style</strong></em> tag, the data inside will act differently, whether inside or outside. Inside an <em><strong>svg</strong></em> tag:</p>
+<img src="/img/blogs/mozilla-bleach/Image-10.png" style="width: 40%;"/>
+
+<p>Without an <em><strong>svg</strong></em> tag:</p>
+<img src="/img/blogs/mozilla-bleach/Image-11.png" style="width: 100%;"/>
+
+<p>This shows how differently the data inside the <em><strong>style</strong></em> tag is being parsed. In addition, some unwanted tags inside the <em><strong>svg/math</strong></em> will automatically pop out of the <em><strong>svg/math</strong></em> and will be parsed as HTML (e.g., <em><strong>&lt;img&gt;</strong></em>). When the team tried to put a malicious img tag in <em><strong>svg/math-&gt;style-&gt;img</strong></em>, Bleach acted strangely. In case the <em><strong>img</strong></em> tag was whitelisted, it parsed it like the browser and sanitized unwanted attributes as expected. And when the <strong>“strip”</strong> variable was set to true (meaning it will delete unwanted data instead of sanitizing it, default is false), it got deleted. But in case <strong>“strip”</strong> was not changed, we could use any tag that wasn’t allowed and bypass Bleach.</p>
+<img src="/img/blogs/mozilla-bleach/Image-11.png" style="width: 100%;"/>
+
+<p>After further investigation, we saw that html5lib (the parser behind Bleach) does recognize the data inside <em><strong>svg-&gt;style</strong></em> as tags. But for some reason, Bleach doesn’t sanitize unwanted tags.</p>
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>According to GitHub, more than 72,000 repositories are dependent on Bleach. Among them are major vendors, including multiple Fortune 500 tech companies.</p>
+<h1 id="Summary-of-Disclosure-and-Events"><a href="#Summary-of-Disclosure-and-Events" class="headerlink" title="Summary of Disclosure and Events"></a>Summary of Disclosure and Events</h1><p>When the first vulnerability was discovered, our research team ensured that they could reproduce the process of exploiting it. Once that was confirmed, the Checkmarx team responsibly notified Mozilla of their findings. Subsequently, they opened a Bugzilla ticket where the team helped Mozilla find a proper mitigation approach, and they fixed the issue rapidly. Soon after that, the second vulnerability was discovered by the research team. Again, a responsible notification was sent to Mozilla, and a Bugzilla ticket was quickly opened and resolved. Checkmarx customers using CxSCA were automatically notified to update Mozilla-Bleach.</p>
+<h1 id="Bugzilla-Tickets"><a href="#Bugzilla-Tickets" class="headerlink" title="Bugzilla Tickets"></a>Bugzilla Tickets</h1><ul>
+<li>CVE-2020-6802 - <a target="_blank" rel="noopener" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1615315">https://bugzilla.mozilla.org/show_bug.cgi?id=1615315</a> </li>
+<li>CVE-2020-6816 - <a target="_blank" rel="noopener" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1621692">https://bugzilla.mozilla.org/show_bug.cgi?id=1621692</a></li>
+</ul>
+<h1 id="Timeline-of-Disclosure"><a href="#Timeline-of-Disclosure" class="headerlink" title="Timeline of Disclosure"></a>Timeline of Disclosure</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>13-Feb-2020</td>
+<td>First vulnerability reported</td>
+</tr>
+<tr>
+<td>14-Feb-2020</td>
+<td>Checkmarx customers who were using Bleach were warned, without exposing the vulnerability’s details</td>
+</tr>
+<tr>
+<td>19-Feb-2020</td>
+<td>Fixed version v3.1.1 and an advisory on GitHub was released</td>
+</tr>
+<tr>
+<td>25-Feb-2020</td>
+<td>CVE-2020-6802 was assigned</td>
+</tr>
+<tr>
+<td>11-Mar-2020</td>
+<td>Second vulnerability reported</td>
+</tr>
+<tr>
+<td>11-Mar-2020</td>
+<td>Checkmarx customers who were using Bleach were warned, without exposing the vulnerability’s details</td>
+</tr>
+<tr>
+<td>17-Mar-2020</td>
+<td>Fixed version v3.1.2 and an advisory on GitHub was released</td>
+</tr>
+<tr>
+<td>19-Mar-2020</td>
+<td>CVE-2020-6816 was assigned</td>
+</tr>
+</tbody></table>
+<h1 id="Final-Words"><a href="#Final-Words" class="headerlink" title="Final Words"></a>Final Words</h1><p>Discovering vulnerabilities like the ones documented in this report is why the Checkmarx Security Research Team performs investigations into open source packages. With open source making up the vast majority of today’s commercial software projects, security vulnerabilities must be taken seriously and handled more carefully across the industry. Solutions like CxSCA are essential in helping organizations identify, prioritize, and remediate open source vulnerabilities more efficiently to improve their overall software security risk posture.</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://owasp.org/www-community/attacks/xss/">XSS</a> </li>
+<li><a target="_blank" rel="noopener" href="https://cure53.de/fp170.pdf">mXSS</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/mozilla/bleach/security/advisories/GHSA-q65m-pv3f-wr5r">CVE-2020-6802 advisory</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/mozilla/bleach/security/advisories/GHSA-m6xf-fq7q-8743">CVE-2020-6816 advisory</a></li>
+<li><a target="_blank" rel="noopener" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1615315">CVE-2020-6802 Bugzilla ticket</a> </li>
+<li><a target="_blank" rel="noopener" href="https://bugzilla.mozilla.org/show_bug.cgi?id=1621692">CVE-2020-6816 Bugzilla ticket</a> </li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
