@@ -10,6 +10,8 @@ advisory: true
 origin: https://advisory.checkmarx.net/advisory/CX-2021-4305/
 cves:
 	- "CVE-2021-27516"
+ghsas:
+  - "GHSA-p6j9-7xhc-rhwp"
 ---
 ## Summary
 Affected versions of urijs fails to validate the hostname correctly when using backslash in the protocol e.g. `http:\/`.

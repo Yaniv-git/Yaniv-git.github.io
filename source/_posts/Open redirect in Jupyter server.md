@@ -8,6 +8,8 @@ advisory: true
 origin: https://advisory.checkmarx.net/advisory/CX-2020-4291/
 cves:
 	- "CVE-2020-26275"
+ghsas:
+	- "GHSA-9f66-54xg-pc2c"
 ---
 ## Summary
 The Jupyter Server provides the backend (i.e. the core services, APIs, and REST endpoints) for Jupyter web applications like Jupyter notebook, JupyterLab, and Voila. Affected versions of Jupyter Server are vulnerable to open redirect vulnerability. All jupyter servers running without a base_url prefix are technically affected, however, these maliciously crafted links can only be reasonably made for known jupyter server hosts.

@@ -26,12 +26,16 @@ layout: layout
             </p>
         </div>
         <div class="post-cve">
-            <% if (post?.cves?.length > 0){ %>
-            <span>/</span>
-            <% post.cves.forEach(function(cve){ %>
-            <a class="tag" href="https://nvd.nist.gov/vuln/detail/<%= cve %>" title="<%= cve %>"><%= cve %></a>
-            <span>/</span>
-            <% }) %>
+            <% if (post?.cves?.length || post?.ghsas?.length){ %>
+                <span>/</span>
+                <% post?.cves?.forEach(function(cve){ %>
+                <a href="https://nvd.nist.gov/vuln/detail/<%= cve %>" title="<%= cve %>"><%= cve %></a>
+                    <span>/</span>
+                <% }) %>
+                <% post?.ghsas?.forEach(function(ghsa){ %>
+                    <a href="https://github.com/advisories/<%= ghsa %>" title="<%= ghsa %>"><%= ghsa %></a>
+                    <span>/</span>
+                <% }) %>
             <% } %>
         </div> 
     </div>

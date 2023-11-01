@@ -6,7 +6,7 @@ comments: false
 ---
 # Who am I?
 
-Starting my way as a Software Engineer, I transitioned into the realm of Cyber-Security during my service in the IDF's 8200 unit, where I gained experience in both offensive and defensive cybersecurity tactics. Since entering the industry as a Security Researcher, my primary area of expertise now centers on conducting hands-on research related to cod, where I had the privilege of sharing my findings with the broader cybersecurity community.
+Starting my way as a Software Engineer, I transitioned into the realm of cyber security during my service in the IDF’s 8200 unit, where I gained experience in both offensive and defensive cybersecurity tactics. Since entering the industry as a Security Researcher, my primary area of expertise now centers on conducting hands-on research related to code, where I had the privilege of sharing my findings with the broader cybersecurity community.
 
 # Socials
 * [Twitter (x)](https://twitter.com/YNizry)

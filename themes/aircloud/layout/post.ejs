@@ -18,14 +18,20 @@
         <% } %>
         
 
-        <% if (page?.cves?.length){ %>
-        <span class="attr">/
-        <% page.cves.forEach(function(cve){ %>
-        <a href="https://nvd.nist.gov/vuln/detail/<%= cve %>" title="<%= cve %>"><%= cve %></a>
-        <span>/</span>
-        <% }) %>
-        </span>
+        <% if (page?.cves?.length || page?.ghsas?.length){ %>
+            <span class="attr">/
+            <% page?.cves?.forEach(function(cve){ %>
+                <a href="https://nvd.nist.gov/vuln/detail/<%= cve %>" title="<%= cve %>"><%= cve %></a>
+                    <span>/</span>
+            <% }) %>
+            <% page?.ghsas?.forEach(function(ghsa){ %>
+                <a href="https://github.com/advisories/<%= ghsa %>" title="<%= ghsa %>"><%= ghsa %></a>
+                <span>/</span>
+                <% }) %>
+            </span>
         <% } %>
+
+
         
         <!--<span class="attr"><%= __('post.visit') %>：<span id="busuanzi_value_page_pv"></span>-->
     </span>
