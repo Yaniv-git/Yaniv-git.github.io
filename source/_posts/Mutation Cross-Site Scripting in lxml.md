@@ -5,6 +5,7 @@ tags:
 	- "python"
 	- "xss"
 	- "mxss"
+	- "bypass"
 advisory: true
 origin: https://advisory.checkmarx.net/advisory/CX-2020-4286/
 cves:

@@ -6,6 +6,7 @@ tags:
 	- "mozilla"
 	- "xss"
 	- "mxss"
+	- "bypass"
 advisory: false
 origin: https://checkmarx.com/blog/vulnerabilities-discovered-in-mozilla-bleach/
 cves:

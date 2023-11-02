@@ -6,6 +6,7 @@ tags:
 	- "mozilla"
 	- "xss"
 	- "mxss"
+	- "bypass"
 advisory: true
 origin: https://advisory.checkmarx.net/advisory/CX-2021-4303/
 cves:
