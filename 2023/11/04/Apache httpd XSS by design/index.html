@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Apache httpd Stored XSS by design - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#TL-DR"><span class="toc-text">TL;DR</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Content-type"><span class="toc-text">Content-type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Content-type-Sniffing"><span class="toc-text">Content-type Sniffing</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Apache%E2%80%99s-response"><span class="toc-text">Apache’s response</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-text">References</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Apache httpd Stored XSS by design    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2023-11-04 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#content-type" title="content-type">content-type</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#apache" title="apache">apache</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Approximately one year ago in 2022, I took part in a Capture The Flag (CTF) challenge with the objective of achieving Remote Code Execution (RCE). While tackling the challenge, I observed an unusual behavior that allowed for a Stored Cross-Site Scripting (XSS) attack by uploading a file, regardless of its extension. Upon closer investigation, I uncovered that the <em>“quirk”</em> was rooted in the Apache HTTP Server.</p>
+<h1 id="TL-DR"><a href="#TL-DR" class="headerlink" title="TL;DR"></a>TL;DR</h1><p>By default, Apache httpd does not include the “no-sniff” header, <code>X-Content-Type-Options: nosniff</code>, and it does not perform automatic content type detection for files that lack a name or have only dots as their name, regardless of the file extension. For instance, a file named <code>.jpg</code> or <code>...jpg</code> would serve without any content type causing the browser to <em>“sniff”</em> the content, unlike files such as <code>test.jpg</code> which will result in <code>Content-type: image/jpeg</code>. This means that if an attacker has the capability to upload a file with no name or a name consisting solely of dots, it becomes possible to exploit a stored XSS vulnerability, regardless of the file extension’s constraints.</p>
+<img src="/img/blogs/httpd/Image-1.png" style="width: 100%;"/>
+
+<h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><h2 id="Content-type"><a href="#Content-type" class="headerlink" title="Content-type"></a>Content-type</h2><p>In HTTP (Hypertext Transfer Protocol), the <code>Content-Type</code> header is used to indicate the media type or MIME (Multipurpose Internet Mail Extensions) type of the data that is being sent in the HTTP response. It specifies the format of the content being returned by the server so that the client (e.g., a web browser) knows how to properly interpret and display the data.</p>
+<p>Here are some examples of common media types:</p>
+<ul>
+<li><code>text/html</code>: Indicates that the content is HTML text.</li>
+<li><code>text/plain</code>: Indicates that the content is plain text.</li>
+<li><code>application/json</code>: Indicates that the content is JSON data.</li>
+<li><code>application/xml</code>: Indicates that the content is XML data.</li>
+<li><code>image/jpeg</code>, <code>image/png</code>, <code>image/gif</code>: Indicate that the content is an image in various formats.</li>
+</ul>
+<p>This header is crucial for the client to interpret the received data correctly. If the client doesn’t recognize or support the specified Content-Type, it may not be able to process the content as intended.</p>
+<h2 id="Content-type-Sniffing"><a href="#Content-type-Sniffing" class="headerlink" title="Content-type Sniffing"></a>Content-type Sniffing</h2><p>Content-Type sniffing, is a behavior that web browsers and other user agents sometimes exhibit when they receive a resource with an ambiguous or missing Content-Type header. Content-Type sniffing involves the user agent trying to determine the media type of the resource by inspecting its actual content. </p>
+<p>The purpose of content-type sniffing is to improve the user experience by attempting to render the content in a way that makes sense to the user. However, it can also introduce security risks. For example, if an attacker can control the content of a resource and trick the browser into interpreting it as a different media type, and might lead to security vulnerabilities.</p>
+<p>To mitigate these risks, modern browsers provide web developers the ability to to disable content sniffing by adding the header: <code>X-Content-Type-Options: nosniff</code>.</p>
+<p>Content-Type sniffing should not be relied upon for determining the media type of a resource. Instead, it’s best practice to always set the correct Content-Type header on the server side to ensure that the browser and other user agents can correctly process the content.</p>
+<h1 id="Apache’s-response"><a href="#Apache’s-response" class="headerlink" title="Apache’s response"></a>Apache’s response</h1><p>After reaching the maintainers of Apache httpd, they replied that this is the expected behavior of <a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/2.4/mod/mod_mime.html">mod_mime</a> (the component that generates a content-type according to a file).</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options">X-Content-Type-Options</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">Content-Type</a></li>
+<li><a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/2.4/mod/mod_mime.html">mod_mime</a></li>
+<li><a target="_blank" rel="noopener" href="https://twitter.com/YNizry/status/1582733545759330306">Tweet</a></li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
