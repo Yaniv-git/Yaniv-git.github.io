@@ -63,7 +63,7 @@
 
 
 
-<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
 </head>
 
 <body>
@@ -209,7 +209,7 @@
     </div>
     <div class="post-content no-indent">
         <h2 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h2><p>Vendure provides an authorization system with different levels of privileges. For example, an administrator cannot create another administrator.</p>
-<p>In the admin UI, there are a couple of places with description inputs, such as inventory/collection catalog, shipping methods, promotions, and more.</p>
+<p>In the admin UI, there are a couple of places with description inputs, such as inventory&#x2F;collection catalog, shipping methods, promotions, and more.</p>
 <p>While the WYSIWYG editor allows limited customization, altering the request data (not in the ui) saves and returns arbitrary HTML with no sanitization. Causing an XSS when viewing the page.</p>
 <p>The impact of this XSS is privilege escalation. A user that can write any type of description can trigger the attack. Then any other user that visits the vulnerable page is prone to arbitrary Javascript code execution, giving the attacker ability to execute actions on behalf of this user.</p>
 <h1 id="Patches"><a href="#Patches" class="headerlink" title="Patches"></a>Patches</h1><p>Update to versions 2.0.3 or above.</p>
@@ -217,7 +217,7 @@
 <h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p>Are there any links users can visit to find out more?</p>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/vendure-ecommerce/vendure/security/advisories/GHSA-gm68-572p-q28r">GHSA-gm68-572p-q28r</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/vendure-ecommerce/vendure/commit/0cdc92b241e6fd4017ddfc9fbdca189fc7c1ada0">vendure-ecommerce/vendure@0cdc92b</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/vendure-ecommerce/vendure/commit/0cdc92b241e6fd4017ddfc9fbdca189fc7c1ada0">vendure-ecommerce&#x2F;vendure@0cdc92b</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/vendure-ecommerce/vendure/blob/master/CHANGELOG.md#203-2023-07-04">https://github.com/vendure-ecommerce/vendure/blob/master/CHANGELOG.md#203-2023-07-04</a></li>
 </ul>
 

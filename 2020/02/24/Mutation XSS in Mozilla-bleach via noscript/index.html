@@ -63,7 +63,7 @@
 
 
 
-<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
 </head>
 
 <body>
@@ -221,7 +221,7 @@
 <p>This occurs due to bleach utilizing its parser, html5lib, with <code>scripting=False</code>. In this case, the data of the noscript tags will be parsed as HTML, while the browser parses them as rawdata.<br>This can cause arbitrary HTML and JavaScript codes to run on the victim’s browser.</p>
 <h2 id="Product"><a href="#Product" class="headerlink" title="Product"></a>Product</h2><p>Bleach before 3.1.1</p>
 <h2 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h2><p>According to GitHub, more than 72,000 repositories are dependent on Bleach. Among them are major vendors, including multiple Fortune 500 tech companies.</p>
-<h2 id="Steps-to-reproduce"><a href="#Steps-to-reproduce" class="headerlink" title="Steps to reproduce"></a>Steps to reproduce</h2><figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt;</span> <span class="python"><span class="keyword">import</span> bleach</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt;</span> <span class="python">bleach.clean(<span class="string">&#x27;&lt;noscript&gt;&lt;style&gt;&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;&#x27;</span>, tags=[<span class="string">&quot;noscript&quot;</span>,<span class="string">&quot;style&quot;</span>])</span></span><br></pre></td></tr></table></figure>
+<h2 id="Steps-to-reproduce"><a href="#Steps-to-reproduce" class="headerlink" title="Steps to reproduce"></a>Steps to reproduce</h2><figure class="highlight python-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">&gt;&gt;&gt;</span> <span class="language-python"><span class="keyword">import</span> bleach</span></span><br><span class="line"><span class="meta prompt_">&gt;&gt;&gt;</span> <span class="language-python">bleach.clean(<span class="string">&#x27;&lt;noscript&gt;&lt;style&gt;&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;&#x27;</span>, tags=[<span class="string">&quot;noscript&quot;</span>,<span class="string">&quot;style&quot;</span>])</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="Expected-result"><a href="#Expected-result" class="headerlink" title="Expected result:"></a>Expected result:</h3><p><code>&lt;noscript&gt;&lt;style&gt;&lt;/noscript&gt;&lt;img src=x onerror=alert(1)&gt;&lt;/style&gt;&lt;/noscript&gt;</code></p>
 <h2 id="Remediation"><a href="#Remediation" class="headerlink" title="Remediation"></a>Remediation</h2><p>Update bleach dependency to 3.1.1 and above</p>

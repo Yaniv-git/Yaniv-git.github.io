@@ -63,7 +63,7 @@
 
 
 
-<meta name="generator" content="Hexo 5.4.2"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
 </head>
 
 <body>
@@ -219,7 +219,7 @@
     <div class="post-content no-indent">
         <h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>Affected versions of urijs fails to validate the hostname correctly when using backslash in the protocol e.g. <code>http:\/</code>.<br>Browsers accept backslashes after the protocol, and treat it as a normal slash, while urijs sees it as a relative path.</p>
 <h2 id="Product"><a href="#Product" class="headerlink" title="Product"></a>Product</h2><p>urijs before 1.19.6.</p>
-<h2 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h2><p>Depending on library usage and attacker intent, impacts may include allow/block list bypasses, SSRF attacks, open redirects, or other undesired behavior.</p>
+<h2 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h2><p>Depending on library usage and attacker intent, impacts may include allow&#x2F;block list bypasses, SSRF attacks, open redirects, or other undesired behavior.</p>
 <h2 id="Steps-to-reproduce"><a href="#Steps-to-reproduce" class="headerlink" title="Steps to reproduce"></a>Steps to reproduce</h2><figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var URI = require(&#x27;urijs&#x27;)<span class="comment">;</span></span><br><span class="line">URI(&#x27;http<span class="symbol">:/</span>\www.google.com&#x27;)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="Expected-result"><a href="#Expected-result" class="headerlink" title="Expected result:"></a>Expected result:</h3><p>the url would be relative without a hostname:</p>
