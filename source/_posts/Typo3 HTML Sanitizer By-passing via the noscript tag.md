@@ -1,5 +1,5 @@
 ---
-title: "By-passing Cross-Site Scripting Protection in HTML Sanitizer"
+title: "Typo3 HTML Sanitizer By-passing via the noscript tag"
 date: 2023-07-26
 tags:
 	- "xss"
@@ -16,7 +16,7 @@ ghsas:
 Due to an encoding issue in the serialization layer, malicious markup nested in a noscript element was not encoded correctly. noscript is disabled in the default configuration, but might have been enabled in custom scenarios. This allows bypassing the cross-site scripting mechanism of typo3/html-sanitizer.
 
 # Solution
-Update to typo3/html-sanitizer versions 1.5.1 or 2.1.2 that fix the problem described.
+Update to `typo3/html-sanitizer` versions 1.5.1 or 2.1.2 that fix the problem described.
 
 # Credits
 Thanks to David Klein and Yaniv Nizry who reported this issue, and to TYPO3 security team members Oliver Hader and Benjamin Franzke who fixed the issue.
