@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        PHP HTML parser differential due to libxml2 lack of HTML5 support - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 16px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="iconfont icon-shouye1"></i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="iconfont icon-biaoqian1"></i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="iconfont icon-guidang2"></i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="iconfont icon-guanyu2"></i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="iconfont icon-sousuo1"></i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PoC"><span class="toc-text">PoC</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Comments"><span class="toc-text">1. Comments:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-RCDATA-RAWTEXT-elements"><span class="toc-text">2. RCDATA&#x2F;RAWTEXT elements</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Foreign-content-elements"><span class="toc-text">3. Foreign content elements</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-DOCTYPE-element"><span class="toc-text">4. DOCTYPE element</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Recommendation"><span class="toc-text">Recommendation</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        PHP HTML parser differential due to libxml2 lack of HTML5 support    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2023-11-28 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#bypass" title="bypass">bypass</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#parser differential" title="parser differential">parser differential</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>The default HTML parser of PHP uses the underlying package libxml2 (<a target="_blank" rel="noopener" href="https://github.com/php/php-src/blob/master/ext/dom/document.c#L1920">for example here</a>). Libxml2 doesn’t <a target="_blank" rel="noopener" href="https://gitlab.gnome.org/GNOME/libxml2/-/issues/211">currently support</a> HTML5 parsing, and while it is undergoing process, after contacting them about this matter they said it will take a while before implementing this feature. This means that the built-in HTML parser of PHP behind <a target="_blank" rel="noopener" href="https://www.php.net/manual/en/domdocument.loadhtml.php">loadHTML</a>, <a target="_blank" rel="noopener" href="https://www.php.net/manual/en/class.domimplementation.php">DOMImplementation</a>, etc. does not follow the same parsing rules as modern web browsers.<br>This behaviour becomes security-relevant when HTML sanitizers use the built-in HTML parser.<br>We have come across multiple PHP sanitizers that are vulnerable to bypasses due to using the built-in parser, and we think that the root cause can’t be addressed without significant changes by libxml2.</p>
+<h3 id="PoC"><a href="#PoC" class="headerlink" title="PoC"></a>PoC</h3><p>Here are some examples of how attackers can leverage these parsing differentials in order to bypass sanitizers.</p>
+<h4 id="1-Comments"><a href="#1-Comments" class="headerlink" title="1. Comments:"></a>1. Comments:</h4><p>According to the <a target="_blank" rel="noopener" href="https://www.w3.org/TR/xml/#sec-comments">XML specification</a> (XHTML), comments must end with the characters <code>—&gt;</code>. On the other hand, the <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/multipage/syntax.html#comments">HTML specification</a> states that a comment’s text “must not start with the string <code>&gt;</code>, nor start with the string <code>-&gt;</code>”.<br>When parsing the following string in a browser, the comment will end before the <code>p</code> tag. But when parsing with PHP the <code>p</code> tag will be considered <code>a</code> comment:</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Input: &lt;!--&gt;<span class="language-xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">Browser (HTML specification) output: <span class="comment">&lt;!----&gt;</span></span><span class="language-xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">PHP parser (XHTML specification) output: <span class="comment">&lt;!--&gt;</span></span><span class="language-xml"><span class="comment">&lt;p&gt;--&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>This can be done with either <code>&lt;!--&gt;</code> or <code>&lt;!---&gt;</code>.<br>An attacker can input the following payload <code>&lt;!--&gt;&lt;xss&gt;--&gt;</code>. While the parser considers the xss tag as a comment, the browser will end the comment right before and render the xss tag as expected.</p>
+<h4 id="2-RCDATA-RAWTEXT-elements"><a href="#2-RCDATA-RAWTEXT-elements" class="headerlink" title="2. RCDATA&#x2F;RAWTEXT elements"></a>2. RCDATA&#x2F;RAWTEXT elements</h4><p>In <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#parsing-html-fragments">HTML5</a>, other element parsing types were introduced: </p>
+<ul>
+<li>RCDATA<ul>
+<li>textarea</li>
+<li>title</li>
+</ul>
+</li>
+<li>RAWTEXT<ul>
+<li>noframes</li>
+<li>noembed</li>
+<li>iframe</li>
+<li>xmp</li>
+<li>style</li>
+</ul>
+</li>
+<li>OTHERS<ul>
+<li>noscript - depends if <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#the-noscript-element">scripting</a> is enabled (enabled by default in browsers).</li>
+<li>plaintext</li>
+<li>script</li>
+</ul>
+</li>
+</ul>
+<p>While the PHP’s parser is oblivious to that. There are multiple ways an attacker can bypass a sanitizer due to wrong parsing such as:</p>
+<ul>
+<li><code>&lt;iframe&gt;&lt;!--&lt;/iframe&gt;&lt;xss&gt;--&gt;&lt;/iframe&gt;</code></li>
+<li><code>&lt;noframes&gt;&lt;style&gt;&lt;/noframes&gt;&lt;xss&gt;&lt;/style&gt;&lt;/noframes&gt;</code></li>
+<li>…</li>
+</ul>
+<h4 id="3-Foreign-content-elements"><a href="#3-Foreign-content-elements" class="headerlink" title="3. Foreign content elements"></a>3. Foreign content elements</h4><p>HTML5 introduced two foreign elements (<a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#mathml">math</a> and <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#svg-0">svg</a>) which follow different parsing specifications than HTML. Again parsing with PHP doesn’t take it into account, causing other parsing differentials and sanitizers bypass such as:</p>
+<ul>
+<li><code>&lt;svg&gt;&lt;p&gt;&lt;style&gt;&lt;!--&lt;/style&gt;&lt;xss&gt;--&gt;&lt;/style&gt;</code> </li>
+<li>…</li>
+</ul>
+<h4 id="4-DOCTYPE-element"><a href="#4-DOCTYPE-element" class="headerlink" title="4. DOCTYPE element"></a>4. DOCTYPE element</h4><p>The <code>!DOCTYPE</code> <a target="_blank" rel="noopener" href="https://www.w3.org/TR/xml/#NT-doctypedecl">element in XML&#x2F;XHTML</a> is more complex allowing more characters and element nesting than in <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#the-doctype">HTML5</a>. In contrast, the HTML doctype ends with the <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#doctype-state">first occurrence</a> of the “greater than” sign <code>&gt;</code>.<br>Parsing the following string will render an xss tag in the browser but not in PHP:</p>
+<ul>
+<li><code>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTDHTML4.01//EN&quot; &quot;&gt;&lt;xss&gt;&quot;&gt;</code> </li>
+<li><code>&lt;!DOCTYPE HTML SYSTEM &quot;&gt;&lt;xss&gt;&quot;&gt;</code></li>
+</ul>
+<h3 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h3><p>Sanitizers using the built-in PHP parser are inherently vulnerable to bypass due to wrong parsing.</p>
+<h3 id="Recommendation"><a href="#Recommendation" class="headerlink" title="Recommendation"></a>Recommendation</h3><p>This issue is <a target="_blank" rel="noopener" href="https://wiki.php.net/rfc/domdocument_html5_parser">known</a> but isn’t clear for users of PHP, after this report the PHP team added a red warning to the documentation:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/en/domdocument.loadhtml.php">loadhtml</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/en/domdocument.loadhtmlfile.php">loadhtmlfile</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/php/doc-en/commit/4ef716f8aa753e1189b2e57c91da378b16d970b0">Commit</a></li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
