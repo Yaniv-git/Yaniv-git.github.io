@@ -12,7 +12,7 @@
         <ul>
             <li <% if(is_home()){ %> <%- "class=active" %> <% } %>>
                 <a href="<%= url_for(config.home_dir || '/') %>">
-                    <i class="iconfont icon-shouye1"></i>
+                    <i class="material-icons googleicon">home</i>
                     <span><%= __('nav.home') %></span>
                 </a>
             </li>
@@ -24,26 +24,26 @@
             </li>
             <li <% if(is_current('tags')){ %> <%- "class=active" %> <% } %>>
                 <a href="<%= url_for(config.tag_dir) %>">
-                    <i class="iconfont icon-biaoqian1"></i>
+                    <i class="material-icons googleicon">label</i>
                     <span><%= __('nav.tags') %></span>
                 </a>
             </li>
             <li <% if(is_current('archive')){ %> <%- "class=active" %> <% } %>>
                 <a href="<%= url_for(config.archive_dir) %>">
-                    <i class="iconfont icon-guidang2"></i>
+                    <i class="material-icons googleicon">archive</i>
                     <span><%= __('nav.archives') %></span>
                 </a>
             </li>
             <li <% if(is_current('about')){ %> <%- "class=active" %> <% } %>>
                 <a href="<%= config.root %><%- 'about/' %>">
-                    <i class="iconfont icon-guanyu2"></i>
+                    <i class="material-icons googleicon">person</i>
                     <span><%= __('nav.about') %></span>
                 </a>
             </li>
             <%if(config.search && config.search.path){%>
             <li>
                 <a id="search">
-                    <i class="iconfont icon-sousuo1"></i>
+                    <i class="material-icons googleicon">search</i>
                     <span><%= __('nav.search') %></span>
                 </a>
             </li>
