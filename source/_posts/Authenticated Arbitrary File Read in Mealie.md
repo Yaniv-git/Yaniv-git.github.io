@@ -1,6 +1,6 @@
 ---
 title: "Authenticated Arbitrary File Read in Mealie"
-date: 2024-01-29
+date: 2024-02-01
 tags:
 	- "arbitrary file read"
 advisory: true
