@@ -6,7 +6,7 @@ tags:
 advisory: true
 origin:
 cves: 
-	- CVE-2024-
+	- CVE-2024-24493
 ghsas:
 ---
 # Description
