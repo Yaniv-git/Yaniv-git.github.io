@@ -2,14 +2,14 @@
 title: "Excessive Expansion: Uncovering Critical Security Vulnerabilities in Jenkins"
 date: 2024-01-24
 tags:
-	- "java"
-	- "rce"
-	- "jenkins"
-	- "arbitrary file read"
+    - "java"
+    - "rce"
+    - "jenkins"
+    - "arbitrary file read"
 advisory: false
 origin: https://www.sonarsource.com/blog/excessive-expansion-uncovering-critical-security-vulnerabilities-in-jenkins/
 cves:
-	- "CVE-2024-23897"
+    - "CVE-2024-23897"
     - "CVE-2024-23898"
 ---
 # Key Information
