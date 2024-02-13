@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Excessive Expansion: Uncovering Critical Security Vulnerabilities in Jenkins - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Key-Information"><span class="toc-text">Key Information</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Vulnerabilities-Impact"><span class="toc-text">Vulnerabilities Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Jenkins-CLI-Feature-Background"><span class="toc-text">Jenkins-CLI Feature Background</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Data-Leak-Vulnerability-CVE-2024-23897"><span class="toc-text">Data Leak Vulnerability (CVE-2024-23897)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Binary-Files-Reading-Limitations"><span class="toc-text">Binary Files Reading Limitations</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CSWSH-Vulnerability-CVE-2024-23898"><span class="toc-text">CSWSH Vulnerability (CVE-2024-23898)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Excessive Expansion: Uncovering Critical Security Vulnerabilities in Jenkins    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2024-01-23 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#java" title="java">java</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#arbitrary file read" title="arbitrary file read">arbitrary file read</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#jenkins" title="jenkins">jenkins</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-23897" title="CVE-2024-23897">CVE-2024-23897</a>
+                    <span>/</span>
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-23898" title="CVE-2024-23898">CVE-2024-23898</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/excessive-expansion-uncovering-critical-security-vulnerabilities-in-jenkins/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Key-Information"><a href="#Key-Information" class="headerlink" title="Key Information"></a>Key Information</h1><ul>
+<li>Sonar’s Vulnerability Research Team has discovered security vulnerabilities in Jenkins, the leading open-source Continuous Integration and Continuous Deployment (CI&#x2F;CD) software.</li>
+<li>The discovered Critical vulnerability tracked as CVE-2024-23897 allows unauthenticated attackers to read a limited amount of arbitrary files’ data, and “read-only” authorized attackers to an entire arbitrary file from Jenkins’ server.</li>
+<li>Attackers could leverage this vulnerability, by reading Jenkins secrets, to escalate privileges to admin and eventually execute arbitrary code on the server.</li>
+<li>The discovered High severity, cross-site WebSocket hijacking (CSWSH), vulnerability tracked as CVE-2024-23898, allows an attacker to execute arbitrary CLI commands by manipulating a victim to click on a link.</li>
+<li>The vulnerabilities were fixed in Jenkins versions 2.442, and LTS 2.426.3.</li>
+</ul>
+<p>Jenkins is the leading open-source automation server widely used for building, deploying, and automating software projects. Originally developed as Hudson, Jenkins has evolved into a powerful tool for continuous integration and continuous delivery (CI&#x2F;CD). It enables developers to automate various aspects of the software development lifecycle, including building, testing, and deploying applications. With a market share of approximately <a target="_blank" rel="noopener" href="https://cd.foundation/announcement/2023/08/29/jenkins-project-growth/">44% in 2023</a>, the popularity of Jenkins is evident. This means the potential impact of security vulnerabilities in Jenkins is large.</p>
+<h1 id="Vulnerabilities-Impact"><a href="#Vulnerabilities-Impact" class="headerlink" title="Vulnerabilities Impact"></a>Vulnerabilities Impact</h1><p>Unauthenticated attackers can read the first few lines of arbitrary files from the server, while read-only authorized attackers can read the entire file. This could ultimately lead to the execution of arbitrary code in some cases (CVE-2024-23897). If one of the following conditions is met, even unauthenticated users have at least read permission:</p>
+<ul>
+<li>Legacy mode authorization is enabled.</li>
+<li>Configuration “Allow anonymous read access” is checked in the “logged-in users can do anything” authorization mode.</li>
+<li>The signup feature is enabled.</li>
+</ul>
+<p>The second vulnerability (CVE-2024-23898) resides within the WebSocket CLI feature, which lacks an origin check, allowing Cross-Site WebSocket Hijacking (CSWSH). This vulnerability might be exploited by sending a malicious link to a victim. Certain modern web browsers implement a “<a target="_blank" rel="noopener" href="https://caniuse.com/mdn-http_headers_set-cookie_samesite_lax_default">lax by default</a>” policy, which serves as a potential safeguard against this vulnerability. Nonetheless, given that some widely used browsers like Safari and Firefox do not strictly enforce this policy, and considering the associated risks of potential <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/csrf/bypassing-samesite-restrictions#bypassing-samesite-lax-restrictions-with-newly-issued-cookies">bypass</a> techniques or users using outdated browsers, the severity classification for this vulnerability is High.</p>
+<iframe width="736" height="414" src="https://www.youtube.com/embed/ucs-XF5X3bE" title="Excessive Expansion: Uncovering Critical Security Vulnerabilities in Jenkins" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><p>In this section of the blog, we will explore our findings taking a deeper dive into the code, to understand the vulnerabilities and how an attacker could exploit them. During the Jenkins security team’s triaging of our report, they found further ways to exploit the first vulnerability (CVE-2024-23897) using an unauthenticated user. The following “Technical Details” covers the attack scenario of a read-only capable attacker. </p>
+<h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p>Jenkins provides multiple ways of authorization, the unsafe <em>“anyone can do anything”</em>, the <em>“legacy”</em> permissions, and <em>“logged-in users can do anything”</em>. The latter authorization method allows the option for anonymous read access and gives read permission to anyone, which is also the case in the <em>legacy</em> mode.</p>
+<img src="/img/blogs/jenkins/image_1.webp" style="width: 100%;"/>
+
+<p>On top of that, there is also the not recommended option to <em>“Allow users to sign up”</em>, which makes everyone at least read-only capable.</p>
+<p>According to the <a target="_blank" rel="noopener" href="https://www.jenkins.io/doc/book/security/access-control/permissions/#overall-read">official documentation</a>, read-only access allows users to:</p>
+<ul>
+<li>Access the basic Jenkins API and the API of any object they have access to.</li>
+<li>Access the people directory listing user accounts and known committer identities of anyone involved in visible projects.</li>
+<li>List and view all agents configured in Jenkins and access their summary pages.</li>
+</ul>
+<p>On the other hand, <a target="_blank" rel="noopener" href="https://www.jenkins.io/doc/book/security/access-control/permissions/#administer">administrators</a> can pretty much do everything on a Jenkins instance. From an attacker’s point of view, admins can run arbitrary code on a Jenkins server.</p>
+<h1 id="Jenkins-CLI-Feature-Background"><a href="#Jenkins-CLI-Feature-Background" class="headerlink" title="Jenkins-CLI Feature Background"></a>Jenkins-CLI Feature Background</h1><p><a target="_blank" rel="noopener" href="https://www.jenkins.io/doc/book/managing/cli/">Jenkins-CLI</a> provides users with a built-in command line interface to execute custom commands that are implemented in the <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/tree/master/core/src/main/java/hudson/cli">hudson&#x2F;cli</a> directory of the Jenkins Git repository.</p>
+<p>Aside from the common ways of invoking a command, using <code>jenkins-cli.jar</code> (which utilizes web sockets) or SSH, we found out that there is an additional option by sending two POST requests to <code>http://jenkins/cli?remoting=false</code>.</p>
+<p>When <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/stapler">Stapler</a> (Jenkins’ component that correlates a method to an endpoint) is <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/stapler/blob/ea4fc6ed8cd1b5eca6b4ce80b35654da9376e2bc/core/src/main/java/org/kohsuke/stapler/Stapler.java#L725">getting</a> the relevant method of the <em>“&#x2F;cli”</em> path, the endpoint will throw a <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/CLIAction.java#L195">PlainCliEndpointResponse()</a> exception, which will end up in this <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/util/FullDuplexHttpService.java#L166">generateResponse</a> function:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">generateResponse</span><span class="params">(StaplerRequest req, StaplerResponse rsp, Object node)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">UUID</span> <span class="variable">uuid</span> <span class="operator">=</span> UUID.fromString(req.getHeader(<span class="string">&quot;Session&quot;</span>));</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">        <span class="keyword">if</span> (req.getHeader(<span class="string">&quot;Side&quot;</span>).equals(<span class="string">&quot;download&quot;</span>)) &#123;</span><br><span class="line">            <span class="type">FullDuplexHttpService</span> <span class="variable">service</span> <span class="operator">=</span> createService(req, uuid);</span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                service.download(req, rsp);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">FullDuplexHttpService</span> <span class="variable">service</span> <span class="operator">=</span> services.get(uuid);</span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                service.upload(req, rsp);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This function requires a downloader and uploader. The downloader returns the command’s response, and the uploader invokes a specified command from the body of the request. Jenkins connects them (downloader and uploader) using the UUID from the <code>​​Session</code> header.</p>
+<h1 id="Data-Leak-Vulnerability-CVE-2024-23897"><a href="#Data-Leak-Vulnerability-CVE-2024-23897" class="headerlink" title="Data Leak Vulnerability (CVE-2024-23897)"></a>Data Leak Vulnerability (CVE-2024-23897)</h1><p>When invoking a CLI command with arguments, we have noticed that Jenkins uses <a target="_blank" rel="noopener" href="https://github.com/kohsuke/args4j">args4j’s</a> <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/CLICommand.java#L248">parseArgument</a>, which <a target="_blank" rel="noopener" href="https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L479">calls</a> <a target="_blank" rel="noopener" href="https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L548">expandAtFiles</a>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String[] expandAtFiles(String args[]) <span class="keyword">throws</span> CmdLineException &#123;</span><br><span class="line">    List&lt;String&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;String&gt;();</span><br><span class="line">    <span class="keyword">for</span> (String arg : args) &#123;</span><br><span class="line">        <span class="keyword">if</span> (arg.startsWith(<span class="string">&quot;@&quot;</span>)) &#123;</span><br><span class="line">            <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(arg.substring(<span class="number">1</span>));</span><br><span class="line">            <span class="keyword">if</span> (!file.exists())</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">CmdLineException</span>(<span class="built_in">this</span>,Messages.NO_SUCH_FILE,file.getPath());</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                result.addAll(readAllLines(file));</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">CmdLineException</span>(<span class="built_in">this</span>, <span class="string">&quot;Failed to parse &quot;</span>+file,ex);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            result.add(arg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result.toArray(<span class="keyword">new</span> <span class="title class_">String</span>[result.size()]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>The function checks if the argument starts with the <code>@</code> character, and if so, it reads the file in the path after the <code>@</code> and expands a new argument for each line. </p>
+<img src="/img/blogs/jenkins/image_2.webp" style="width: 100%;"/>
+
+<p>This means that if an attacker can control an argument, they can expand it to an arbitrary number of ones from an arbitrary file on the Jenkins instance.</p>
+<p>One way an attacker could leverage this is to find a command that takes an arbitrary number of arguments and displays these back to the user. Since the arguments are populated from the contents of the file, an attacker could leak the file contents this way. We found the command <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/ConnectNodeCommand.java">connect-to-node</a> to be a good candidate: it receives a <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/ConnectNodeCommand.java#L46">list of strings as an argument</a> and tries to connect to each one. If it fails, an error message is generated with the name of the failed connected node. </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConnectNodeCommand</span> <span class="keyword">extends</span> <span class="title class_">CLICommand</span> &#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="meta">@Argument(metaVar = &quot;NAME&quot;, usage = &quot;Agent name, or empty string for built-in node; comma-separated list is supported&quot;, required = true, multiValued = true)</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; nodes;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="type">int</span> <span class="title function_">run</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">        <span class="keyword">for</span> (String node_s : hs) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">Computer</span> <span class="variable">computer</span> <span class="operator">=</span> Computer.resolveForCLI(node_s);</span><br><span class="line">                computer.cliConnect(force);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">                <span class="keyword">final</span> <span class="type">String</span> <span class="variable">errorMsg</span> <span class="operator">=</span> node_s + <span class="string">&quot;: &quot;</span> + e.getMessage();</span><br><span class="line">                stderr.println(errorMsg);</span><br><span class="line">                <span class="comment">//...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>This <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/ConnectNodeCommand.java">connect-to-node</a> command would usually require the CONNECT permission, which is verified in the <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/Computer.java#L480">cliConnect</a> function. But since the exception is thrown before the permission check in the <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/Computer.java#L1661">resolveForCLI</a> function, the command actually doesn’t require any authorizations apart from the initial <a target="_blank" rel="noopener" href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/CLICommand.java#L246">read-only verification</a>.</p>
+<p>Achieving code execution from arbitrary file read is dependent on the context. Some potentially interesting files for attackers could be:</p>
+<ul>
+<li>SSH keys</li>
+<li>&#x2F;etc&#x2F;passwd, &#x2F;etc&#x2F;shadow</li>
+<li>Project secrets and credentials (refer to Jenkins’ <a target="_blank" rel="noopener" href="https://www.jenkins.io/security/advisory/2024-01-24/">advisory</a> for more information)</li>
+<li>Source code, build artifacts</li>
+<li>and more…</li>
+</ul>
+<h3 id="Binary-Files-Reading-Limitations"><a href="#Binary-Files-Reading-Limitations" class="headerlink" title="Binary Files Reading Limitations"></a>Binary Files Reading Limitations</h3><p>When a file is read, the process’s default character encoding is used, which is UTF-8 for most deployments. Because of this, any invalid UTF-8 sequence (statistically almost 50% of all bytes, assuming an equal distribution) would be replaced by the sequence <code>0xef 0xbf 0xbd</code> and cause data loss.<br>Some other encodings (such as Windows-1252, commonly used by instances running on Windows) would make it more feasible to exfiltrate binary data.</p>
+<h1 id="CSWSH-Vulnerability-CVE-2024-23898"><a href="#CSWSH-Vulnerability-CVE-2024-23898" class="headerlink" title="CSWSH Vulnerability (CVE-2024-23898)"></a>CSWSH Vulnerability (CVE-2024-23898)</h1><p>As mentioned earlier, one of the ways to invoke the <a target="_blank" rel="noopener" href="https://www.jenkins.io/doc/book/managing/cli/">Jenkins-CLI</a> commands is by web sockets (which is the implementation of <code>jenkins-cli.jar</code>).</p>
+<p>It is known that browsers don’t enforce SOP and CORS policies on WebSockets: “Cross-origin restrictions imposed by SOP and CORS policies do not apply to WebSockets because those restrictions are placed on HTTP responses while WebSockets work over WS(WebSocket) or WSS(WebSocketSecure) protocols.” (<a target="_blank" rel="noopener" href="https://dev.to/pssingh21/websockets-bypassing-sop-cors-5ajm">source</a>).</p>
+<p>Since there is no Jenkins-crumb (CSRF token) nor Origin header check in the web sockets requests, any website can use <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSockets</a> to invoke Jenkins-CLI commands with the victim’s identity, in a similar fashion to CSRF vulnerabilities.</p>
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p>The Jenkins security team patched CVE-2024-23897 by adding a secure configuration, which disables the “<a target="_blank" rel="noopener" href="https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L478">expandAtFiles</a>” feature.</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="addition">+  public static boolean ALLOW_AT_SYNTAX = SystemProperties.getBoolean(CLICommand.class.getName() + &quot;.allowAtSyntax&quot;);</span></span><br><span class="line">//...</span><br><span class="line"><span class="deletion">-    return new CmdLineParser(this);</span></span><br><span class="line"><span class="addition">+    ParserProperties properties = ParserProperties.defaults().withAtSyntax(ALLOW_AT_SYNTAX);</span></span><br><span class="line"><span class="addition">+    return new CmdLineParser(this, properties);</span></span><br></pre></td></tr></table></figure>
+<p>And CVE-2024-23898 was patched by adding an origin verification to the WebSocket endpoint (The <code>ALLOW</code> parameter serves as a toggle, granting administrators the ability to override the updated default behavior. Giving the option to consistently permit or deny access to the WS CLI, irrespective of the Origin):</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public HttpResponse doWs(StaplerRequest req) &#123;</span><br><span class="line">    if (!WebSockets.isSupported()) &#123;</span><br><span class="line">        return HttpResponses.notFound();</span><br><span class="line">    &#125;</span><br><span class="line"><span class="addition">+    if (ALLOW == null) &#123;</span></span><br><span class="line"><span class="addition">+        final String actualOrigin = req.getHeader(&quot;Origin&quot;);</span></span><br><span class="line"><span class="addition">+        final String expectedOrigin = StringUtils.removeEnd(StringUtils.removeEnd(+Jenkins.get().getRootUrlFromRequest(), &quot;/&quot;), req.getContextPath());</span></span><br><span class="line"><span class="addition">+</span></span><br><span class="line"><span class="addition">+        if (actualOrigin == null || !actualOrigin.equals(expectedOrigin)) &#123;</span></span><br><span class="line"><span class="addition">+            LOGGER.log(Level.FINE, () -&gt; &quot;Rejecting origin: &quot; + actualOrigin + &quot;; expected was from request: &quot; + +expectedOrigin);</span></span><br><span class="line"><span class="addition">+            return HttpResponses.forbidden();</span></span><br><span class="line"><span class="addition">+        &#125;</span></span><br><span class="line"><span class="addition">+    &#125; else if (!ALLOW) &#123;</span></span><br><span class="line"><span class="addition">+        return HttpResponses.forbidden();</span></span><br><span class="line"><span class="addition">+    &#125;</span></span><br><span class="line">    Authentication authentication = Jenkins.getAuthentication2();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2023&#x2F;11&#x2F;13</td>
+<td>We reported all issues to the Jenkins Security team</td>
+</tr>
+<tr>
+<td>2023&#x2F;11&#x2F;13</td>
+<td>Maintainers acknowledged the report</td>
+</tr>
+<tr>
+<td>2023&#x2F;11&#x2F;24</td>
+<td>Maintainers confirmed the issues</td>
+</tr>
+<tr>
+<td>2023&#x2F;12&#x2F;12</td>
+<td>We helped the vendor verify the fix</td>
+</tr>
+<tr>
+<td>2024&#x2F;01&#x2F;10</td>
+<td>Maintainers updated us on other attack scenarios and the classification of Critical and High for our findings</td>
+</tr>
+<tr>
+<td>2024&#x2F;01&#x2F;24</td>
+<td>Maintainers assigned CVEs, and released <a target="_blank" rel="noopener" href="https://www.jenkins.io/security/advisory/2024-01-24/">advisory</a> and patch versions 2.442, and LTS 2.426.3.</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>In this blog, we uncovered two vulnerabilities on Jenkins, the first one leverages the “<a target="_blank" rel="noopener" href="https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L478">expandAtFiles</a>” functionality to read arbitrary files and eventually execute arbitrary code on the server. The second finding has the potential to execute arbitrary commands as the victim, by manipulating them to visit a malicious link.</p>
+<p>At Sonar, we emphasize the importance of Clean Code principles. Doing so creates software characterized by clarity, maintainability, and comprehensibility. These attributes not only help the identification and resolution of vulnerabilities throughout the development process but also lower the likelihood of introducing security weaknesses that malicious actors might exploit.</p>
+<p>Lastly, we would like to give huge kudos to the Jenkins team, who quickly and professionally assessed our findings, maintained great communication throughout the disclosure process, and provided a comprehensive fix. Thank you!</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
