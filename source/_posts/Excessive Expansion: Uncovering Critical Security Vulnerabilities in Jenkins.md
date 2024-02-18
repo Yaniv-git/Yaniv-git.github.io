@@ -50,11 +50,11 @@ On the other hand, [administrators](https://www.jenkins.io/doc/book/security/acc
 
 # Jenkins-CLI Feature Background
 
-[Jenkins-CLI](https://www.jenkins.io/doc/book/managing/cli/) provides users with a built-in command line interface to execute custom commands that are implemented in the [hudson/cli](https://github.com/jenkinsci/jenkins/tree/master/core/src/main/java/hudson/cli) directory of the Jenkins Git repository.
+[Jenkins-CLI](https://www.jenkins.io/doc/book/managing/cli/) provides users with a built-in command line interface to execute custom commands that are implemented in the [hudson/cli](https://github.com/jenkinsci/jenkins/tree/jenkins-2.441/core/src/main/java/hudson/cli) directory of the Jenkins Git repository.
 
 Aside from the common ways of invoking a command, using `jenkins-cli.jar` (which utilizes web sockets) or SSH, we found out that there is an additional option by sending two POST requests to `http://jenkins/cli?remoting=false`.
 
-When [Stapler](https://github.com/jenkinsci/stapler) (Jenkins' component that correlates a method to an endpoint) is [getting](https://github.com/jenkinsci/stapler/blob/ea4fc6ed8cd1b5eca6b4ce80b35654da9376e2bc/core/src/main/java/org/kohsuke/stapler/Stapler.java#L725) the relevant method of the *“/cli”* path, the endpoint will throw a [PlainCliEndpointResponse()](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/CLIAction.java#L195) exception, which will end up in this [generateResponse](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/jenkins/util/FullDuplexHttpService.java#L166) function:
+When [Stapler](https://github.com/jenkinsci/stapler) (Jenkins' component that correlates a method to an endpoint) is [getting](https://github.com/jenkinsci/stapler/blob/ea4fc6ed8cd1b5eca6b4ce80b35654da9376e2bc/core/src/main/java/org/kohsuke/stapler/Stapler.java#L725) the relevant method of the *“/cli”* path, the endpoint will throw a [PlainCliEndpointResponse()](https://github.com/jenkinsci/jenkins/blob/3b0de10df3bedba515e13032104d4d84f83045be/core/src/main/java/hudson/cli/CLIAction.java#L195) exception, which will end up in this [generateResponse](https://github.com/jenkinsci/jenkins/blob/824f64c23e52e5c765cc7604414740aab3436f8d/core/src/main/java/jenkins/util/FullDuplexHttpService.java#L166) function:
 
 ```java
 public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object node) throws IOException, ServletException {
@@ -82,7 +82,7 @@ public void generateResponse(StaplerRequest req, StaplerResponse rsp, Object nod
 This function requires a downloader and uploader. The downloader returns the command’s response, and the uploader invokes a specified command from the body of the request. Jenkins connects them (downloader and uploader) using the UUID from the `​​Session` header.
 
 # Data Leak Vulnerability (CVE-2024-23897)
-When invoking a CLI command with arguments, we have noticed that Jenkins uses [args4j’s](https://github.com/kohsuke/args4j) [parseArgument](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/CLICommand.java#L248), which [calls](https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L479) [expandAtFiles](https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L548):
+When invoking a CLI command with arguments, we have noticed that Jenkins uses [args4j’s](https://github.com/kohsuke/args4j) [parseArgument](https://github.com/jenkinsci/jenkins/blob/3b0de10df3bedba515e13032104d4d84f83045be/core/src/main/java/hudson/cli/CLICommand.java#L248), which [calls](https://github.com/kohsuke/args4j/blob/fc458a24d6bd08b58fdd0bd7e37acb08200eac59/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L479) [expandAtFiles](https://github.com/kohsuke/args4j/blob/fc458a24d6bd08b58fdd0bd7e37acb08200eac59/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L548):
 
 ```java
 private String[] expandAtFiles(String args[]) throws CmdLineException {
@@ -110,7 +110,7 @@ The function checks if the argument starts with the `@` character, and if so, it
 
 This means that if an attacker can control an argument, they can expand it to an arbitrary number of ones from an arbitrary file on the Jenkins instance.
 
-One way an attacker could leverage this is to find a command that takes an arbitrary number of arguments and displays these back to the user. Since the arguments are populated from the contents of the file, an attacker could leak the file contents this way. We found the command [connect-to-node](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/ConnectNodeCommand.java) to be a good candidate: it receives a [list of strings as an argument](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/ConnectNodeCommand.java#L46) and tries to connect to each one. If it fails, an error message is generated with the name of the failed connected node. 
+One way an attacker could leverage this is to find a command that takes an arbitrary number of arguments and displays these back to the user. Since the arguments are populated from the contents of the file, an attacker could leak the file contents this way. We found the command [connect-to-node](https://github.com/jenkinsci/jenkins/blob/jenkins-2.441/core/src/main/java/hudson/cli/ConnectNodeCommand.java) to be a good candidate: it receives a [list of strings as an argument](https://github.com/jenkinsci/jenkins/blob/824f64c23e52e5c765cc7604414740aab3436f8d/core/src/main/java/hudson/cli/ConnectNodeCommand.java#L46) and tries to connect to each one. If it fails, an error message is generated with the name of the failed connected node. 
 
 ```java
 public class ConnectNodeCommand extends CLICommand {
@@ -137,7 +137,7 @@ public class ConnectNodeCommand extends CLICommand {
     }
 }
 ```
-This [connect-to-node](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/ConnectNodeCommand.java) command would usually require the CONNECT permission, which is verified in the [cliConnect](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/Computer.java#L480) function. But since the exception is thrown before the permission check in the [resolveForCLI](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/Computer.java#L1661) function, the command actually doesn’t require any authorizations apart from the initial [read-only verification](https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/cli/CLICommand.java#L246).
+This [connect-to-node](https://github.com/jenkinsci/jenkins/blob/jenkins-2.441/core/src/main/java/hudson/cli/ConnectNodeCommand.java) command would usually require the CONNECT permission, which is verified in the [cliConnect](https://github.com/jenkinsci/jenkins/blob/3b0de10df3bedba515e13032104d4d84f83045be/core/src/main/java/hudson/model/Computer.java#L483) function. But since the exception is thrown before the permission check in the [resolveForCLI](https://github.com/jenkinsci/jenkins/blob/3b0de10df3bedba515e13032104d4d84f83045be/core/src/main/java/hudson/model/Computer.java#L1676) function, the command actually doesn’t require any authorizations apart from the initial [read-only verification](https://github.com/jenkinsci/jenkins/blob/3b0de10df3bedba515e13032104d4d84f83045be/core/src/main/java/hudson/cli/CLICommand.java#L247).
 
 Achieving code execution from arbitrary file read is dependent on the context. Some potentially interesting files for attackers could be:
 * SSH keys
@@ -160,7 +160,7 @@ It is known that browsers don’t enforce SOP and CORS policies on WebSockets: �
 Since there is no Jenkins-crumb (CSRF token) nor Origin header check in the web sockets requests, any website can use [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) to invoke Jenkins-CLI commands with the victim's identity, in a similar fashion to CSRF vulnerabilities.
 
 # Patch
-The Jenkins security team patched CVE-2024-23897 by adding a secure configuration, which disables the “[expandAtFiles](https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L478)” feature.
+The Jenkins security team patched CVE-2024-23897 by adding a secure configuration, which disables the “[expandAtFiles](https://github.com/kohsuke/args4j/blob/fc458a24d6bd08b58fdd0bd7e37acb08200eac59/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L478)” feature.
 
 ```diff
 +  public static boolean ALLOW_AT_SYNTAX = SystemProperties.getBoolean(CLICommand.class.getName() + ".allowAtSyntax");
@@ -201,7 +201,7 @@ public HttpResponse doWs(StaplerRequest req) {
 | 2024/01/24 | Maintainers assigned CVEs, and released [advisory](https://www.jenkins.io/security/advisory/2024-01-24/) and patch versions 2.442, and LTS 2.426.3. |
 
 # Summary
-In this blog, we uncovered two vulnerabilities on Jenkins, the first one leverages the “[expandAtFiles](https://github.com/kohsuke/args4j/blob/master/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L478)” functionality to read arbitrary files and eventually execute arbitrary code on the server. The second finding has the potential to execute arbitrary commands as the victim, by manipulating them to visit a malicious link.
+In this blog, we uncovered two vulnerabilities on Jenkins, the first one leverages the “[expandAtFiles](https://github.com/kohsuke/args4j/blob/fc458a24d6bd08b58fdd0bd7e37acb08200eac59/args4j/src/org/kohsuke/args4j/CmdLineParser.java#L479)” functionality to read arbitrary files and eventually execute arbitrary code on the server. The second finding has the potential to execute arbitrary commands as the victim, by manipulating them to visit a malicious link.
 
 At Sonar, we emphasize the importance of Clean Code principles. Doing so creates software characterized by clarity, maintainability, and comprehensibility. These attributes not only help the identification and resolution of vulnerabilities throughout the development process but also lower the likelihood of introducing security weaknesses that malicious actors might exploit.
 
