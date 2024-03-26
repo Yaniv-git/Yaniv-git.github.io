@@ -61,7 +61,7 @@ Parsing the following string will render an xss tag in the browser but not in PH
 * `<!DOCTYPE HTML PUBLIC "-//W3C//DTDHTML4.01//EN" "><xss>">` 
 * `<!DOCTYPE HTML SYSTEM "><xss>">`
 
-#### 5. element name starting with underscrool
+#### 5. Element name starting with underscrool
 According to the [XML specification](https://www.w3schools.com/xml/xml_elements.asp#:~:text=can%20have%20attributes.-,XML%20Naming%20Rules,-XML%20elements%20must) `Element names must start with a letter or underscore`, unlike [HTML](https://html.spec.whatwg.org/#syntax-tag-name) where tags must start with ASCII alphanumerics.
 ```
 Input: <p><_test>/<p>
