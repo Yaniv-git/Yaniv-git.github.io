@@ -61,6 +61,9 @@ Parsing the following string will render an xss tag in the browser but not in PH
 * `<!DOCTYPE HTML PUBLIC "-//W3C//DTDHTML4.01//EN" "><xss>">` 
 * `<!DOCTYPE HTML SYSTEM "><xss>">`
 
+#### 5. element name starting with underscrool
+
+
 ### Impact
 Sanitizers using the built-in PHP parser are inherently vulnerable to bypass due to wrong parsing.
 
