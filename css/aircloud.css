@@ -11,6 +11,12 @@ body {
   margin-left: calc(100vw - 100%) !important;
   -webkit-text-size-adjust: none;
 }
+iframe[src*=youtube] {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  padding-bottom: 10px;
+}
 .red {
   color: red;
 }
