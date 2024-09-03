@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Basic HTTP Authentication Risk: Uncovering pyspider Vulnerabilities - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Discovering-vulnerabilities"><span class="toc-text">Discovering vulnerabilities</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Basic-HTTP-authentication-CSRF-CVE-2024-39163"><span class="toc-text">Basic HTTP authentication CSRF (CVE-2024-39163)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Reflected-XSS-Vulnerability-CVE-2024-39162"><span class="toc-text">Reflected XSS Vulnerability (CVE-2024-39162)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Basic HTTP Authentication Risk: Uncovering pyspider Vulnerabilities    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2024-09-02 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#csrf" title="csrf">csrf</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-39162" title="CVE-2024-39162">CVE-2024-39162</a>
+                    <span>/</span>
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-39163" title="CVE-2024-39163">CVE-2024-39163</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/basic-http-authentication-risk-uncovering-pyspider-vulnerabilities">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <p><a target="_blank" rel="noopener" href="https://docs.pyspider.org/en/latest/">pyspider</a> is a powerful and versatile web crawling framework that caters to various use cases. With its user-friendly approach, robust features, and extensive support for different technologies, it’s a great choice for developers who want to build reliable and efficient web scrapers in Python. Unfortunately in the last years, the project was neglected and left unmaintained, and as a result of our reporting, the maintainer archived the GitHub repository to highlight that the project is not updated anymore. This also means that security vulnerabilities are not fixed.</p>
+<p>Driven by our dedication to both open-source security and the advancement of our Clean Code technology, we leverage <a target="_blank" rel="noopener" href="https://sonarcloud.io/">SonarCloud</a> to conduct frequent vulnerability scans on open-source projects. This not only benefits the broader open-source community but also strengthens our own tools – and the best part? SonarCloud offers free code analysis for any open-source project, making it accessible to everyone.</p>
+<p>This article delves into the consequences of vulnerabilities found by our engine and uncovers the risk of using basic HTTP authentication. We’ll also explore how attackers might leverage this vulnerability.</p>
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>An attacker might manipulate an authenticated victim to click on a malicious link, resulting in code execution on the host running pyspider. After we reported our findings, the maintainer has archived the repository on GitHub, making sure users are aware the project isn’t supported anymore (refer to the <a href="#patch">Patch</a> and <a href="#timeline">Timeline</a> sections for more info).</p>
+<iframe width="2545" height="1053" src="https://www.youtube.com/embed/HTzmTucyHmQ" title="Basic HTTP Authentication Risk: Uncovering pyspider Vulnerabilities" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><p>In this section, we will cover the technical details of the findings, and interesting security information for developers opting to use the basic HTTP authentication in their application.</p>
+<h3 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h3><p>Before delving into the details of the findings, we first need to understand some basic features of the application. pyspider provides users with a convenient <a target="_blank" rel="noopener" href="https://docs.pyspider.org/en/latest/Command-Line/#webui">WebUI component</a> that allows project management, task monitoring, viewing results, and crawl script code editors. From a security point of view, the code editor feature allows running arbitrary Python code on the machine through the web interface, by design. To protect an externally exposed instance, pyspider offers the ability to enable authentication via the <a target="_blank" rel="noopener" href="https://docs.pyspider.org/en/latest/Command-Line/#-need-auth">–need-auth</a> flag.</p>
+<h3 id="Discovering-vulnerabilities"><a href="#Discovering-vulnerabilities" class="headerlink" title="Discovering vulnerabilities"></a>Discovering vulnerabilities</h3><p>SonarCloud, our cloud-based code analysis service, employs cutting-edge static analysis techniques to identify quality issues, bugs, and security weaknesses within your code. During a routine scan of public open-source projects, SonarCloud identified the following issues in pyspider’s WebUI component (<a target="_blank" rel="noopener" href="https://sonarcloud.io/project/issues?resolved=false&types=VULNERABILITY&id=SonarSourceResearch_pyspider-blogpost&open=AY9xKZX48flNzQPVUOH6">see it yourself on SonarCloud</a>):</p>
+<img src="/img/blogs/pyspider/image1.png" style="width: 100%;"/>
+
+<p>The first one is a detected vulnerability covering a Cross-Site Scripting (XSS) reflection on the <code>/update</code> route via the <code>name</code> parameter:</p>
+<img src="/img/blogs/pyspider/image2.png" style="width: 100%;"/>
+
+<p>The second finding is a security hotspot warning us that there is a risk of Cross-Site Request Forgery (CSRF) when using Flask without any protection.</p>
+<img src="/img/blogs/pyspider/image3.png" style="width: 100%;"/>
+
+<p>The key distinction between a hotspot and a vulnerability lies in the <strong>immediacy of the security risk.</strong> (<a target="_blank" rel="noopener" href="https://docs.sonarsource.com/sonarqube/latest/user-guide/security-hotspots/#vulnerability-or-hotspot">read more in the official documentation</a>)</p>
+<ul>
+<li><p><strong>Hotspot</strong>: A hotspot flags a potentially risky code section that might become a vulnerability in certain contexts. It’s like a yellow traffic light – proceed with caution and review the code. The overall application security might not be compromised, but further analysis is recommended.</p>
+</li>
+<li><p><strong>Vulnerability</strong>: A detected vulnerability represents a high likelihood of a security weakness that can be exploited by attackers. It’s akin to a red traffic light – stop and fix the issue immediately. Vulnerabilities pose a clear and present danger to the application’s security.</p>
+</li>
+</ul>
+<p>Let’s consider a CSRF hotspot rule:<br>The scanner might highlight a POST endpoint that doesn’t include a CSRF token. This is a hotspot because, without a token, an attacker could potentially craft a malicious request that tricks a user’s browser into submitting the form unintentionally. However, a CSRF attack can be mitigated already depending on the cookie’s <a target="_blank" rel="noopener" href="https://web.dev/articles/samesite-cookies-explained">SameSite</a> type used in the application. Or, the application logic of that endpoint doesn’t have any security impact nor require authentication in the first place. For those reasons, it might be considered a low-priority hotspot for review, depending on the specific context of the application.</p>
+<h3 id="Basic-HTTP-authentication-CSRF-CVE-2024-39163"><a href="#Basic-HTTP-authentication-CSRF-CVE-2024-39163" class="headerlink" title="Basic HTTP authentication CSRF (CVE-2024-39163)"></a>Basic HTTP authentication CSRF (CVE-2024-39163)</h3><p>In the case of pyspider, the hotspot was relevant and exploitable. As mentioned before, access to the pyspider WebUI is equivalent to code execution. In instances where authentication is not enabled, it’s considered a risk introduced by the pyspider user rather than a vulnerability. We are interested to see what can go wrong if authentication is enabled.</p>
+<p>Before trying to validate the CSRF hotspot, let’s see how pyspider implements authentication. Setting up the application using the <code>--need-auth</code> flag, and trying to access the web interface we are introduced to the following browser-default login prompt:</p>
+<img src="/img/blogs/pyspider/image4.png" style="width: 100%;"/>
+
+<p>This authentication method is used under the hood is <a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc7617">Basic HTTP authentication</a>. While this is a rather legacy authentication mechanism it is still supported by modern browsers. On top of that they handle it conveniently, by using the built-in UI prompt and sending the credentials in the subsequent requests via the <code>Authorization</code> header:</p>
+<img src="/img/blogs/pyspider/image5.png" style="width: 100%;"/>
+
+<p>Unlike the other common way of authentication and maintaining a session via cookies, the browser doesn’t implement any CSRF mitigation for the basic HTTP authentication and the corresponding <code>Authorization</code> header, such as <a target="_blank" rel="noopener" href="https://web.dev/articles/samesite-cookies-explained">SameSite cookies</a>. The browser adds the <code>Authorization</code> header containing the Basic auth credentials to all cross-site requests as well. This means that the only thing standing between a CSRF vulnerability and the application are mitigations on the endpoint level (a <a target="_blank" rel="noopener" href="https://portswigger.net/web-security/csrf#:~:text=Common%20defences%20against%20CSRF">CSRF token</a>, for instance).</p>
+<p>Because no mitigation steps are taken, an attacker would just need to understand which requests are made to execute arbitrary code on the machine and craft a malicious website that replicates them, exploiting the CSRF vulnerability. Manipulating an authenticated victim to visit the attacker’s website will result in arbitrary code execution.</p>
+<h3 id="Reflected-XSS-Vulnerability-CVE-2024-39162"><a href="#Reflected-XSS-Vulnerability-CVE-2024-39162" class="headerlink" title="Reflected XSS Vulnerability (CVE-2024-39162)"></a>Reflected XSS Vulnerability (CVE-2024-39162)</h3><p>The second detected vulnerability reported by SonarCloud is an XSS in the <code>/update</code> endpoint.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/update&#x27;</span>,  methods=[<span class="string">&#x27;POST&#x27;</span>,  ]</span>)</span></span><br><span class="line"><span class="keyword">def</span>  <span class="title function_">project_update</span>():</span><br><span class="line">    <span class="comment"># ...</span></span><br><span class="line">    name  =  request.form[<span class="string">&#x27;name&#x27;</span>]</span><br><span class="line">    <span class="comment"># ...</span></span><br><span class="line">    <span class="keyword">if</span>  name  <span class="keyword">not</span>  <span class="keyword">in</span>  (<span class="string">&#x27;group&#x27;</span>,  <span class="string">&#x27;status&#x27;</span>,  <span class="string">&#x27;rate&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span>  <span class="string">&#x27;unknown field: %s&#x27;</span>  %  name,  <span class="number">400</span></span><br></pre></td></tr></table></figure>
+
+<p>This simple example showcases how a reflected XSS looks like on the code level. A parameter is taken from the request (a user input) and if certain conditions match, the value is reflected back to the user.</p>
+<p>While this is a <code>POST</code>-only endpoint, an attacker cannot simply craft a malicious link with a reflected XSS payload, but by leveraging the first finding, an attacker can create a malicious website that uses CSRF and elevate it to XSS. From there, code execution on the server is an intended feature.</p>
+<h3 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h3><p>After disclosing the vulnerabilities the maintainer stated that this project is no longer maintained and archived the repository on GitHub as a result. We recommend avoiding using unmaintained code, or as a last resort, disabling the <em>WebUI</em> component of pyspider.</p>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2024-04-03</td>
+<td>We reported all issues to the maintainers</td>
+</tr>
+<tr>
+<td>2024-04-29</td>
+<td>We pinged the maintainers</td>
+</tr>
+<tr>
+<td>2024-05-03</td>
+<td>We pinged the maintainers again mentioning that 60 days had passed</td>
+</tr>
+<tr>
+<td>2024-06-03</td>
+<td>We notified the maintainers that the 90-day disclosure window has passed and we will release a blog post about the findings</td>
+</tr>
+<tr>
+<td>2024-06-11</td>
+<td>The maintainer stated the project is unmaintained and archived the repository</td>
+</tr>
+<tr>
+<td>2024-07-05</td>
+<td>CVE-2024-39163 and CVE-2024-39162 were assigned</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>This blog post delves into the critical role of code analysis in safeguarding applications. We showcase the power of SonarCloud, our cloud-based service that identifies security vulnerabilities often buried within your codebase. SonarCloud ensures Clean Code practices enhancing code readability, maintainability, and security. Clean code and proactive code analysis empower developers to build more secure applications.</p>
+<p>We explored real-world examples of vulnerabilities unearthed by SonarCloud, highlighting the potential dangers they pose. And explained how legacy basic HTTP authentication could be convenient to use but might contain some security risks. Additionally, we demonstrated the differences between a “vulnerability” finding vs a “hotspot”, and why developers shouldn’t neglect them. </p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
