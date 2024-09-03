@@ -22,7 +22,7 @@ This article delves into the consequences of vulnerabilities found by our engine
 
 An attacker might manipulate an authenticated victim to click on a malicious link, resulting in code execution on the host running pyspider. After we reported our findings, the maintainer has archived the repository on GitHub, making sure users are aware the project isn't supported anymore (refer to the [Patch](#patch) and [Timeline](#timeline) sections for more info).
 
-<iframe width="2545" height="1053" src="https://www.youtube.com/embed/HTzmTucyHmQ" title="Basic HTTP Authentication Risk: Uncovering pyspider Vulnerabilities" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="736" height="414" src="https://www.youtube.com/embed/HTzmTucyHmQ" title="Basic HTTP Authentication Risk: Uncovering pyspider Vulnerabilities" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 # Technical Details
 
