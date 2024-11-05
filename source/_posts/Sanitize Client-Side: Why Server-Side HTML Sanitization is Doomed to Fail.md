@@ -1,5 +1,5 @@
 ---
-title: "Sanitize Client-Side:Why Server-Side HTML Sanitization is Doomed to Fail"
+title: "Sanitize Client-Side: Why Server-Side HTML Sanitization is Doomed to Fail"
 date: 2024-11-05
 tags:
     - "html"
@@ -19,7 +19,8 @@ Background
 
 ### The Problem
 
-When a web application receives user-controlled input, such as comments or form submissions, it's essential to ensure that this input is safe before displaying it to users. This prevents malicious code, like JavaScript, from being injected into the page and executed, leading to potential XSS vulnerabilities. One straightforward approach is to escape every character that has special meaning in HTML such as lower/greater than signs (`<`, `>`), but more often than not web applications would actually like to support HTML input from the user to a certain extent, such as allowing titles, images, and bullet points.\
+When a web application receives user-controlled input, such as comments or form submissions, it's essential to ensure that this input is safe before displaying it to users. This prevents malicious code, like JavaScript, from being injected into the page and executed, leading to potential XSS vulnerabilities. One straightforward approach is to escape every character that has special meaning in HTML such as lower/greater than signs (`<`, `>`), but more often than not web applications would actually like to support HTML input from the user to a certain extent, such as allowing titles, images, and bullet points.
+
 To strike a balance between security and functionality, web applications often need to implement techniques that allow for certain HTML elements and attributes while still protecting against harmful content.
 
 <img src="/img/blogs/sanitize-client-side/image1.png" style="width: 100%;"/>
@@ -73,7 +74,7 @@ Can you spot the core issue? If you do, you are probably an HTML expert at this 
 Despite the variety of bypasses, they all share a common root cause. Let's try another guess, but this time with a hint: These bypasses affected not one sanitizer but **most ones written in PHP**.\
 Can you guess the root cause now?
 
-Taking a step back and considering the common steps of [how sanitizers work](#how-do-html-sanitizers-work), we noticed that the common denominator for vulnerable sanitizers is the parsing algorithm. In our case, most sanitizers we looked at written in PHP were using the built-in HTML parser. Given PHP's primary use in web development, it offers an out-of-the-box HTML parser. Due to its convenience, it's understandable why sanitizer developers opt-out to use it. However, if this parser's behavior differs from the victim's browser, it creates a discrepancy that attackers can exploit
+Taking a step back and considering the common steps of [how sanitizers work](#How-do-HTML-Sanitizers-work), we noticed that the common denominator for vulnerable sanitizers is the parsing algorithm. In our case, most sanitizers we looked at written in PHP were using the built-in HTML parser. Given PHP's primary use in web development, it offers an out-of-the-box HTML parser. Due to its convenience, it's understandable why sanitizer developers opt-out to use it. However, if this parser's behavior differs from the victim's browser, it creates a discrepancy that attackers can exploit
 
 So in what way was the PHP parser different from the browser that caused these bypasses? If we split the payloads by HTML features:
 
