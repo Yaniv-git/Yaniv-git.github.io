@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:description" content="Security research blog">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Sanitize Client-Side:Why Server-Side HTML Sanitization is Doomed to Fail - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Problem"><span class="toc-text">The Problem</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTML-Sanitizers-as-a-solution"><span class="toc-text">HTML Sanitizers as a solution</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#How-do-HTML-Sanitizers-work"><span class="toc-text">How do HTML Sanitizers work?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Which-client-side"><span class="toc-text">Which client side?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Research-Story"><span class="toc-text">Research Story</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Differential-Example-Comments"><span class="toc-text">Differential Example: Comments</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sanitizers%E2%80%99-Achilles%E2%80%99-heel-HTML-Parsing"><span class="toc-text">Sanitizers’ Achilles’ heel: HTML Parsing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#The-Challenges-of-HTML-Parsing"><span class="toc-text">The Challenges of HTML Parsing</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#What-Should-Developers-Do"><span class="toc-text">What Should Developers Do?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Disclosure"><span class="toc-text">Disclosure</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Sanitize Client-Side:Why Server-Side HTML Sanitization is Doomed to Fail    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2024-11-04 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#php" title="php">php</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#bypass" title="bypass">bypass</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#html" title="html">html</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2023-47125" title="CVE-2023-47125">CVE-2023-47125</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/sanitize-client-side-why-server-side-html-sanitization-is-doomed-to-fail/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <p>The battle against <a target="_blank" rel="noopener" href="https://owasp.org/www-community/attacks/xss/">Cross-Site Scripting</a> (XSS) has been going on for years, with developers and security experts constantly seeking new and improved methods to protect web applications. The most common way is using a sanitizer, meant to manipulate untrusted user input in a smart way in order to prevent any unwanted markup. Implementing HTML sanitization on the server side sounds logical at first glance, but this strategy has often fallen short. In this blog, we will demonstrate the limitations of relying solely on server-side sanitization, and why this is one of the main root causes of bypasses.</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h3><p>When a web application receives user-controlled input, such as comments or form submissions, it’s essential to ensure that this input is safe before displaying it to users. This prevents malicious code, like JavaScript, from being injected into the page and executed, leading to potential XSS vulnerabilities. One straightforward approach is to escape every character that has special meaning in HTML such as lower&#x2F;greater than signs (<code>&lt;</code>, <code>&gt;</code>), but more often than not web applications would actually like to support HTML input from the user to a certain extent, such as allowing titles, images, and bullet points.<br>To strike a balance between security and functionality, web applications often need to implement techniques that allow for certain HTML elements and attributes while still protecting against harmful content.</p>
+<img src="/img/blogs/sanitize-client-side/image1.png" style="width: 100%;"/>
+
+<h3 id="HTML-Sanitizers-as-a-solution"><a href="#HTML-Sanitizers-as-a-solution" class="headerlink" title="HTML Sanitizers as a solution"></a>HTML Sanitizers as a solution</h3><p>A sanitizer is meant to clean HTML input by removing or modifying potentially harmful elements and attributes. It helps prevent cross-site scripting (XSS) attacks by ensuring that only safe, trusted content is rendered on a web page. Sanitizers are often configurable, allowing developers to specify which elements and attributes are allowed. However, the more elements and attributes that are permitted, the larger the attack surface becomes, increasing the risk of XSS vulnerabilities.</p>
+<h3 id="How-do-HTML-Sanitizers-work"><a href="#How-do-HTML-Sanitizers-work" class="headerlink" title="How do HTML Sanitizers work?"></a>How do HTML Sanitizers work?</h3><p>At first, the user’s input is just a string with no extensive meaning. So, how do the sanitizers know what to do with the data?</p>
+<p>To simplify matters, the “magic” behind the scenes that enables sanitizers to manipulate the data in a smart way works usually by first parsing the untrusted HTML input to create a structured DOM tree object. This tree represents the hierarchical structure of the HTML elements and their attributes. Once the DOM tree is built, the sanitizer can iterate over it, examining each element and attribute. Based on its configuration, the sanitizer can then remove or modify elements and attributes that are considered unsafe or potentially harmful. This process helps ensure that only trusted content is rendered on the web page, preventing malicious code from being executed.</p>
+<img src="/img/blogs/sanitize-client-side/image2.png" style="width: 100%;"/>
+
+<h3 id="Which-client-side"><a href="#Which-client-side" class="headerlink" title="Which client side?"></a>Which client side?</h3><p>Let’s clarify a bit about the sentence “sanitize client side.” Considering a simplified XSS attack flow graph, there are generally three parties involved.</p>
+<ul>
+<li><p>Attacker: The one that generates the malicious input, whether it’s creating a link or posting a comment on a forum</p>
+</li>
+<li><p>Server: The node that serves the vulnerable page containing the malicious payload in it</p>
+</li>
+<li><p>Victim: The end user who views the page, and triggers the execution of the vulnerability</p>
+</li>
+</ul>
+<img src="/img/blogs/sanitize-client-side/image3.png" style="width: 100%;"/>
+
+<p>On the client side, there are two parties: an attacker and a victim. Of course, sanitizing on the attacker’s client side doesn’t make sense because any code running on their machine can easily be bypassed, meaning they don’t have to obey any local rules.</p>
+<p>Other traditional vulnerabilities, such as SQL injection and Server Side Request Forgey (SSRF) are usually triggered on the server side, so it makes sense to sanitize the untrusted input where the vulnerability might take place. But XSS is triggered on the Victim’s machine (client-side), so as a best practice it should be sanitized there. We will provide a detailed explanation in the following section on the “why”.   </p>
+<h2 id="Research-Story"><a href="#Research-Story" class="headerlink" title="Research Story"></a>Research Story</h2><p>Throughout our exploration of sanitizer bypasses, we consistently observed parsing issues on the server side. Yet, it wasn’t until we discovered a more widespread problem that we recognized the necessity of communicating the importance of client-side sanitization to developers.</p>
+<p>It all began when one sanitizer bypass pattern caught our eyes:</p>
+<ul>
+<li><p><code>&lt;!--&gt;&lt;img src=x onerror=alert(1)&gt;--&gt;</code></p>
+</li>
+<li><p><code>&lt;textarea&gt;&lt;!--&lt;/textarea&gt;&lt;img src=x onerror=alert(1)&gt;--&gt;&lt;/textarea&gt;</code></p>
+</li>
+<li><p><code>&lt;math&gt;&lt;style&gt;&lt;img src=x onerror=alert(1)&gt;&lt;/style&gt;&lt;/math&gt;</code></p>
+</li>
+<li><p>And more…</p>
+</li>
+</ul>
+<p>At first glance, the amount of payloads bypassing the sanitizer might seem like a generally poor logic implementation. However, a deeper analysis revealed <strong>one</strong> fundamental flaw.<br>Can you spot the core issue? If you do, you are probably an HTML expert at this point.</p>
+<p>Despite the variety of bypasses, they all share a common root cause. Let’s try another guess, but this time with a hint: These bypasses affected not one sanitizer but <strong>most ones written in PHP</strong>.<br>Can you guess the root cause now?</p>
+<p>Taking a step back and considering the common steps of <a href="#how-do-html-sanitizers-work">how sanitizers work</a>, we noticed that the common denominator for vulnerable sanitizers is the parsing algorithm. In our case, most sanitizers we looked at written in PHP were using the built-in HTML parser. Given PHP’s primary use in web development, it offers an out-of-the-box HTML parser. Due to its convenience, it’s understandable why sanitizer developers opt-out to use it. However, if this parser’s behavior differs from the victim’s browser, it creates a discrepancy that attackers can exploit</p>
+<p>So in what way was the PHP parser different from the browser that caused these bypasses? If we split the payloads by HTML features:</p>
+<ul>
+<li><p><code>&lt;!--</code> : Comment</p>
+</li>
+<li><p><code>&lt;textarea&gt;</code> : RCDATA</p>
+</li>
+<li><p><code>&lt;style&gt;</code> : RAWDATA</p>
+</li>
+<li><p><code>&lt;math&gt;</code> : Foreign content</p>
+</li>
+<li><p>…</p>
+</li>
+</ul>
+<p>We notice that they are all either new or updated features in HTML version 5.</p>
+<blockquote>
+<p><em>HTML5 represents the most recent major revision of the HTML standard. Introduced in 2014 and used commonly by today’s standards, it hosted new features and capabilities, including multimedia support, new elements, different namespaces, web workers, and many more.</em></p>
+</blockquote>
+<p>The built-in PHP HTML parser was using the underlying package <a target="_blank" rel="noopener" href="https://gitlab.gnome.org/GNOME/libxml2">libxml2</a>, which only claims to support HTML4. So, subsequently, PHP was parsing HTML with the outdated HTML 4 standard from before 2014.</p>
+<h4 id="Differential-Example-Comments"><a href="#Differential-Example-Comments" class="headerlink" title="Differential Example: Comments"></a>Differential Example: Comments</h4><p>Let’s take a look at one example of a difference, comments. Pulling up HTML4 documentation, comments are simply starting with <code>&lt;!--</code> and ending with <code>--&gt;</code>. But in HTML5 it states that “the text must not start with the string <code>&gt;</code> nor <code>-&gt;</code>“ and can be ended with <code>--!&gt;</code> as well.</p>
+<img src="/img/blogs/sanitize-client-side/image4.png" style="width: 100%;"/>
+
+<p><strong>That means, most PHP sanitizers that allow comments (or any other specific HTML5 combination of tags) are vulnerable to bypasses.</strong></p>
+<p>On one hand, it is convenient and most of the time best practice to delegate tasks using prewritten code. On the other hand, this also means that one bug might affect many applications:</p>
+<img src="/img/blogs/sanitize-client-side/image5.png" style="width: 100%;"/>
+
+<h2 id="Sanitizers’-Achilles’-heel-HTML-Parsing"><a href="#Sanitizers’-Achilles’-heel-HTML-Parsing" class="headerlink" title="Sanitizers’ Achilles’ heel: HTML Parsing"></a>Sanitizers’ Achilles’ heel: HTML Parsing</h2><p>It might seem like a big deal, potentially impacting many applications considering the wide spread of PHP. Unfortunately, this is just the tip of the iceberg. In fact, we encountered a third-party HTML5 parser written in PHP that included <a target="_blank" rel="noopener" href="https://github.com/Masterminds/html5-php/issues/241">some differentials</a> which resulted in bypasses of sanitizer that used the library.</p>
+<h3 id="The-Challenges-of-HTML-Parsing"><a href="#The-Challenges-of-HTML-Parsing" class="headerlink" title="The Challenges of HTML Parsing"></a>The Challenges of HTML Parsing</h3><p>With the evolution of the language and the introduction of features, the complication of HTML grew accordingly. Despite its widespread use, HTML is not always straightforward to parse. From backward compatibility to tolerance for errors, its flexibility can be a double-edged sword, leading to inconsistencies and unexpected behavior. The root cause of many sanitizer bypass vulnerabilities lies in a fundamental misunderstanding of HTML’s complexities and the various ways in which malicious code can be injected. Let’s try to emphasize this by giving a couple of examples:</p>
+<ol>
+<li><p><strong>General differentials</strong>: HTML is not straightforward to parse, to the point that even major browsers like Chrome and Firefox can have subtle differences in how they parse and render HTML. A server can have clients using various browsers, hence different parsing.</p>
+</li>
+<li><p><strong>HTML is a constantly evolving language</strong>. New elements, attributes, and features are introduced regularly, making new differentials between up-to-date parsers and older versions. For example, one user might use an older version of Chrome that follows older specification standards.</p>
+</li>
+<li><p><strong>Parser Configuration</strong>: The configuration of the sanitizer’s parser can significantly impact its behavior. For example, whether <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#enabling-and-disabling-scripting">scripting</a> is enabled or disabled can determine how certain elements are parsed.</p>
+</li>
+<li><p><strong>Parsing Context</strong>: The context in which the sanitized data is used is crucial. A piece of HTML that is safe in one context might be harmful in another. For example, a <code>style</code> element’s content behaves differently in different namespaces.</p>
+</li>
+<li><p><strong>Parsing Roundtrip</strong>: Even when using the same parser, there can be issues with parsing roundtrips. This occurs when HTML is parsed, modified, and then reparsed. The process of parsing and reparsing can introduce unintended changes to the markup.</p>
+</li>
+<li><p><strong>MXSS Techniques</strong>: Attackers can take advantage of Mutation XSS techniques to bypass sanitization, taking advantage of the complexity of the HTML language (read more about it <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/mxss-the-vulnerability-hiding-in-your-code/">here</a>).</p>
+</li>
+</ol>
+<p>All in all, a server can never be sure that the way it parses the HTML will be the same when it is viewed on a different machine. This is why it’s important to parse and sanitize the data on the same endpoint where the XSS might take place.</p>
+<h2 id="What-Should-Developers-Do"><a href="#What-Should-Developers-Do" class="headerlink" title="What Should Developers Do?"></a>What Should Developers Do?</h2><p>Unfortunately, at the time of writing, there is no standardized, browser-native solution for securely handling untrusted HTML input. Currently, developers must rely on third-party libraries or build custom sanitization mechanisms.</p>
+<p>While there’s an ongoing effort to develop an official client-side sanitizer (as we discussed in the <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/mxss-the-vulnerability-hiding-in-your-code/#future">Future</a> section of our <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/mxss-the-vulnerability-hiding-in-your-code">mXSS blog post</a>), it is still in progress. In the meantime, the best approach is to carefully consider the specific HTML features required by your application. A more restrictive HTML policy can significantly reduce the attack surface, but it may not always align with product needs. For scenarios where some HTML input is necessary, <a target="_blank" rel="noopener" href="https://github.com/cure53/DOMPurify">DOMPurify</a> is currently considered the most robust (<strong>When used on the client side</strong>) sanitization library. You can configure DOMPurify to only allow the HTML elements you need to further harden your application and prevent CSS injections as well.</p>
+<h2 id="Disclosure"><a href="#Disclosure" class="headerlink" title="Disclosure"></a>Disclosure</h2><p>Following our report PHP updated its documentation to contain a big red warning box on the HTML4 parsing API to raise awareness that it shouldn’t be used for sanitizing:</p>
+<img src="/img/blogs/sanitize-client-side/image6.png" style="width: 100%;"/>
+
+<p>Additionally, in November 2023, PHP 8.4 was released with <a target="_blank" rel="noopener" href="https://wiki.php.net/rfc/domdocument_html5_parser">HTML5 support</a> using the underlying <a target="_blank" rel="noopener" href="https://github.com/lexbor/lexbor">Lexbor</a> library. <strong>However, this still doesn’t solve the problem of not sanitizing the client side</strong>, as we’ve seen in the examples above.</p>
+<p>Lastly, we reported our findings to various affected sanitizers. Some fixed our findings, and despite others not addressing our findings, we released this blog under the 90-day responsible disclosure policy.</p>
+<h2 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h2><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2023-09-19</td>
+<td>We report all issues to PHP maintainers.</td>
+</tr>
+<tr>
+<td>2023-09-19</td>
+<td>The vendor acknowledged receiving the report.</td>
+</tr>
+<tr>
+<td>2023-10-03</td>
+<td>The maintainers <a target="_blank" rel="noopener" href="https://github.com/php/doc-en/commit/4ef716f8aa753e1189b2e57c91da378b16d970b0">updated</a> the official documentation to include a warning for developers.</td>
+</tr>
+</tbody></table>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>In this blog, we explored the importance of client-side sanitization for untrusted HTML input. We highlighted the inherent limitations of server-side sanitization, demonstrating how the complexity of HTML parsing can lead to vulnerabilities. Due to variations in parsing algorithms across different environments, server-side sanitization cannot guarantee consistent parsing amongst various endpoints. As a best practice, developers should implement client-side sanitization to ensure that untrusted input is processed in a controlled and secure manner, reducing substantially the risk of a sanitizer bypass.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
