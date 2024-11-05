@@ -11,7 +11,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     <title>
         
-        Sanitize Client-Side:Why Server-Side HTML Sanitization is Doomed to Fail - YNizry
+        Sanitize Client-Side: Why Server-Side HTML Sanitization is Doomed to Fail - YNizry
         
     </title>
 
@@ -166,7 +166,7 @@
         <!-- Main Content -->
         <div class="post-container">
     <div class="post-title">
-        Sanitize Client-Side:Why Server-Side HTML Sanitization is Doomed to Fail    
+        Sanitize Client-Side: Why Server-Side HTML Sanitization is Doomed to Fail    
     </div>
 
     <div class="post-meta">
@@ -218,7 +218,8 @@
     </div>
     <div class="post-content no-indent">
         <p>The battle against <a target="_blank" rel="noopener" href="https://owasp.org/www-community/attacks/xss/">Cross-Site Scripting</a> (XSS) has been going on for years, with developers and security experts constantly seeking new and improved methods to protect web applications. The most common way is using a sanitizer, meant to manipulate untrusted user input in a smart way in order to prevent any unwanted markup. Implementing HTML sanitization on the server side sounds logical at first glance, but this strategy has often fallen short. In this blog, we will demonstrate the limitations of relying solely on server-side sanitization, and why this is one of the main root causes of bypasses.</p>
-<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h3><p>When a web application receives user-controlled input, such as comments or form submissions, it’s essential to ensure that this input is safe before displaying it to users. This prevents malicious code, like JavaScript, from being injected into the page and executed, leading to potential XSS vulnerabilities. One straightforward approach is to escape every character that has special meaning in HTML such as lower&#x2F;greater than signs (<code>&lt;</code>, <code>&gt;</code>), but more often than not web applications would actually like to support HTML input from the user to a certain extent, such as allowing titles, images, and bullet points.<br>To strike a balance between security and functionality, web applications often need to implement techniques that allow for certain HTML elements and attributes while still protecting against harmful content.</p>
+<h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><h3 id="The-Problem"><a href="#The-Problem" class="headerlink" title="The Problem"></a>The Problem</h3><p>When a web application receives user-controlled input, such as comments or form submissions, it’s essential to ensure that this input is safe before displaying it to users. This prevents malicious code, like JavaScript, from being injected into the page and executed, leading to potential XSS vulnerabilities. One straightforward approach is to escape every character that has special meaning in HTML such as lower&#x2F;greater than signs (<code>&lt;</code>, <code>&gt;</code>), but more often than not web applications would actually like to support HTML input from the user to a certain extent, such as allowing titles, images, and bullet points.</p>
+<p>To strike a balance between security and functionality, web applications often need to implement techniques that allow for certain HTML elements and attributes while still protecting against harmful content.</p>
 <img src="/img/blogs/sanitize-client-side/image1.png" style="width: 100%;"/>
 
 <h3 id="HTML-Sanitizers-as-a-solution"><a href="#HTML-Sanitizers-as-a-solution" class="headerlink" title="HTML Sanitizers as a solution"></a>HTML Sanitizers as a solution</h3><p>A sanitizer is meant to clean HTML input by removing or modifying potentially harmful elements and attributes. It helps prevent cross-site scripting (XSS) attacks by ensuring that only safe, trusted content is rendered on a web page. Sanitizers are often configurable, allowing developers to specify which elements and attributes are allowed. However, the more elements and attributes that are permitted, the larger the attack surface becomes, increasing the risk of XSS vulnerabilities.</p>
@@ -253,7 +254,7 @@
 </ul>
 <p>At first glance, the amount of payloads bypassing the sanitizer might seem like a generally poor logic implementation. However, a deeper analysis revealed <strong>one</strong> fundamental flaw.<br>Can you spot the core issue? If you do, you are probably an HTML expert at this point.</p>
 <p>Despite the variety of bypasses, they all share a common root cause. Let’s try another guess, but this time with a hint: These bypasses affected not one sanitizer but <strong>most ones written in PHP</strong>.<br>Can you guess the root cause now?</p>
-<p>Taking a step back and considering the common steps of <a href="#how-do-html-sanitizers-work">how sanitizers work</a>, we noticed that the common denominator for vulnerable sanitizers is the parsing algorithm. In our case, most sanitizers we looked at written in PHP were using the built-in HTML parser. Given PHP’s primary use in web development, it offers an out-of-the-box HTML parser. Due to its convenience, it’s understandable why sanitizer developers opt-out to use it. However, if this parser’s behavior differs from the victim’s browser, it creates a discrepancy that attackers can exploit</p>
+<p>Taking a step back and considering the common steps of <a href="#How-do-HTML-Sanitizers-work">how sanitizers work</a>, we noticed that the common denominator for vulnerable sanitizers is the parsing algorithm. In our case, most sanitizers we looked at written in PHP were using the built-in HTML parser. Given PHP’s primary use in web development, it offers an out-of-the-box HTML parser. Due to its convenience, it’s understandable why sanitizer developers opt-out to use it. However, if this parser’s behavior differs from the victim’s browser, it creates a discrepancy that attackers can exploit</p>
 <p>So in what way was the PHP parser different from the browser that caused these bypasses? If we split the payloads by HTML features:</p>
 <ul>
 <li><p><code>&lt;!--</code> : Comment</p>
