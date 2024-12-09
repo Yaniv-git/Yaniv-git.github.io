@@ -7,3 +7,8 @@ To run the website locally for debugging purposes run
 npm i
 npm run server
 ```
+
+## Misc
+* Open Graph image generator - https://tailwind-generator.com/og-image-generator/generator
+* Code snippet image generator - https://carbon.now.sh/
+* favicon color - 1b5c78
