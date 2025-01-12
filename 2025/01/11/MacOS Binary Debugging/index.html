@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+        
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:site" content="@YNizry">
+            <meta name="og:image" content="https://yaniv-git.github.io/img/blogs/macos-debugging/HeroImage.png">
+            <meta name="twitter:image" content="https://yaniv-git.github.io/img/blogs/macos-debugging/HeroImage.png">
+        
+        
+            <meta name="og:title" content="MacOS Binary Debugging">
+            <meta name="twitter:title" content="MacOS Binary Debugging">
+        
+        
+            <meta name="og:description" content="This blog post covers the basics of setting up an environment to debug binaries on MacOS">
+            <meta name="twitter:description" content="This blog post covers the basics of setting up an environment to debug binaries on MacOS">
+        
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        MacOS Binary Debugging - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#lldb-Setup"><span class="toc-text">lldb Setup</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#OSX-Protections"><span class="toc-text">OSX Protections</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Self-Signing-Binaries-to-Grant-Permissions"><span class="toc-text">Self-Signing Binaries to Grant Permissions</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Bypassing-Signature-Check"><span class="toc-text">Bypassing Signature Check</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Insufficient-Signature-Check"><span class="toc-text">Insufficient Signature Check</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dynamic-Patching"><span class="toc-text">Dynamic Patching</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Static-Patching"><span class="toc-text">Static Patching</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        MacOS Binary Debugging    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2025-01-11 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#lldb" title="lldb">lldb</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#ghidra" title="ghidra">ghidra</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#debugging" title="debugging">debugging</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#macos" title="macos">macos</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <img src="/img/blogs/macos-debugging/image1.png" style="display: block;  margin-left: auto;  margin-right: auto; width: 25%;"/>
+
+<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>Dynamic reverse engineering and binary debugging involve analyzing the behavior of a running program to understand its functionality and&#x2F;or identify potential vulnerabilities. This technique is often used for malware analysis, security research, and software testing. If you ever had the chance to dynamically reverse engineer, you most likely used <a target="_blank" rel="noopener" href="https://www.sourceware.org/gdb/">GDB</a> as the debugger. But ever since 2007, Apple shifted gradually from GCC to Clang, with it becoming the default compiler in Xcode 4.0 released in 2011.<br>This means we will need to use <a target="_blank" rel="noopener" href="https://lldb.llvm.org/">lldb</a> for debugging. Fortunately, the differences in user experience aren’t big.</p>
+<h2 id="lldb-Setup"><a href="#lldb-Setup" class="headerlink" title="lldb Setup"></a>lldb Setup</h2><p>Installing <code>lldb</code> could have not been easier, simply open the terminal and write <code>lldb</code>, if it’s not installed you will be prompted with the installation window.</p>
+<img src="/img/blogs/macos-debugging/image2.jpg" style="width: 100%;"/>
+
+<p>After installation, if we try to run <code>lldb</code> and attach it to a running process (or execute a binary via <code>process launch</code>) we will probably face with the following error:</p>
+<img src="/img/blogs/macos-debugging/image3.png" style="width: 100%;"/>
+
+<blockquote>
+<p><em>error: attach failed: attach failed (Not allowed to attach to process.  Look in the console messages (Console.app), near the debugserver entries, when the attach failed.  The subsystem that denied the attach permission will likely have logged an informative message about why it was denied.)</em></p>
+</blockquote>
+<h1 id="OSX-Protections"><a href="#OSX-Protections" class="headerlink" title="OSX Protections"></a>OSX Protections</h1><p>Debugging applications on macOS can be more complex than on other operating systems due to the stringent security measures <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/security?language=objc">implemented</a> by Apple. Mechanisms such as <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/security/hardened-runtime?language=objc">Harden Runtime</a>, <a target="_blank" rel="noopener" href="https://support.apple.com/en-us/102149">System Integrity Protection</a> (SIP), and <a target="_blank" rel="noopener" href="https://support.apple.com/en-gb/guide/security/sec5599b66df/web">Gatekeeper</a>, are designed to safeguard user privacy and system integrity but often restrict necessary access for researchers. </p>
+<p>One important tip that can help us troubleshoot issues throughout our setup process is the use of the <code>console</code> app. It provides a centralized interface to view system logs, application logs, and other diagnostic information. By analyzing these logs, we can pinpoint which mechanism blocks us and seek a relevant solution.</p>
+<img src="/img/blogs/macos-debugging/image4.png" style="display: block;  margin-left: auto;  margin-right: auto; width: 15%;"/>
+
+<p>So let’s try to attach via <code>lldb</code> again and take a look at the console.</p>
+<img src="/img/blogs/macos-debugging/image5.png" style="width: 100%;"/>
+
+<p>Due to Harden Runtime, an application in MacOS has to grant permissions in order for debuggers to attach to their processes. These permissions are done via <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/bundleresources/entitlements?language=objc">entitlement</a> in the code signature. In our specific case, <code>get-task-allow</code> entitlement is missing.</p>
+<p>But as researchers, we usually debug built applications that are already signed with certain permissions. Can we change them?</p>
+<h1 id="Self-Signing-Binaries-to-Grant-Permissions"><a href="#Self-Signing-Binaries-to-Grant-Permissions" class="headerlink" title="Self-Signing Binaries to Grant Permissions"></a>Self-Signing Binaries to Grant Permissions</h1><p>We can <a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html">resign</a>, with extra permissions, the specific binary we would like to debug. However, as I will explain later in the blog, it might cause some other problems in the future. But, for now, let’s see how we can resign executables.</p>
+<p>First, here is how we can see a file’s current signature: Form the Authority, TeamIdentifier, to the actual (XML formatted) entitlements.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">codesign -d -vvv --entitlements :- &lt;path_to_file&gt;</span><br></pre></td></tr></table></figure>
+
+<p>We can take the XML text of the entitlements and write it to a file adding our <code>get-task-allow</code> permission, e.g:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span></span></span><br><span class="line"><span class="meta">  <span class="keyword">PUBLIC</span> <span class="string">&#x27;-//Apple//DTD PLIST 1.0//EN&#x27;</span></span></span><br><span class="line"><span class="meta">  <span class="string">&#x27;https://www.apple.com/DTDs/PropertyList-1.0.dtd&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.security.cs.allow-jit<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.security.cs.allow-unsigned-executable-memory<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.security.get-task-allow<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Now we need to create a certificate, which we can use to sign the file. </p>
+<ol>
+<li>Open Keychain Access application<img src="/img/blogs/macos-debugging/image6.png" style="display: block; margin-left: auto;  margin-right: auto; width: 15%;"/></li>
+<li>And via the toolbar create a certificate with the type “Code Signing”:<img src="/img/blogs/macos-debugging/image7.png" style="width: 100%;"/>
+<img src="/img/blogs/macos-debugging/image8.png" style="width: 100%;"/></li>
+</ol>
+<p>using the custom certificate we can now re-sign the executable using:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo codesign --entitlements &lt;path_to_entitlements.xml&gt; -fs lldb &lt;path_to_binary&gt;</span><br></pre></td></tr></table></figure>
+<p><em>lldb</em> is the name given to the certificate in this example, of course, this can be whatever you’d like. And the <code>-fs</code> flag, forcefully signs the binary which ignores previous signatures.<br>To test if the signature was updated, simply run the first command discussed in this section. You should see the new entitlements (and the custom certificate as the authority).</p>
+<h1 id="Bypassing-Signature-Check"><a href="#Bypassing-Signature-Check" class="headerlink" title="Bypassing Signature Check"></a>Bypassing Signature Check</h1><p>Sometimes, changing the signature can affect the binary’s execution flow if the implemented logic checks certain fields of the signature that have been tampered with. A common check is the <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/automaticassessmentconfiguration/aeassessmentapplication/teamidentifier?language=objc">Team Identifier</a>, which is meant to identify the team that developed the application (This can be used for example, when an application needs to verify that a received <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/xpc?language=objc">XPC</a> communication is made from a trustable source).</p>
+<h2 id="Insufficient-Signature-Check"><a href="#Insufficient-Signature-Check" class="headerlink" title="Insufficient Signature Check"></a>Insufficient Signature Check</h2><p>If not performed correctly, such as in this <a target="_blank" rel="noopener" href="https://wojciechregula.blog/post/learn-xpc-exploitation-part-1-broken-cryptography/">case</a> covered by <a target="_blank" rel="noopener" href="https://x.com/_r3ggi">Wojciech Reguła</a>, you can simply change the “Organizational Unit” in the certificate by overriding the default parameters of the certificate<br><img src="/img/blogs/macos-debugging/image9.png" style="width: 100%;"/><br><img src="/img/blogs/macos-debugging/image10.png" style="width: 100%;"/></p>
+<p>However, in one of my research, the application used the key <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/security/kseccodeinfoteamidentifier?language=objc">kSecCodeInfoTeamIdentifier</a>, which checked the team identifier in a safe manner, and I couldn’t find a way to change it. In this case I had to seek different solutions, with the simplest ones being patching the binary to bypass the verifications.</p>
+<p>We can automate a dynamic patch to the memory or change the file on the disk itself, which will avoid the check of the signature. Each patching approach, dynamic vs. static, has pros and cons. In the dynamic approach, we change the code in memory after the binary is already loaded, and depending on the situation, it could be simpler than a static patch as this method does not require us to resign the binary again.</p>
+<h2 id="Dynamic-Patching"><a href="#Dynamic-Patching" class="headerlink" title="Dynamic Patching"></a>Dynamic Patching</h2><p>For demonstration purposes, let’s say we would like to patch a function named <code>is_dev</code>, that hard-codedly returns 0. But in cases when it returns 1, the signature verification is skipped (finding what exactly is needed to be changed is binary-dependent, and can be discovered by static reverse engineering).<br>The function disassembled code looks as such:</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">00</span> <span class="number">00</span> <span class="number">80</span> <span class="number">52</span> mov w0,#<span class="number">0</span>x0</span><br><span class="line"><span class="attribute">c0</span> <span class="number">03</span> <span class="number">5</span>f d6 ret </span><br></pre></td></tr></table></figure>
+
+<p>We can use an <a target="_blank" rel="noopener" href="https://shell-storm.org/online/Online-Assembler-and-Disassembler/?inst=movz+w0,+%231%0D%0Aret&arch=arm64&as_format=inline#assembly">online disassembler</a> or change the value directly in ghidra to see the new function bytes, in this case, returning 1 will change the first null byte to <code>\x20</code>. Let’s look at two approaches to patching the function:</p>
+<p>Using <code>lldb</code> CLI:</p>
+<ul>
+<li>Attach to the process</li>
+<li>Find the function location in memory using <code>image lookup -n is_dev -v</code></li>
+<li>Write to change the code using <code>mem write &lt;address&gt; &lt;value&gt;</code></li>
+<li>Read to confirm the change - <code>mem read &lt;address&gt; (--count optional)</code></li>
+</ul>
+<p>Automate it using Python (<a target="_blank" rel="noopener" href="https://lldb.llvm.org/use/python-reference.html#using-the-lldb-py-module-in-python">official docs</a>):</p>
+<ul>
+<li>Access scripting tool via the <code>script</code> command in <code>lldb</code>‘s CLI</li>
+<li>Or if you’d like to import <code>lldb</code> directly into your Python environment<ul>
+<li>Locate <code>lldb</code> python module using <code>lldb -P</code>, then according to the module use the corresponding python version (can see it in the file name <code>_lldb.cpython-&#123;version&#125;-darwin.so</code>, for example <code>_lldb.cpython-312-darwin.so</code> use python3.12)</li>
+<li>In case you get <code>ImportError: cannot import name &#39;_lldb&#39; from partially initialized module &#39;lldb&#39; (most likely due to a circular import</code> or would like another version you can <code>brew install llvm</code> and get the new python module at <code>/opt/homebrew/opt/llvm/bin/lldb -P</code></li>
+</ul>
+</li>
+<li>Here is a sample code:<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys sys.path.append(<span class="string">&#x27;/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Resources/Python3&#x27;</span>) </span><br><span class="line"><span class="keyword">import</span> lldb</span><br><span class="line"></span><br><span class="line">process_name = <span class="string">&quot;&lt;NAME&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">listener = lldb.SBListener()</span><br><span class="line">error = lldb.SBError()</span><br><span class="line">dbg = lldb.SBDebugger.Create()</span><br><span class="line">target = dbg.CreateTarget(<span class="literal">None</span>)</span><br><span class="line">process = target.AttachToProcessWithName(listener, process_name, <span class="literal">False</span>, error)</span><br><span class="line">function_name = <span class="string">&quot;is_dev&quot;</span></span><br><span class="line">function = target.FindFunctions(function_name)[<span class="number">0</span>]</span><br><span class="line">function_address = function.GetSymbol().GetStartAddress()</span><br><span class="line">process.WriteMemory(function_address.GetLoadAddress(target), <span class="string">&#x27;\x20&#x27;</span>, error)</span><br><span class="line"><span class="comment"># check that it worked - process.ReadMemory(function_address.GetLoadAddress(target)-1, 1, error)</span></span><br><span class="line">process.Continue()</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="Static-Patching"><a href="#Static-Patching" class="headerlink" title="Static Patching"></a>Static Patching</h2><p>Static patching can be the solution in some scenarios where the binary that you need to patch runs on demand and does not stay running. This is a simpler solution, but can run into problems since we do need to re-sign the executable. </p>
+<p>You can directly patch the binary via ghidra, just change the desired code and <code>file -&gt; export program</code>. After that, you’ll need to sign the file again as explained in previous sections. Again, if something doesn’t work, the console app is your friend.</p>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>In this blog, I covered a beginner-friendly explanation on setting up the environment for dynamically debugging a complied application on MacOS. I discussed how to overcome some of Apple’s protections and provided simple tools to self-diagnose issues that will likely arise. Hopefully this will help you start smoothly when debugging binaries on MacOS.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
