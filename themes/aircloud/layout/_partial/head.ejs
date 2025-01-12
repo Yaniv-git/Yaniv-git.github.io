@@ -3,15 +3,15 @@
         <% if (page?.og?.image){ %>
             <meta name="twitter:card" content="summary_large_image">
             <meta name="twitter:site" content="@YNizry">
-            <meta name="og:image" content="https://yaniv-git.github.io<%= page?.og?.image %>">
+            <meta name="image" property="og:image" content="https://yaniv-git.github.io<%= page?.og?.image %>">
             <meta name="twitter:image" content="https://yaniv-git.github.io<%= page?.og?.image %>">
         <% } %>
         <% if (page?.og?.title){ %>
-            <meta name="og:title" content="<%= page?.og?.title %>">
+            <meta name="title" property="og:title" content="<%= page?.og?.title %>">
             <meta name="twitter:title" content="<%= page?.og?.title %>">
         <% } %>
         <% if (page?.og?.description){ %>
-            <meta name="og:description" content="<%= page?.og?.description %>">
+            <meta name="description" property="og:description" content="<%= page?.og?.description %>">
             <meta name="twitter:description" content="<%= page?.og?.description %>">
         <% } %>
     <% } %>
@@ -19,6 +19,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:type" content="website">
+    <meta name="author" content="Yaniv Nizry">
     <meta name="description" content="<%= config.description %>">
     <meta name="keyword"  content="<%= config.keyword %>">
     <link rel="shortcut icon" href="<%= config.root %>img/favicon.ico">
