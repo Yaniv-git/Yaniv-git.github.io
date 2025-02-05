@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="author" content="Yaniv Nizry">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        The Tainted Voyage: Uncovering Voyager&#39;s Vulnerabilities - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Key-Information"><span class="toc-text">Key Information</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arbitrary-File-Write-vulnerability-CVE-2024-55417"><span class="toc-text">Arbitrary File Write vulnerability (CVE-2024-55417)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Introducing-Polyglot-Files-A-Double-Edged-Sword"><span class="toc-text">Introducing Polyglot Files: A Double-Edged Sword</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reflected-Cross-Site-Scripting-CVE-2024-55416"><span class="toc-text">Reflected Cross-Site Scripting (CVE-2024-55416)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arbitrary-File-Leak-and-Deletion-CVE-2024-55415"><span class="toc-text">Arbitrary File Leak and Deletion (CVE-2024-55415)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        The Tainted Voyage: Uncovering Voyager's Vulnerabilities    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2025-01-26 23:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#polyglot" title="polyglot">polyglot</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#file-upload" title="file-upload">file-upload</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-55417" title="CVE-2024-55417">CVE-2024-55417</a>
+                    <span>/</span>
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-55416" title="CVE-2024-55416">CVE-2024-55416</a>
+                    <span>/</span>
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2024-55415" title="CVE-2024-55415">CVE-2024-55415</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/the-tainted-voyage-uncovering-voyagers-vulnerabilities/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <p><a target="_blank" rel="noopener" href="https://voyager.devdojo.com/" title="Voyager">Voyager</a> is a popular open-source PHP package designed to streamline the management of Laravel applications. It provides a pre-built, user-friendly admin interface and offers a range of features, such as BREAD operations, media management, user management, and more. With over 11,000 GitHub stars and millions of downloads, it has established itself as a reliable and widely-used solution in the Laravel community.</p>
+<p>By leveraging SonarQube Cloud’s code analysis, which is free to use for open-source projects, we continuously and proactively identify and mitigate risks within open-source projects, benefiting both the community and our own tools. During one of many scans we performed, a Voyager finding caught our eye, which led us to a further audit of the project and eventually discover and disclose critical vulnerabilities in the project.</p>
+<h1 id="Key-Information"><a href="#Key-Information" class="headerlink" title="Key Information"></a>Key Information</h1><ul>
+<li>During our continuous scans, SonarQube Cloud <a target="_blank" rel="noopener" href="https://sonarcloud.io/project/issues?issueStatuses=OPEN,CONFIRMED&types=VULNERABILITY&id=SonarSourceResearch_voyager-blogpost&open=AZNs69Z-Bb89eYtXmCnW" title="reported">reported</a> an arbitrary file write vulnerability in Voyager.</li>
+<li>After further research of the project, we discovered additional vulnerabilities and combined them to create a realistic attack scenario, which resulted in one-click remote code execution on a Voyager instance.</li>
+<li>We reported the findings to the project maintainers multiple times via emails and Github with no reply.</li>
+<li>We release this information to the public in order to protect users, under our 90-day responsible disclosure policy.</li>
+</ul>
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>When an authenticated Voyager user clicks on a malicious link, attackers can execute arbitrary code on the server. <strong>At the time of writing this blog (Voyager version 1.8.0), the vulnerabilities have not been fixed</strong> and we release this information to allow users to protect themselves under our 90-day responsible disclosure deadline.</p>
+<iframe width="736" height="414" src="https://www.youtube.com/embed/qLCrPCXEcec" title="The Tainted Voyage: Uncovering Voyager&#39;s Vulnerabilities" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>Let’s take a look at the report that caught our attention.</p>
+<img src="/img/blogs/voyager/sonarqube.png" style="width: 100%;"/>
+
+<p><em>Try it yourself on <em><a target="_blank" rel="noopener" href="https://sonarcloud.io/project/issues?issueStatuses=OPEN,CONFIRMED&types=VULNERABILITY&id=SonarSourceResearch_voyager-blogpost&open=AZNs69Z-Bb89eYtXmCnW" title="see it yourself on SonarQube Cloud"><em>SonarQube Cloud</em></a></em>.</em></p>
+<p>Initially, the issue appeared to be a straightforward path traversal vulnerability within the application’s media upload component. However, a deeper analysis revealed limitations an attacker would need to overcome in order to make this vulnerability impactful. Expanding the truncated part from the sink (user input) to the source (the dangerous <code>storeAs</code> function) shows interesting information:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">upload</span>(<span class="params">Request <span class="variable">$request</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// Check permission</span></span><br><span class="line">    <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">authorize</span>(<span class="string">&#x27;browse_media&#x27;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="variable">$extension</span> = <span class="variable">$request</span>-&gt;file-&gt;<span class="title function_ invoke__">getClientOriginalExtension</span>();</span><br><span class="line">    <span class="variable">$name</span> = <span class="title class_">Str</span>::<span class="title function_ invoke__">replaceLast</span>(<span class="string">&#x27;.&#x27;</span>.<span class="variable">$extension</span>, <span class="string">&#x27;&#x27;</span>, <span class="variable">$request</span>-&gt;file-&gt;<span class="title function_ invoke__">getClientOriginalName</span>());</span><br><span class="line">    <span class="variable">$details</span> = <span class="title function_ invoke__">json_decode</span>(<span class="variable">$request</span>-&gt;<span class="title function_ invoke__">get</span>(<span class="string">&#x27;details&#x27;</span>) ?? <span class="string">&#x27;&#123;&#125;&#x27;</span>);</span><br><span class="line">    <span class="variable">$absolute_path</span> = <span class="title class_">Storage</span>::<span class="title function_ invoke__">disk</span>(<span class="variable">$this</span>-&gt;filesystem)-&gt;<span class="title function_ invoke__">path</span>(<span class="variable">$request</span>-&gt;upload_path);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="variable">$realPath</span> = <span class="title class_">Storage</span>::<span class="title function_ invoke__">disk</span>(<span class="variable">$this</span>-&gt;filesystem)-&gt;<span class="title function_ invoke__">path</span>(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="variable">$allowedMimeTypes</span> = <span class="title function_ invoke__">config</span>(<span class="string">&#x27;voyager.media.allowed_mimetypes&#x27;</span>, <span class="string">&#x27;*&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$allowedMimeTypes</span> != <span class="string">&#x27;*&#x27;</span> &amp;&amp; (<span class="title function_ invoke__">is_array</span>(<span class="variable">$allowedMimeTypes</span>) &amp;&amp; !<span class="title function_ invoke__">in_array</span>(<span class="variable">$request</span>-&gt;file-&gt;<span class="title function_ invoke__">getMimeType</span>(), <span class="variable">$allowedMimeTypes</span>))) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="title function_ invoke__">__</span>(<span class="string">&#x27;voyager::generic.mimetype_not_allowed&#x27;</span>));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">        <span class="variable">$file</span> = <span class="variable">$request</span>-&gt;file-&gt;<span class="title function_ invoke__">storeAs</span>(<span class="variable">$request</span>-&gt;upload_path, <span class="variable">$name</span>.<span class="string">&#x27;.&#x27;</span>.<span class="variable">$extension</span>, <span class="variable">$this</span>-&gt;filesystem);</span><br></pre></td></tr></table></figure>
+<p>There are two important checks here, which are performed before the file is saved to the disk. </p>
+<ol>
+<li>The first one verifies that the user who made the request has the <code>browse_media</code> permission, which means that no ordinary user can execute this action. </li>
+<li>The second one verifies if the file’s <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types" title="MIME type">MIME type</a> is allowed (predefined in the configuration).</li>
+</ol>
+<p>Can you think of ways an attacker would try to bypass these when crafting an exploit? We will deep-dive into each point using different vulnerabilities, starting with the second one, the mime-type verification.</p>
+<h2 id="Arbitrary-File-Write-vulnerability-CVE-2024-55417"><a href="#Arbitrary-File-Write-vulnerability-CVE-2024-55417" class="headerlink" title="Arbitrary File Write vulnerability (CVE-2024-55417)"></a>Arbitrary File Write vulnerability (CVE-2024-55417)</h2><p>When a file is uploaded to the <code>/admin/media/upload</code> endpoint, Voyager <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/1.7/src/Http/Controllers/VoyagerMediaController.php#L238" title="checks">checks</a> the request file’s MIME type via Laravel’s (which uses Symphony) <a target="_blank" rel="noopener" href="https://laravel.com/api/master/Illuminate/Support/Facades/Request.html#method_getMimeType" title="getMimeType">getMimeType</a> function. In order to understand how it works, let’s take a look at a similar function’s <a target="_blank" rel="noopener" href="https://github.com/symfony/symfony/blob/73d490466bdaf09fb5ee57ea55a91db40f8c6b03/src/Symfony/Component/HttpFoundation/File/UploadedFile.php#L126" title="documentation">documentation</a>, <code>getClientMimeType:</code></p>
+<blockquote>
+<p>The client mime type is extracted from the request from which the file was uploaded, so it should not be considered as a safe value. For a trusted mime type, use getMimeType() instead (which guesses the mime type based on the file content).</p>
+</blockquote>
+<p>When a user uploads a file (via form data), they provide a file name and content type in addition to the file’s content. While some functions get the type of the file from the name’s extension or the content type, getMimeType is supposed to be “safer” by <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Content_sniffing" title="sniffing">sniffing</a>&#x2F;guessing it from the content itself.</p>
+<p>After sniffing the MIME type, the <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/1.6/src/Http/Controllers/VoyagerMediaController.php#L238" title="VoyagerMediaController@upload">VoyagerMediaController@upload</a> function crosses it with a predefined list and <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/1.6/src/Http/Controllers/VoyagerMediaController.php#L239" title="throws an exception">throws an exception</a> when not allowed.</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="variable">$allowedMimeTypes</span> != <span class="string">&#x27;*&#x27;</span> &amp;&amp; (<span class="title function_ invoke__">is_array</span>(<span class="variable">$allowedMimeTypes</span>) &amp;&amp; !<span class="title function_ invoke__">in_array</span>(<span class="variable">$request</span>-&gt;file-&gt;<span class="title function_ invoke__">getMimeType</span>(), <span class="variable">$allowedMimeTypes</span>))) &#123;</span><br><span class="line">  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="title function_ invoke__">__</span>(<span class="string">&#x27;voyager::generic.mimetype_not_allowed&#x27;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/873bce194e3066b89ac2e46d6063179b35c6f52d/publishable/config/voyager.php#L227-L233" title="default">default</a> <code>allowedMimeTypes</code> list contains harmless content types:</p>
+<ul>
+<li>image&#x2F;jpeg</li>
+<li>image&#x2F;png</li>
+<li>image&#x2F;gif</li>
+<li>image&#x2F;bmp</li>
+<li>video&#x2F;mp4</li>
+</ul>
+<p>But file formats can be complicated. While some types of files have a clear and strict structure, others might be less obvious. For example, a PHP-based file doesn’t require to start with a specific order of bytes (<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/List_of_file_signatures" title="file header">file header</a>) to be valid. Consequently, if a file contains the PHP opening tag <code>&lt;?php</code> anywhere within its content, the embedded PHP code can be executed by a PHP interpreter.</p>
+<p>Therefore, if an attacker can manipulate the content type sniffing mechanism to classify a malicious file as an allowed file type and subsequently induce the server to process it as a PHP script, this arbitrary file write vulnerability could be escalated into a critical remote code execution by uploading a web shell.</p>
+<h3 id="Introducing-Polyglot-Files-A-Double-Edged-Sword"><a href="#Introducing-Polyglot-Files-A-Double-Edged-Sword" class="headerlink" title="Introducing Polyglot Files: A Double-Edged Sword"></a>Introducing Polyglot Files: A Double-Edged Sword</h3><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Polyglot_(disambiguation)" title="Polyglot">Polyglot</a> files are files that can be interpreted as multiple file types, taking advantage of the flexibility and variety of file formats. While this flexibility can be beneficial in some cases, it can also be exploited by malicious actors.</p>
+<p>In the context of this vulnerability, an attacker could craft a polyglot file that appears to be a legitimate file type to the <code>getMimeType</code> function (e.g., an image or video) but actually contains malicious PHP code.<br>However, in order for the malicious code to be executed, the server should serve and render the file as PHP, which is determined by the extension. Since the upload mechanism doesn’t implement any file extension verification, an attacker can simply decide on an arbitrary extension. Resulting in arbitrary code execution by users who have the <code>browse_media</code> permissions.</p>
+<img src="/img/blogs/voyager/webshell.png" style="width: 100%;"/>
+
+<h2 id="Reflected-Cross-Site-Scripting-CVE-2024-55416"><a href="#Reflected-Cross-Site-Scripting-CVE-2024-55416" class="headerlink" title="Reflected Cross-Site Scripting (CVE-2024-55416)"></a>Reflected Cross-Site Scripting (CVE-2024-55416)</h2><p>While the arbitrary file upload vulnerability, coupled with PHP’s permissive nature, could lead to remote code execution, its impact is currently limited by the <code>browse_media</code> permission requirement. As Voyager is primarily targeted at administrators, this limitation reduces the immediate severity of the issue. The main concern lies in the potential for unauthorized code execution within the administrative context. While this might be a significant issue for some applications, it’s less critical in scenarios where all administrators are trusted.</p>
+<p>To escalate this vulnerability to a critical threat, an attacker would need to combine it with another vulnerability, such as authorization bypass, cross-site request forgery (CSRF), or cross-site scripting (XSS) attack, to execute malicious code on behalf of a privileged user.</p>
+<p>When auditing the rest of the Voyager codebase we noticed an interesting endpoint: the <code>/admin/compass</code> which gets handled by the <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/1.6/src/Http/Controllers/VoyagerCompassController.php#L19" title="VoyagerCompassController@index">VoyagerCompassController@index</a> component, allowing the execution of certain actions via a GET request. Despite it still requiring admin permissions when handling GET requests, an attacker can craft a URL and manipulate an authenticated user to invoke the request by clicking on the link.</p>
+<p>One of the actions that this endpoint provides is <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/1.6/src/Http/Controllers/VoyagerCompassController.php#L44" title="deleting a file">deleting a file</a>. After the action is done (regardless of whether the file is found or deleted), a small popup will be displayed to the user in the UI.</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">elseif</span> (<span class="variable language_">$this</span>-&gt;request-&gt;<span class="title function_ invoke__">has</span>(<span class="string">&#x27;del&#x27;</span>)) &#123;</span><br><span class="line">  <span class="variable">$active_tab</span> = <span class="string">&#x27;logs&#x27;</span>;</span><br><span class="line">  <span class="title function_ invoke__">app</span>(<span class="string">&#x27;files&#x27;</span>)-&gt;<span class="title function_ invoke__">delete</span>(<span class="title class_">LogViewer</span>::<span class="title function_ invoke__">pathToLogFile</span>(<span class="title function_ invoke__">base64_decode</span>(<span class="variable">$this</span>-&gt;request-&gt;<span class="title function_ invoke__">input</span>(<span class="string">&#x27;del&#x27;</span>))));</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_ invoke__">redirect</span>(<span class="variable">$this</span>-&gt;request-&gt;<span class="title function_ invoke__">url</span>().<span class="string">&#x27;?logs=true&#x27;</span>)-&gt;<span class="title function_ invoke__">with</span>([</span><br><span class="line">    <span class="string">&#x27;message&#x27;</span>    =&gt; <span class="title function_ invoke__">__</span>(<span class="string">&#x27;voyager::compass.logs.delete_success&#x27;</span>).<span class="string">&#x27; &#x27;</span>.<span class="title function_ invoke__">base64_decode</span>(<span class="variable">$this</span>-&gt;request-&gt;<span class="title function_ invoke__">input</span>(<span class="string">&#x27;del&#x27;</span>)),</span><br><span class="line">    <span class="string">&#x27;alert-type&#x27;</span> =&gt; <span class="string">&#x27;success&#x27;</span>,</span><br><span class="line">  ]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The issue here is that when Voyager <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/1.6/resources/assets/js/helpers.js#L52" title="renders the popup">renders the popup</a> message, it contains the provided file name unsanitized:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">notify</span>(<span class="params">type, message</span>) </span>&#123;</span><br><span class="line">  let alert = <span class="string">&#x27;&lt;div class=&quot;alert alert-&#x27;</span>  + type +  dismissibleClass + <span class="string">&#x27;&quot; role=&quot;alert&quot;&gt;&#x27;</span>  + dismissButton + message +  <span class="string">&#x27;&lt;/div&gt;&#x27;</span>;</span><br><span class="line">  $(options.alertsContainer).<span class="title function_ invoke__">append</span>(alert);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>This means that if an authenticated user clicks on a specially crafted link, arbitrary JavaScript code can be executed. As a result, an attacker can perform any subsequent action in the context of the victim. Combining it with the previous finding an attacker can escalate it to execute arbitrary code on the server </p>
+<img src="/img/blogs/voyager/xss.png" style="width: 100%;"/>
+
+<h2 id="Arbitrary-File-Leak-and-Deletion-CVE-2024-55415"><a href="#Arbitrary-File-Leak-and-Deletion-CVE-2024-55415" class="headerlink" title="Arbitrary File Leak and Deletion (CVE-2024-55415)"></a>Arbitrary File Leak and Deletion (CVE-2024-55415)</h2><p>If an attacker wants to be more stealthy and just steal or delete files without having to drop a malicious PHP file on disk, they could use the same endpoint to do so.</p>
+<p>The user-provided path is sent to the <a target="_blank" rel="noopener" href="https://github.com/thedevdojo/voyager/blob/1.6/src/Http/Controllers/VoyagerCompassController.php#L213" title="​​pathToLogFile">​pathToLogFile</a> function, but looking at the code, there isn’t any normalization or modification of the input. The function only checks that the file exists:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">pathToLogFile</span>(<span class="params"><span class="variable">$file</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$logsPath</span> = <span class="title function_ invoke__">storage_path</span>(<span class="string">&#x27;logs&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">app</span>(<span class="string">&#x27;files&#x27;</span>)-&gt;<span class="title function_ invoke__">exists</span>(<span class="variable">$file</span>)) &#123; <span class="comment">// try the absolute path</span></span><br><span class="line">            <span class="keyword">return</span> <span class="variable">$file</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="variable">$file</span> = <span class="variable">$logsPath</span>.<span class="string">&#x27;/&#x27;</span>.<span class="variable">$file</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// check if requested file is really in the logs directory</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">dirname</span>(<span class="variable">$file</span>) !== <span class="variable">$logsPath</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">\Exception</span>(<span class="string">&#x27;No such log file&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$file</span>;</span><br><span class="line">    &#125; </span><br></pre></td></tr></table></figure>
+<p>An attacker can initiate the deletion of arbitrary files by tricking a user into clicking a malicious link. As discussed in the previous finding, this vulnerability is triggered before sending the unsanitized message to the user.<br>Arbitrary file deletion can have a severe impact on an application. The obvious one is impacting the availability of the server, but in some cases, we have seen <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/wordpress-file-delete-to-code-execution/" title="unique ways">unique ways</a> attackers used arbitrary file deletion to gain code execution (via configuration deletion, installation, etc)</p>
+<p>Additionally, the <code>/admin/compass</code> endpoint is responsible for downloading a file. In this case, it doesn’t directly expose sensitive information to the attacker because the file will be downloaded to the victim’s machine. However, the previous XSS can be leveraged to get the content of the file via Javascript, and then send it to the attacker’s controlled server.</p>
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p>At this time, no patches are available to address the vulnerabilities we’ve identified. Despite multiple attempts to contact the project maintainers via email and GitHub, we have not received a response.</p>
+<p>In accordance with our responsible disclosure policy, we are publicly releasing the details of our findings after 90 days. We believe this allows users of Voyage to make informed decisions about their use of Voyage.</p>
+<p>We strongly advise users to carefully consider using this project in their applications and exercise caution when deciding to do so.</p>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2024-09-11</td>
+<td>We report all issues to the maintainers.</td>
+</tr>
+<tr>
+<td>2024-10-20</td>
+<td>We ping the maintainers.</td>
+</tr>
+<tr>
+<td>2024-11-11</td>
+<td>We ping the maintainers mentioning that 60 days have passed.</td>
+</tr>
+<tr>
+<td>2024-11-28</td>
+<td>We open a security report via GitHubWe open a security report via GitHub.</td>
+</tr>
+<tr>
+<td>2024-12-11</td>
+<td>We notify the maintainers that the 90-day disclosure window has elapsed and that we are planning to release the details to the public.</td>
+</tr>
+<tr>
+<td>2025-01-27</td>
+<td>We release this blog post.</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>In this blog post, we delved into a security vulnerability uncovered by SonarQube Cloud within the Voyager project. We highlighted how attackers can leverage this vulnerability in conjunction with other security weaknesses to execute malicious code on vulnerable systems. By leveraging SonarQube Cloud’s advanced code analysis capabilities, organizations can proactively identify and address security vulnerabilities, such as those demonstrated in this post, before they reach production.</p>
+<p>Unfortunately, despite our best efforts, we were unable to reach the maintainers to address these vulnerabilities. We hope that by sharing this information, we can raise awareness among Voyager users regarding the project’s security aspect.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
