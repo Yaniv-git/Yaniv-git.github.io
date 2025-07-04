@@ -11,6 +11,7 @@ origin: https://www.sonarsource.com/blog/excessive-expansion-uncovering-critical
 cves:
     - "CVE-2024-23897"
     - "CVE-2024-23898"
+star: true
 ---
 # Key Information
 * Sonar’s Vulnerability Research Team has discovered security vulnerabilities in Jenkins, the leading open-source Continuous Integration and Continuous Deployment (CI/CD) software.

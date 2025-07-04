@@ -11,6 +11,7 @@ og:
     image: "/img/blogs/dompurify/HeroImage.png"
     title: "DOMPurify 3.2.1 Bypass (Non-Default Config)"
     description: "This blog post covers DOMPurify 3.2.1 Bypass, explaining a specific mutation technique"
+star: true
 ---
 # Background
 Over the years, we have seen DOMPurify bypasses using various techniques. A prominent one is namespace confusion, which usually takes advantage of [parsing roundtrip tricks](https://yaniv-git.github.io/2024/05/26/mXSS:%20The%20Vulnerability%20Hiding%20in%20Your%20Code/#Parsing-round-trip) to change the namespace of certain elements. Up until the [discovery](https://research.securitum.com/mutation-xss-via-mathml-mutation-dompurify-2-0-17-bypass/) of Michał Bentkowski's ([@SecurityMB](https://x.com/securitymb)) `form` element mutation in 2020 (Which resulted in version 2.0.17 bypass using confusion of a direct descendant in MathML's HTML integration point), there wasn't any significant mitigation mechanism to tackle namespace confusion. A solution proposed by Michał was to verify if the element is in the correct namespace by checking the parent namespace. This was later [implemented](https://github.com/cure53/DOMPurify/pull/495) and would go down as a bulletproof approach to prevent namespace confusion for years.

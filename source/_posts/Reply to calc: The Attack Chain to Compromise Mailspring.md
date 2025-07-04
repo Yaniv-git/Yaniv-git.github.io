@@ -12,6 +12,7 @@ advisory: false
 origin: https://www.sonarsource.com/blog/reply-to-calc-the-attack-chain-to-compromise-mailspring/
 cves:
     - "CVE-2023-47479"
+star: true
 ---
 # Introduction
 Mailspring, formerly known as [nylas-mail](https://github.com/nylas/nylas-mail), is a popular email client application that gives users a fast and efficient way to manage their email accounts. It is a free and open-source program for Windows, Mac, and Linux operating systems. Mailspring comes with a variety of advanced features, such as snoozing emails, scheduling messages, email tracking, and more. It also supports a wide range of email services, including Gmail, Yahoo, Outlook, and more. With its user-friendly interface and powerful functionality, Mailspring has become a popular choice for those looking for a reliable and versatile email client.

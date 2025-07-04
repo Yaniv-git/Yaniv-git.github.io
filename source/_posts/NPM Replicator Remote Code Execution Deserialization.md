@@ -9,6 +9,7 @@ advisory: false
 origin: https://checkmarx.com/blog/npm-replicator-remote-code-execution-deserialization
 cves:
 	- "CVE-2021-33420"
+star: true
 ---
 # Introduction
 NPM, the package manager for Node.js, is an open source project that serves as a critical part of the JavaScript community and helps support one of the largest developer ecosystems. According to its [website](https://www.npmjs.com/), "npm is relied upon by more than 11 million developers worldwide. The free npm registry has become the center of JavaScript code sharing, and with more than one million packages, is the largest software registry in the world."

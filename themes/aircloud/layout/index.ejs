@@ -10,7 +10,7 @@ layout: layout
         <div class="post-info">
             <a href="<%- full_url_for(post.path) %>">
                 <h3>
-                    <%- (post.title || "Untitled").replace(/[<>&"]/g,function(c){
+                    <% if (post.star){ %><i style="margin-bottom: 1%;" class="material-icons googleicon">star</i> <% } %><%- (post.title || "Untitled").replace(/[<>&"]/g,function(c){
                         return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];
                     }) %>
                 </h3>

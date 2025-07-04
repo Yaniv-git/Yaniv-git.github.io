@@ -11,6 +11,7 @@ tags:
 advisory: false
 origin: https://www.sonarsource.com/blog/apache-dubbo-consumer-risks/
 cves:
+star: true
 ---
 # Introduction
 Apache Dubbo is a popular Java open-source, high-performance RPC (Remote Procedure Call) framework designed to simplify the development of microservices-based and distributed systems. Originally created by Alibaba, Dubbo has gained widespread popularity and is now maintained as a top-level Apache project with 40K stars on GitHub. At its core, Dubbo provides a robust communication protocol that allows services to seamlessly exchange data and invoke methods across different networked nodes, enabling the creation of scalable, flexible, and reliable applications. With its rich ecosystem and community support, Apache Dubbo has become a go-to choice for organizations seeking to harness the power of distributed computing in their software solutions.

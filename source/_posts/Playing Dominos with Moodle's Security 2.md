@@ -10,6 +10,7 @@ advisory: false
 origin: https://www.sonarsource.com/blog/playing-dominos-with-moodles-security-2/
 cves:
 	- "CVE-2023-40320"
+star: true
 ---
 # Introduction
 In our endeavor to enhance the security of the open-source realm and gain a deeper understanding of real-world vulnerabilities, we are constantly conducting audits of open-source projects, and the outcomes of this are presented in our two articles on Moodle security. This is the second blog covering another critical finding we discovered when auditing Moodle for security vulnerabilities. 

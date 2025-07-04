@@ -10,6 +10,7 @@ advisory: false
 origin: https://www.sonarsource.com/blog/playing-dominos-with-moodles-security-1/
 cves:
 	- "CVE-2023-30943"
+star: true
 ---
 # Introduction
 Moodle is an open-source learning management system (LMS) used to create and deliver online courses. It was first developed in 2002 by Martin Dougiamas and is now widely used by educators and institutions around the world, earning the trust of educational institutions worldwide, with its user base exceeding 350 million across 242 countries. 

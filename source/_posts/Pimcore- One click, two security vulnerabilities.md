@@ -10,6 +10,7 @@ advisory: false
 origin: https://www.sonarsource.com/blog/pimcore-one-click-two-security-vulnerabilities
 cves:
 	- "CVE-2023-28438"
+star: true
 ---
 # Introduction
 The Pimcore Platform provides software for central management of corporate data. With over 100,000 clients across 56 countries, including some major vendors, it has become a trusted choice for businesses worldwide. Available in both an Enterprise subscription as well as an Open Source Community Edition with a growing community of developers and users.
