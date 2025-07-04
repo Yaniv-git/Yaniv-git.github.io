@@ -702,6 +702,7 @@ div.post-cve>a {
 .post-container .post-meta .attr {
   margin-right: 5px;
   margin-left: 5px;
+  width: 33.3%;
 }
 .article-content {
   color: #2f3339;
