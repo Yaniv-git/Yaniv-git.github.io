@@ -113,6 +113,7 @@ post_style:
 source_dir: source
 public_dir: public
 tag_dir: tags
+talks_dir: talks
 advisories_dir: advisories
 archive_dir: archive
 category_dir: categories

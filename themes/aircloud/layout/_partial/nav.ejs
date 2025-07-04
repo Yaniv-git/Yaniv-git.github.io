@@ -16,6 +16,12 @@
                     <span><%= __('nav.home') %></span>
                 </a>
             </li>
+            <li <% if(is_current('talks')){ %> <%- "class=active" %> <% } %>>
+                <a href="<%= url_for(config.talks_dir) %>">
+                    <i class="material-icons googleicon">co_present</i>
+                    <span><%= __('nav.talks') %></span>
+                </a>
+            </li>
             <li <% if(is_current('advisories')){ %> <%- "class=active" %> <% } %>>
                 <a href="<%= url_for(config.advisories_dir) %>">
                     <i class="material-icons googleicon">speaker_notes</i>
