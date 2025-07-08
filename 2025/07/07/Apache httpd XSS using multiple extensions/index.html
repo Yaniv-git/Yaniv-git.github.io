@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="author" content="Yaniv Nizry">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Apache httpd XSS Using Multiple Extensions - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/talks">
+                    <i class="material-icons googleicon">co_present</i>
+                    <span>Talks</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Introduction"><span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Details"><span class="toc-text">Details</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#The-Attack-Scenario"><span class="toc-text">The Attack Scenario</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#References"><span class="toc-text">References</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Apache httpd XSS Using Multiple Extensions    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2025-07-07 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#apache" title="apache">apache</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#content-type" title="content-type">content-type</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>This post dives into a stored Cross-Site Scripting (XSS) technique I discovered while researching Fortinet’s endpoint protection solution. It builds on previous work, specifically <a href="https://yaniv-git.github.io/2025/06/29/Caught%20in%20the%20FortiNet:%20How%20Attackers%20Can%20Exploit%20FortiClient%20to%20Compromise%20Organizations%202/#From-Limited-File-Write-to-XSS-CVE-2025-22859">part two</a> of my series (CVE-2025-22859), where I detailed an <code>httpd</code> stored XSS vulnerability using a files with a predefined extensions.</p>
+<p>I have already <a href="https://yaniv-git.github.io/2023/11/04/Apache%20httpd%20XSS%20by%20design/">covered</a> a small technique of achieving XSS on <code>httpd</code> when the attacker can’t control the file extension. However, unlike that prior method, which involved creating files with no name or only dots to bypass extension assignage, this new trick doesn’t depend on the absense of the <code>X-Content-Type-Options: nosniff</code> header. Complicating the other writeup, making these nice to add to our toolbox.</p>
+<h1 id="Details"><a href="#Details" class="headerlink" title="Details"></a>Details</h1><p>The core of this technique lies in how <a target="_blank" rel="noopener" href="https://httpd.apache.org/">Apache httpd’s</a> <a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/2.4/mod/mod_mime.html">mod_mime</a> module determines a file’s <code>Content-Type</code>. Typically, <code>mod_mime</code> guesses the content type based on the file’s extension. If the <code>X-Content-Type-Options: nosniff</code> header is present, browsers are instructed not to “sniff” the content type and will default to <code>text/plain</code> when an <code>Content-Type</code> isn’t set. However, a closer look at the <code>mod_mime</code> documentation reveals an interesting behavior: </p>
+<img src="/img/blogs/fortinet/2/mod_mime_doc.png" style="width: 100%;"/>
+
+<p>Files can have <a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/2.4/mod/mod_mime.html#multipleext" title="multiple extensions">multiple extensions</a>, with a priority given to the last one. For example, these file extensions will correspond to the following content-types:</p>
+<table>
+<thead>
+<tr>
+<th>File Extension</th>
+<th>mod_mime Content-Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Filename.<strong>html</strong></td>
+<td>text&#x2F;html</td>
+</tr>
+<tr>
+<td>Filename.<strong>gif</strong></td>
+<td>image&#x2F;gif</td>
+</tr>
+<tr>
+<td>Filename.gif.<strong>html</strong></td>
+<td>text&#x2F;html</td>
+</tr>
+<tr>
+<td>Filename.<strong>unknown</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>Filename.unknown.<strong>html</strong></td>
+<td>text&#x2F;html</td>
+</tr>
+<tr>
+<td>Filename.<strong>html</strong>.unknown</td>
+<td>text&#x2F;html</td>
+</tr>
+</tbody></table>
+<h1 id="The-Attack-Scenario"><a href="#The-Attack-Scenario" class="headerlink" title="The Attack Scenario"></a>The Attack Scenario</h1><p>Armed with this knowledge, in a scenario where an attacker has the ability to upload a file, but can’t control the extension. If the extension doesn’t correlate to any content type in <code>mod_mime</code> (for example <code>.abc</code>),  all the attacker would need to do is to add <code>.html</code> to the filename (<code>filename.html.abc</code>). When Apache serves this file, <code>mod_mime</code> will process the multiple extensions, recognize <code>.html</code> as the last and most significant one since <code>.abc</code> doesnt cererlate ot anything, and serve the file with <code>Content-Type: text/html</code>, resulting in stored XSS. This technique might also be used to bypass some server-side validation that only permits specific file types.</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a href="https://yaniv-git.github.io/2025/06/29/Caught%20in%20the%20FortiNet:%20How%20Attackers%20Can%20Exploit%20FortiClient%20to%20Compromise%20Organizations%202/#From-Limited-File-Write-to-XSS-CVE-2025-22859">CVE-2025-22859 blog</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options">X-Content-Type-Options</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">Content-Type</a></li>
+<li><a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/2.4/mod/mod_mime.html">mod_mime</a></li>
+<li><a target="_blank" rel="noopener" href="https://x.com/YNizry/status/1940053407127007587">Tweet</a></li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
