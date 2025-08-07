@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="author" content="Yaniv Nizry">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Securing Go Applications With SonarQube: Real-World Examples - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/talks">
+                    <i class="material-icons googleicon">co_present</i>
+                    <span>Talks</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Gin"><span class="toc-text">Gin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Patch"><span class="toc-text">Patch</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Memos"><span class="toc-text">Memos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Path-Traversal-Vulnerability"><span class="toc-text">Path Traversal Vulnerability</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Stored-Cross-Site-Scripting-XSS-Vulnerability"><span class="toc-text">Stored Cross-Site Scripting (XSS) Vulnerability</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Patch-1"><span class="toc-text">Patch</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Securing Go Applications With SonarQube: Real-World Examples    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2025-08-06 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#arbitrary file write" title="arbitrary file write">arbitrary file write</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <p><a target="_blank" rel="noopener" href="https://go.dev/">Go</a> has become a language of choice for modern backend development, and its adoption in cloud-native and microservices architectures is growing rapidly. As Go’s use grows, so does the demand for specialized security tools. That’s why we at Sonar have enhanced our powerful static analysis engine to provide advanced security scanning for Go code.</p>
+<p>Driven by our dedication to both open-source security and the advancement of our technology, we leverage the power of <a target="_blank" rel="noopener" href="https://www.sonarsource.com/products/sonarcloud/">SonarQube Cloud</a> to scan and identify potential vulnerabilities in popular open-source projects proactively. With the new Go analysis within our continuous scanning, we will demonstrate how SonarQube Cloud reports vulnerabilities in Go and take a deep dive into the technical details and impact of our findings.</p>
+<h1 id="Gin"><a href="#Gin" class="headerlink" title="Gin"></a>Gin</h1><hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/gin-gonic/gin">Gin</a> is one of the most popular web frameworks in Go. It features a fast and simple API, and according to the maintainers, its performance can be up to 40 times faster than other frameworks. With over 83k stars on GitHub, it’s a huge part of the Go ecosystem. However, even the most widely used tools can have their weak spots. A vulnerability report from SonarQube Cloud pointed out a risk related to not enforcing TLS 1.2 or above. Let’s take a closer look at this security concern and how to address it (<a target="_blank" rel="noopener" href="https://rules.sonarsource.com/go/type/Vulnerability/RSPEC-4423/">RSPEC-4423</a>):</p>
+<img src="/img/blogs/memos/image2.png" style="width: 100%;"/>
+
+<p><a target="_blank" rel="noopener" href="https://sonarcloud.io/project/issues?impactSoftwareQualities=SECURITY&issueStatuses=OPEN,CONFIRMED&id=SonarSourceResearch_gin-blogpost&open=AZh-iThIQHa9mx1tR-Fu">Try it yourself on SonarQube Cloud</a></p>
+<p>Gin under the hood relies on Go’s standard <code>net/http</code> package to run its server. This is also the case when serving content over TLS, which is handled by the <a target="_blank" rel="noopener" href="https://github.com/gin-gonic/gin/blob/v1.10.0/gin.go#L509">RunTLS</a> function:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(engine *Engine)</span></span> RunTLS(addr, certFile, keyFile <span class="type">string</span>) (err <span class="type">error</span>) &#123;</span><br><span class="line">	debugPrint(<span class="string">&quot;Listening and serving HTTPS on %s\n&quot;</span>, addr)</span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123; debugPrintError(err) &#125;()</span><br><span class="line">	<span class="keyword">if</span> engine.isUnsafeTrustedProxies() &#123;</span><br><span class="line">		<span class="comment">// ...</span></span><br><span class="line">	&#125;</span><br><span class="line">	err = http.ListenAndServeTLS(addr, certFile, keyFile, engine.Handler())</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The issue here lies with Go versions prior to 1.22. The <code>http.ListenAndServeTLS</code> function in those versions doesn’t automatically enforce a secure TLS configuration. By default, it accepts connections using <strong>TLS 1.0 and 1.1</strong>, both of which are now considered insecure and deprecated. This leaves applications using Gin in such a configuration vulnerable to well-known attacks like <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/BREACH">BREACH</a>  and  <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Transport_Layer_Security#BEAST_attack">BEAST</a>, which can compromise the confidentiality of the connection and lead to data theft.</p>
+<h3 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h3><p>The Gin maintainers addressed this vulnerability in <a target="_blank" rel="noopener" href="https://github.com/gin-gonic/gin/releases/tag/v1.10.1">version 1.10.1</a> (<a target="_blank" rel="noopener" href="https://github.com/gin-gonic/gin/commit/b5af7796535d97d9c7af42539af01d787fcb3b4d">b5af779</a>). They patched the issue by configuring the server to use a minimum TLS version of 1.2. The fix was implemented by setting <code>MinVersion: tls.VersionTLS12</code> in the server’s configuration, ensuring that all connections meet modern security standards.</p>
+<h1 id="Memos"><a href="#Memos" class="headerlink" title="Memos"></a>Memos</h1><hr>
+<p><a target="_blank" rel="noopener" href="https://github.com/usememos/memos">Memos</a> stands out as a lightweight, open-source note-taking application that embraces simplicity. Built with Go and React, it is designed for seamless deployment and cross-platform accessibility. Memos allows users to effortlessly capture and organize their thoughts, ideas, and to-dos. Its straightforward design and self-hosting capabilities have resonated with many, which is evident by its impressive 40k+ stars on GitHub.</p>
+<p>However, our recent security research has uncovered a serious issue. We’ve identified two critical vulnerabilities that, when chained together, could allow a low-privileged authenticated attacker to take complete control of a Memos server.</p>
+<p>These vulnerabilities are:</p>
+<ol>
+<li><p><strong>Stored Cross-Site Scripting (XSS)</strong>: We also discovered two stored XSS vulnerabilities. Allowing attackers to inject JavaScript code that, when executed by an administrator, could abuse the admin’s privileges. This, in turn, could be used to update the instance configuration, allowing exploitation of the second Path Traversal vulnerability for a full server compromise.</p>
+</li>
+<li><p><strong>Arbitrary File Write via Path Traversal</strong>: When Memos is configured to use <a target="_blank" rel="noopener" href="https://www.usememos.com/docs/advanced-settings/local-storage">local storage</a>, a flaw in how it handles file paths allows an authenticated attacker to write arbitrary files to the server. This could be leveraged to achieve full remote code execution, giving them full control of the system.</p>
+</li>
+</ol>
+<p>Despite our best efforts to responsibly disclose and contact the maintainers, we unfortunately did not receive a response. In accordance with our 90-day disclosure policy, we are now making this information public to ensure user awareness. We strongly recommend that individuals and organizations deploying Memos be acutely aware and take immediate action. The most secure course is to <strong>restrict Memos access to trusted users only</strong>. This could help mitigate the immediate risks, but the long-term solution requires a patch from the maintainers or a transition to a more secure platform.</p>
+<h3 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h3><h4 id="Path-Traversal-Vulnerability"><a href="#Path-Traversal-Vulnerability" class="headerlink" title="Path Traversal Vulnerability"></a>Path Traversal Vulnerability</h4><p>The core of this issue lies in the <a target="_blank" rel="noopener" href="https://github.com/usememos/memos/blob/v0.24.0/server/router/api/v1/resource_service.go#L47">&#x2F;memos.api.v1.ResourceService&#x2F;CreateResource</a> endpoint, which handles file uploads. While the function correctly checks if a user is authenticated, it doesn’t perform any further authorization checks. This means that <em>any</em> authenticated user, regardless of their role or privileges, can initiate a file upload.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">user, err := s.GetCurrentUser(ctx)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>, status.Errorf(codes.Internal, <span class="string">&quot;failed to get current user: %v&quot;</span>, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>The function then constructs a <code>Resource</code> object with the <code>Filename</code>, <code>Type</code>, and <code>Blob</code> fully taken from the request and calls the <a target="_blank" rel="noopener" href="https://github.com/usememos/memos/blob/v0.24.0/server/router/api/v1/resource_service.go#L286">SaveResourceBlob</a> function:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//...</span></span><br><span class="line">create := &amp;store.Resource&#123;</span><br><span class="line">	UID:       shortuuid.New(),</span><br><span class="line">	CreatorID: user.ID,</span><br><span class="line">	Filename:  request.Resource.Filename,</span><br><span class="line">	Type:      request.Resource.Type,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">create.Size = <span class="type">int64</span>(size)</span><br><span class="line">create.Blob = request.Resource.Content</span><br><span class="line"><span class="keyword">if</span> err := SaveResourceBlob(ctx, s.Store, create); err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span>, status.Errorf(codes.Internal, <span class="string">&quot;failed to save resource blob: %v&quot;</span>, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The vulnerability exists within the <code>SaveResourceBlob</code> function. We can see that one of the user-controlled inputs is passed into a <code>filepathTemplate</code>, which is then used to create a file. </p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SaveResourceBlob</span><span class="params">(ctx context.Context, s *store.Store, create *store.Resource)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	workspaceStorageSetting, err := s.GetWorkspaceStorageSetting(ctx)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> errors.Wrap(err, <span class="string">&quot;Failed to find workspace storage setting&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> workspaceStorageSetting.StorageType == storepb.WorkspaceStorageSetting_LOCAL &#123;</span><br><span class="line">		filepathTemplate := <span class="string">&quot;assets/&#123;timestamp&#125;_&#123;filename&#125;&quot;</span></span><br><span class="line">		<span class="keyword">if</span> workspaceStorageSetting.FilepathTemplate != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">			filepathTemplate = workspaceStorageSetting.FilepathTemplate</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		internalPath := filepathTemplate</span><br><span class="line">		<span class="keyword">if</span> !strings.Contains(internalPath, <span class="string">&quot;&#123;filename&#125;&quot;</span>) &#123;</span><br><span class="line">			internalPath = filepath.Join(internalPath, <span class="string">&quot;&#123;filename&#125;&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		internalPath = replaceFilenameWithPathTemplate(internalPath, create.Filename)</span><br><span class="line">		internalPath = filepath.ToSlash(internalPath)</span><br><span class="line">		osPath := filepath.FromSlash(internalPath)</span><br><span class="line"></span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">// Write the blob to the file.</span></span><br><span class="line">		<span class="keyword">if</span> err := os.WriteFile(osPath, create.Blob, <span class="number">0644</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> errors.Wrap(err, <span class="string">&quot;Failed to write file&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//...</span></span><br></pre></td></tr></table></figure>
+<p>However, there is a small if condition before going into the vulnerable path. This is where the prerequisite of this vulnerability takes place. But what is <code>workspaceStorageSetting</code>, and when is it equal to <code>WorkspaceStorageSetting_LOCAL</code>?<br>For privacy reasons, memos provides a feature to store objects locally instead of in a database or S3.</p>
+<img src="/img/blogs/memos/image1.png" style="width: 100%;"/>
+
+<p>When a user uploads a file on a Memos instance using this configuration, it will be saved under the <code>bin/memos/assets</code> folder using the default <code>&#123;timestamp&#125;_&#123;filename&#125;</code> filename template. While this is configurable in the settings, the only field that is fully user-controlled is <code>&#123;filename&#125;</code>. This is in the template by default and is replaced in the function <a target="_blank" rel="noopener" href="https://github.com/usememos/memos/blob/v0.24.0/server/router/api/v1/resource_service.go#L441">replaceFilenameWithPathTemplate</a>. </p>
+<p>An authenticated attacker can leverage this to create a resource with a filename containing a path traversal sequence <code>../</code> and traverse back from the intended <code>assets</code> folder. Since the file’s content is also controlled by the attacker, this grants a powerful arbitrary file write primitive.</p>
+<p>The severity of this flaw is significant. It could lead to remote code execution by allowing an attacker to write files that the server executes, such as cron jobs or malicious scripts. They could also overwrite crucial application configurations or modify SSH keys for a full server compromise.</p>
+<h4 id="Stored-Cross-Site-Scripting-XSS-Vulnerability"><a href="#Stored-Cross-Site-Scripting-XSS-Vulnerability" class="headerlink" title="Stored Cross-Site Scripting (XSS) Vulnerability"></a>Stored Cross-Site Scripting (XSS) Vulnerability</h4><p>But what if the <code>workspaceStorageSetting</code> isn’t configured to store files locally? In this case, an attacker can use the built-in feature to share files. Since the user-controlled files are served under the same domain without any restriction&#x2F;sandboxing.</p>
+<p>When the administrator views this file, the XSS payload executes, potentially allowing the attacker to steal the admin’s session or escalate their privileges. With administrative access, the attacker can then change the <code>workspaceStorageSetting</code> to <code>LOCAL</code>, opening the door to the Path Traversal vulnerability and leading to a full server compromise.</p>
+<img src="/img/blogs/memos/image3.png" style="width: 100%;"/>
+
+<p>Furthermore, we found another path for XSS through the user avatar functionality. When a user updates their avatar via the <a target="_blank" rel="noopener" href="https://github.com/usememos/memos/blob/v0.24.0/server/router/api/v1/user_service.go#L147">UpdateUser</a> endpoint, Memos accepts a <code>data:</code> URL.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *APIV1Service)</span></span> UpdateUser(ctx context.Context, request *v1pb.UpdateUserRequest) (*v1pb.User, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	update := &amp;store.UpdateUser&#123;</span><br><span class="line">		ID:        user.ID,</span><br><span class="line">		UpdatedTs: &amp;currentTs,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, field := <span class="keyword">range</span> request.UpdateMask.Paths &#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> field == <span class="string">&quot;avatar_url&quot;</span> &#123;</span><br><span class="line">			update.AvatarURL = &amp;request.User.AvatarUrl</span><br><span class="line">	updatedUser, err := s.Store.UpdateUser(ctx, update)</span><br></pre></td></tr></table></figure>
+
+<p>When the avatar is later requested, Memos serves its content via the <a target="_blank" rel="noopener" href="https://github.com/usememos/memos/blob/v0.24.0/server/router/api/v1/user_service.go#L110">GetUserAvatarBinary</a> function:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *APIV1Service)</span></span> GetUserAvatarBinary(ctx context.Context, request *v1pb.GetUserAvatarBinaryRequest) (*httpbody.HttpBody, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	user, err := s.Store.GetUser(ctx, &amp;store.FindUser&#123;</span><br><span class="line">		ID: &amp;userID,</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	imageType, base64Data, err := extractImageInfo(user.AvatarURL)</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	imageData, err := base64.StdEncoding.DecodeString(base64Data)</span><br><span class="line">	<span class="comment">//...</span></span><br><span class="line">	httpBody := &amp;httpbody.HttpBody&#123;</span><br><span class="line">		ContentType: imageType,</span><br><span class="line">		Data:        imageData,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> httpBody, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Which extracts the image data using <a target="_blank" rel="noopener" href="https://github.com/usememos/memos/blob/v0.24.0/server/router/api/v1/user_service.go#L581">extractImageInfo</a> function. By parsing the provided <code>data</code> URL, Memos extracts both the content and the <code>content-type</code> provided by the user.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">extractImageInfo</span><span class="params">(dataURI <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	dataURIRegex := regexp.MustCompile(<span class="string">`^data:(?P&lt;type&gt;.+);base64,(?P&lt;base64&gt;.+)`</span>)</span><br><span class="line">	matches := dataURIRegex.FindStringSubmatch(dataURI)</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(matches) != <span class="number">3</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, errors.New(<span class="string">&quot;Invalid data URI format&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	imageType := matches[<span class="number">1</span>]</span><br><span class="line">	base64Data := matches[<span class="number">2</span>]</span><br><span class="line">	<span class="keyword">return</span> imageType, base64Data, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Since the application doesn’t validate that the content is a legitimate image, an attacker can specify a <code>text/html</code> content type and embed a malicious script. This script will execute when the avatar is displayed to other users, creating another avenue for Stored XSS.</p>
+<h3 id="Patch-1"><a href="#Patch-1" class="headerlink" title="Patch"></a>Patch</h3><p>Despite our best efforts to responsibly disclose and contact the maintainers, we unfortunately did not receive a response. In accordance with our 90-day disclosure policy, we are now making this information public to ensure user awareness. We strongly recommend that individuals and organizations deploying Memos be acutely aware and take immediate action. The most secure course is to <strong>restrict Memos access to trusted users only</strong>. This could help mitigate the immediate risks, but the long-term solution requires a patch from the maintainers or a transition to a more secure platform.</p>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2025-02-11</td>
+<td>We report all issues to Memos</td>
+</tr>
+<tr>
+<td>2025-03-13</td>
+<td>We ping Memos, mentioning that 30 days have passed</td>
+</tr>
+<tr>
+<td>2025-03-17</td>
+<td>We report our findings to Gin</td>
+</tr>
+<tr>
+<td>2025-04-11</td>
+<td>We ping Memos, mentioning that 60 days have passed</td>
+</tr>
+<tr>
+<td>2025-05-07</td>
+<td>We open a security advisory on GitHub</td>
+</tr>
+<tr>
+<td>2025-05-19</td>
+<td>We ping Gin’s maintainers</td>
+</tr>
+<tr>
+<td>2025-05-20</td>
+<td>Gin’s maintainers acknowledge our report and fix the issue</td>
+</tr>
+<tr>
+<td>2025-05-12</td>
+<td>We notify Memos that our 90-day disclosure window has elapsed and that we will be releasing the information to the public</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>Our security research into popular Go projects has revealed critical vulnerabilities that highlight the continuous importance of rigorous security analysis in open-source projects. Leveraging the power of SonarQube’s static analysis capabilities, developers can easily detect and mitigate such vulnerabilities during the development process. This proactive approach is crucial, as even the most widely used and trusted tools can contain hidden flaws.</p>
+<p>In the case of the Gin framework, we identified a weakness in its default configuration for serving TLS. This issue, while now patched by the maintainers, serves as a powerful reminder that even foundational components require careful scrutiny to prevent exposure to known cryptographic attacks.</p>
+<p>Meanwhile, our investigation into the Memos uncovered a more severe threat landscape. We found critical vulnerabilities that could allow an authenticated attacker to achieve full server compromise. Despite our attempts to responsibly disclose these findings to the maintainers, we did not receive a response. In accordance with our disclosure policy, we are making this information public to ensure that users are aware of the risks.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
