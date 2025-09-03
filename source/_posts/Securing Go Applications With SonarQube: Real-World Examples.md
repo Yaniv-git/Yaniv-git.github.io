@@ -51,15 +51,15 @@ However, our recent security research has uncovered a serious issue. We've ident
 
 These vulnerabilities are:
 
-1.  **Stored Cross-Site Scripting (XSS)**: We also discovered two stored XSS vulnerabilities. Allowing attackers to inject JavaScript code that, when executed by an administrator, could abuse the admin's privileges. This, in turn, could be used to update the instance configuration, allowing exploitation of the second Path Traversal vulnerability for a full server compromise.
+1.  **CVE-2025-56761, Stored Cross-Site Scripting (XSS)**: We also discovered two stored XSS vulnerabilities. Allowing attackers to inject JavaScript code that, when executed by an administrator, could abuse the admin's privileges. This, in turn, could be used to update the instance configuration, allowing exploitation of the second Path Traversal vulnerability for a full server compromise.
 
-2.  **Arbitrary File Write via Path Traversal**: When Memos is configured to use [local storage](https://www.usememos.com/docs/advanced-settings/local-storage), a flaw in how it handles file paths allows an authenticated attacker to write arbitrary files to the server. This could be leveraged to achieve full remote code execution, giving them full control of the system.
+2.  **CVE-2025-56760, Arbitrary File Write via Path Traversal**: When Memos is configured to use [local storage](https://www.usememos.com/docs/advanced-settings/local-storage), a flaw in how it handles file paths allows an authenticated attacker to write arbitrary files to the server. This could be leveraged to achieve full remote code execution, giving them full control of the system.
 
 Despite our best efforts to responsibly disclose and contact the maintainers, we unfortunately did not receive a response. In accordance with our 90-day disclosure policy, we are now making this information public to ensure user awareness. We strongly recommend that individuals and organizations deploying Memos be acutely aware and take immediate action. The most secure course is to **restrict Memos access to trusted users only**. This could help mitigate the immediate risks, but the long-term solution requires a patch from the maintainers or a transition to a more secure platform.
 
 ### Technical Details
 
-#### Path Traversal Vulnerability
+#### Path Traversal Vulnerability (CVE-2025-56760)
 
 The core of this issue lies in the [/memos.api.v1.ResourceService/CreateResource](https://github.com/usememos/memos/blob/v0.24.0/server/router/api/v1/resource_service.go#L47) endpoint, which handles file uploads. While the function correctly checks if a user is authenticated, it doesn't perform any further authorization checks. This means that *any* authenticated user, regardless of their role or privileges, can initiate a file upload.
 
@@ -130,7 +130,7 @@ An authenticated attacker can leverage this to create a resource with a filename
 
 The severity of this flaw is significant. It could lead to remote code execution by allowing an attacker to write files that the server executes, such as cron jobs or malicious scripts. They could also overwrite crucial application configurations or modify SSH keys for a full server compromise.
 
-#### Stored Cross-Site Scripting (XSS) Vulnerability
+#### Stored Cross-Site Scripting (XSS) Vulnerability (CVE-2025-56761)
 
 But what if the `workspaceStorageSetting` isn't configured to store files locally? In this case, an attacker can use the built-in feature to share files. Since the user-controlled files are served under the same domain without any restriction/sandboxing.
 
@@ -208,6 +208,7 @@ Despite our best efforts to responsibly disclose and contact the maintainers, we
 | 2025-05-19 | We ping Gin’s maintainers  |
 | 2025-05-20 | Gin’s maintainers acknowledge our report and fix the issue |
 | 2025-05-12 | We notify Memos that our 90-day disclosure window has elapsed and that we will be releasing the information to the public |
+| 2025-09-02 | CVEs CVE-2025-56760 and CVE-2025-56761 are assigned |
 
 # Summary
 Our security research into popular Go projects has revealed critical vulnerabilities that highlight the continuous importance of rigorous security analysis in open-source projects. Leveraging the power of SonarQube's static analysis capabilities, developers can easily detect and mitigate such vulnerabilities during the development process. This proactive approach is crucial, as even the most widely used and trusted tools can contain hidden flaws.
