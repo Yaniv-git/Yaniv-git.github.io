@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="author" content="Yaniv Nizry">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        FortiGuard: “Access Blocked” Web Page XSS - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/talks">
+                    <i class="material-icons googleicon">co_present</i>
+                    <span>Talks</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exploitation"><span class="toc-text">Exploitation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Affected-Product"><span class="toc-text">Affected Product</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Remediation"><span class="toc-text">Remediation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Additional-Resources"><span class="toc-text">Additional Resources</span></a>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        FortiGuard: “Access Blocked” Web Page XSS    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2025-10-13 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#xss" title="xss">xss</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#fortinet" title="fortinet">fortinet</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#fortiguard" title="fortiguard">fortiguard</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#fortios" title="fortios">fortios</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#fortisase" title="fortisase">fortisase</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#fortiproxy" title="fortiproxy">fortiproxy</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#uxss" title="uxss">uxss</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2025-31366" title="CVE-2025-31366">CVE-2025-31366</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <h3 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h3><p>FortiGuard can be configured with specific web locations&#x2F;patterns that should be filtered. When a client visits such a URL, it can block it, show a warning, monitor it, or authenticate the user. We noticed that the default warning page when visiting such a link doesn’t properly handle the URL, which can result in XSS on “warned” domains.</p>
+<h3 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h3><p>On the generated page, the URL is embedded inside the onclick event handler of the “Proceed” button using the following code:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="property">location</span>.<span class="property">href</span>=<span class="string">&#x27;https://warned_domain:8010/warn?fblob=*blob*&amp;uri=*uri*&#x27;</span>;  <span class="keyword">return</span>  <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<p>The URI parameter isn’t sanitized and can contain a single-quote character, which will escape the string and inject arbitrary JavaScript code that gets executed when a victim clicks on “proceed”. Since the warning page is running on the same domain as the “blocked” domain, the XSS will be in the context of that domain. </p>
+<img src="/img/blogs/fortinet/advisories/fortiguard_button_html.png" style="width: 100%;"/>
+
+<p>Payload example: <code>https://warned_domain/static&#39;;alert(document.domain);a=&#39;</code></p>
+<p><video controls="" src="/videos/fortinet/fortiguard_XSS.mov" style="width: 100%;"></video></p>
+<h3 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h3><p>In conjunction with <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/caught-in-the-fortinet-how-attackers-can-exploit-forticlient-to-compromise-organizations-1-3/">“Caught in the FortiNet”</a> research, a FortiClient can connect to a malicious server by a simple click, potentially changing to an attacker-controlled FortiGuard with arbitrary configuration.<br>By defining arbitrary domains as “warn domains” (for example, <code>google.com</code>), and then using the mishandeling of the SAML URL (the EMS can send a SAML registration reply starting with <code>@</code> character instead of <code>/</code>:<br><code>FCREGRPLY: REG|14|AUTHTYPE|3|AUTHSAML|@google.com|ERR_MSG|Authentication error|</code>) it will cause FortiClient to open automatically arbitrary “warn domains” in the victim’s browser. If the victim then clicks on <code>proceed</code> an XSS on arbitrary domains will trigger (UXSS).<br>An attacker can then steal cookies and sensitive data, impersonate victims, and more, depending on the website’s logic.</p>
+<h2 id="Affected-Product"><a href="#Affected-Product" class="headerlink" title="Affected Product"></a>Affected Product</h2><ul>
+<li>FortiOS before version 7.4.8, FortiOS 7.6.0 through 7.6.3 </li>
+<li>FortiProxy before version 7.6.3</li>
+<li>FortiSASE version 25.3.a</li>
+</ul>
+<h2 id="Remediation"><a href="#Remediation" class="headerlink" title="Remediation"></a>Remediation</h2><ul>
+<li>FortiOS: Update to 7.6.4, 7.4.9 or above</li>
+<li>FortiProxy: Update to 7.6.4 or above</li>
+</ul>
+<h2 id="Additional-Resources"><a href="#Additional-Resources" class="headerlink" title="Additional Resources"></a>Additional Resources</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/caught-in-the-fortinet-how-attackers-can-exploit-forticlient-to-compromise-organizations-1-3/">“Caught in the FortiNet” blogs</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.fortiguard.com/psirt/FG-IR-24-542">Fortinet’s Advisory</a></li>
+<li><a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2025-31366">CVE-2025-31366</a></li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

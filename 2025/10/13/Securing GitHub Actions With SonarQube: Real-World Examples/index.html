@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:type" content="website">
+    <meta name="author" content="Yaniv Nizry">
+    <meta name="description" content="Security research blog">
+    <meta name="keyword"  content="security,research,vulnerability,blog,vulnerabilites">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    <title>
+        
+        Securing GitHub Actions With SonarQube: Real-World Examples - YNizry
+        
+    </title>
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/aircloud.css">
+
+    
+<link rel="stylesheet" href="/css/gitment.css">
+
+    <!--<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">-->
+    <link href="//at.alicdn.com/t/font_620856_28hi1hpxx24.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+    .googleicon {
+        vertical-align: middle;
+        font-size: 20px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;    
+        color: #999999;
+        }
+    </style>
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+
+    
+  
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SCK9223GY8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('js', new Date())
+      gtag('config', 'G-SCK9223GY8')
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Yaniv Nizry Blogs" type="application/atom+xml">
+</head>
+
+<body>
+
+<div class="site-nav-toggle" id="site-nav-toggle">
+    <button>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+        <span class="btn-bar"></span>
+    </button>
+</div>
+
+<div class="index-about">
+    <i>  </i>
+</div>
+
+<div class="index-container">
+    
+    <div class="index-left">
+        
+<div class="nav" id="nav">
+    <div class="avatar-name">
+        <div class="avatar radius">
+            <img src="/img/avatar.webp" />
+        </div>
+        <div class="name">
+            <i>Yaniv Nizry</i>
+        </div>
+    </div>
+    <div class="contents" id="nav-content">
+        <ul>
+            <li >
+                <a href="/">
+                    <i class="material-icons googleicon">home</i>
+                    <span>Blogs</span>
+                </a>
+            </li>
+            <li >
+                <a href="/talks">
+                    <i class="material-icons googleicon">co_present</i>
+                    <span>Talks</span>
+                </a>
+            </li>
+            <li >
+                <a href="/advisories">
+                    <i class="material-icons googleicon">speaker_notes</i>
+                    <span>Advisories</span>
+                </a>
+            </li>
+            <li >
+                <a href="/tags">
+                    <i class="material-icons googleicon">label</i>
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li >
+                <a href="/archive">
+                    <i class="material-icons googleicon">archive</i>
+                    <span>Archives</span>
+                </a>
+            </li>
+            <li >
+                <a href="/about/">
+                    <i class="material-icons googleicon">person</i>
+                    <span>About</span>
+                </a>
+            </li>
+            
+            <li>
+                <a id="search">
+                    <i class="material-icons googleicon">search</i>
+                    <span>Search</span>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+    
+        <div id="toc" class="toc-article">
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Impact"><span class="toc-text">Impact</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Technical-Details"><span class="toc-text">Technical Details</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#GitHub-Actions-background"><span class="toc-text">GitHub Actions background</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Command-injection"><span class="toc-text">Command injection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pull-request-target-Command-injection-CVE-2025-53637"><span class="toc-text">pull_request_target Command injection - CVE-2025-53637</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Command-injection-mitigation"><span class="toc-text">Command injection mitigation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Command-injection-mitigation-pitfall-CVE-2025-61584"><span class="toc-text">Command injection mitigation pitfall - CVE-2025-61584</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Code-execution"><span class="toc-text">Code execution</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Timeline"><span class="toc-text">Timeline</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li></ol>
+</div>
+    
+</div>
+
+
+<div class="search-field" id="search-field">
+    <div class="search-bg" id="search-bg"></div>
+    <div class="search-container">
+        <div class="search-input">
+            <span id="esc-search"> <i class="icon-fanhui iconfont"></i></span>
+            <input id="search-input"/>
+            <span id="begin-search">search</span>
+        </div>
+        <div class="search-result-container" id="search-result-container">
+
+        </div>
+    </div>
+</div>
+
+        <div class="index-about-mobile">
+            <i>  </i>
+        </div>
+    </div>
+    
+    <div class="index-middle">
+        <!-- Main Content -->
+        <div class="post-container">
+    <div class="post-title">
+        Securing GitHub Actions With SonarQube: Real-World Examples    
+    </div>
+
+    <div class="post-meta">
+        <span class="attr">Post：<span>2025-10-13 22:00:00</span></span>
+        
+        
+        <span class="attr">Tags：/
+        
+        <a class="tag" href="/tags/#github actions" title="github actions">github actions</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#command injection" title="command injection">command injection</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#code execution" title="code execution">code execution</a>
+        <span>/</span>
+        
+        <a class="tag" href="/tags/#supply chain" title="supply chain">supply chain</a>
+        <span>/</span>
+        
+        </span>
+        
+        
+
+        
+            <span class="attr">/
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2025-61584" title="CVE-2025-61584">CVE-2025-61584</a>
+                    <span>/</span>
+            
+                <a target="_blank" rel="noopener" href="https://nvd.nist.gov/vuln/detail/CVE-2025-53637" title="CVE-2025-53637">CVE-2025-53637</a>
+                    <span>/</span>
+            
+            
+                <a target="_blank" rel="noopener" href="https://github.com/advisories/GHSA-9g7x-737f-5xpc" title="GHSA-9g7x-737f-5xpc">GHSA-9g7x-737f-5xpc</a>
+                <span>/</span>
+                
+                <a target="_blank" rel="noopener" href="https://github.com/advisories/GHSA-6mwm-v2vv-pp96" title="GHSA-6mwm-v2vv-pp96">GHSA-6mwm-v2vv-pp96</a>
+                <span>/</span>
+                
+            </span>
+        
+
+
+        
+        <!--<span class="attr">Visit：<span id="busuanzi_value_page_pv"></span>-->
+    </span>
+    </span>
+    </div>
+
+    <div class="post-source-meta post-meta">
+        
+            <a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/securing-github-actions-with-sonarqube-real-world-examples/">Source</a>
+        
+    </div>
+    <div class="post-content no-indent">
+        <p>The automation and convenience offered by GitHub Actions have made them an indispensable part of modern software development workflows. These powerful tools, however, are not immune to security vulnerabilities. At Sonar, we’re excited to introduce you to our enhanced GitHub Actions analysis capabilities, designed to proactively identify and help developers remediate security weaknesses directly within their CI&#x2F;CD pipelines.</p>
+<p>By showcasing real-life examples of vulnerabilities SonarQube detected during our continuous scans of open-source projects, we will demonstrate the engine’s capabilities and dive into the specific types of vulnerabilities that can arise in GitHub Actions and underscore their potential impact on your development environment and the security of your software supply chain. Understanding these risks is the first crucial step towards writing more secure and resilient GitHub Actions.</p>
+<h1 id="Impact"><a href="#Impact" class="headerlink" title="Impact"></a>Impact</h1><p>A compromised GitHub Action can have severe, case-by-case impacts that depend on various factors such as the action’s permissions, the secrets it accesses, and the scope of the repository it runs in. An attacker who injects malicious code into a workflow can execute arbitrary commands on the runner environment, potentially allowing them to steal credentials (like cloud keys or personal access tokens), or tamper with the build and deployment process, which is a significant supply chain risk for downstream users. </p>
+<p>Earlier this year, we saw an in-the-wild example in the <a target="_blank" rel="noopener" href="https://nx.dev/blog/s1ngularity-postmortem">Nx “s1ngularity” incident</a>. In that specific case, a <a target="_blank" rel="noopener" href="https://nx.dev/blog/s1ngularity-postmortem#the-attack-chain">vulnerability</a> in an Nx GitHub Actions workflow allowed an attacker to perform command injection and steal the project’s npm publishing token. This critical initial step enabled the attacker to publish malicious versions of the popular Nx packages to the official npm registry, which in turn infected thousands of downstream developers and organizations. The malware then proceeded to steal thousands of credentials.</p>
+<p>In this blog, we will cover the common use cases of command injection and code execution vulnerabilities, with an additional interesting pitfall that developers might fall into. Some of the vulnerabilities we disclosed are redacted as they are yet to be fixed, but the public ones are tracked as: </p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/serverless-dns/serverless-dns/security/advisories/GHSA-9g7x-737f-5xpc">serverless-dns GHSA-9g7x-737f-5xpc</a> fixed in <a target="_blank" rel="noopener" href="https://github.com/serverless-dns/serverless-dns/commit/c5537dd7f203c59f2b86d1e295c2371f3533946a">c5537dd</a> tracked as CVE-2025-61584</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/meshtastic/firmware/security/advisories/GHSA-6mwm-v2vv-pp96">meshtastic&#x2F;firmware GHSA-6mwm-v2vv-pp96</a> fixed in <a target="_blank" rel="noopener" href="https://github.com/meshtastic/firmware/commit/e03f3de185e8a67bd08e7af0c3425989e4b6e0ec">e03f3de</a> tracked as CVE-2025-53637</p>
+</li>
+</ul>
+<h1 id="Technical-Details"><a href="#Technical-Details" class="headerlink" title="Technical Details"></a>Technical Details</h1><h2 id="GitHub-Actions-background"><a href="#GitHub-Actions-background" class="headerlink" title="GitHub Actions background"></a>GitHub Actions background</h2><p>GitHub Actions live inside your GitHub project and are defined in YAML files under the <code>.github/workflows</code> directory. Each workflow outlines one or more jobs, and each job contains a series of steps, specifying what actions to take, when to trigger them (e.g., on a code push or pull request), and the environment in which they should execute. Acting as the blueprint for your continuous integration, deployment, and other automation tasks, making it easy to understand and manage your automation logic directly alongside your code</p>
+<p>Commonly, GitHub Actions are used as Continuous Integration and Continuous Delivery (CI&#x2F;CD) pipelines, performing tasks such as automated builds, tests, deployments, and more. However, they are capable of doing whatever developers can script, as they essentially provide a full containerized environment.</p>
+<p>But as with every technology, there are some risks involved; if not used safely, attackers might exploit vulnerable workflows and potentially lead to a devastating impact for their victims. GitHub does emphasize the importance of security and best practices when writing workflows; they provide <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/security-for-github-actions">official documentation and explanations</a> on the topic. Despite their best efforts, developers might still make mistakes. This is where SonarQube comes in. With our new analyzer, we started supporting static scanning of your GitHub actions, and the best part is that it’s completely free for open-source projects!</p>
+<h2 id="Command-injection"><a href="#Command-injection" class="headerlink" title="Command injection"></a>Command injection</h2><p>Let’s dive into the details, starting with a straightforward case. SonarQube reported a command injection vulnerability in the following workflow:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">&lt;redacted&gt;</span></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="attr">push:</span></span><br><span class="line">    <span class="attr">branches:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">master</span></span><br><span class="line">  <span class="attr">pull_request_target:</span></span><br><span class="line">    <span class="attr">types:</span> [<span class="string">opened</span>, <span class="string">edited</span>, <span class="string">reopened</span>, <span class="string">closed</span>]</span><br><span class="line">  <span class="attr">issues:</span></span><br><span class="line">    <span class="attr">types:</span> [<span class="string">opened</span>, <span class="string">edited</span>]</span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="string">&lt;redacted&gt;:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">&lt;redacted&gt;</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&lt;redacted&gt;</span></span><br><span class="line">      <span class="attr">if:</span> <span class="string">$&#123;&#123;</span> <span class="string">github.event_name</span> <span class="string">==</span> <span class="string">&#x27;issues&#x27;</span> <span class="string">&amp;&amp;</span> <span class="string">github.event.action</span> <span class="string">==</span> <span class="string">&#x27;opened&#x27;</span> <span class="string">&#125;&#125;</span></span><br><span class="line">      <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line">        <span class="string">MESSAGE=&quot;New</span> <span class="string">issue</span> <span class="string">$&#123;&#123;</span> <span class="string">github.event.issue.title</span> <span class="string">&#125;&#125;</span> <span class="string">...</span></span><br></pre></td></tr></table></figure>
+<p>Here, when a new issue is created, the workflow is triggered. During its execution in the <code>run</code> command, the code interpolates the issue’s title into the shell command line. Every GitHub user can open an issue in this public repository, so the variable <code>github.event.issue.title</code> should be treated as untrusted input. Because there is no sanitization and the string is simply interpolated into the command line, an attacker can create an issue with a command injection payload in the title that will then execute in the context of the action runner.<br>As a rule of thumb, <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/concepts/security/script-injections">GitHub recommends</a> that every content field that ends with <code>body</code>, <code>default_branch</code>, <code>email</code>, <code>head_ref</code>, <code>label</code>, <code>message</code>, <code>name</code>, <code>page_name</code>, <code>ref</code>, and <code>title</code> should be treated as untrusted.</p>
+<h3 id="pull-request-target-Command-injection-CVE-2025-53637"><a href="#pull-request-target-Command-injection-CVE-2025-53637" class="headerlink" title="pull_request_target Command injection - CVE-2025-53637"></a>pull_request_target Command injection - CVE-2025-53637</h3><p>The second example is similar to the first finding; however, this is using the <code>pull_request_target</code> event trigger. From a security standpoint, the difference between <code>pull_request</code> and <code>pull_request_target</code> is crucial. Workflows triggered by <code>pull_request</code> run in the context of the pull request branch, having a limited read-only <code>GITHUB_TOKEN</code>. Conversely, workflows triggered by <code>pull_request_target</code> run against the base branch of the repository and can have write access to the repository’s contents and secrets via the <code>GITHUB_TOKEN</code>.  This elevated permission level means that a successful exploit using a <code>pull_request_target</code> workflow can lead to a severe supply chain compromise, potentially allowing an attacker to modify the repository’s code, publish releases, or steal secrets, even from an untrusted contributor’s pull request. The severity of this risk, however, is highly dependent on the repository’s configuration, specifically the branch protection rules on the base branch and the explicit permissions defined for the workflow’s <code>GITHUB_TOKEN</code>.</p>
+<img src="/img/blogs/GitHub-actions/image2.png" style="width: 100%;"/>
+
+<p>Try it yourself in <a target="_blank" rel="noopener" href="https://sonarcloud.io/project/issues?impactSoftwareQualities=SECURITY&issueStatuses=OPEN,CONFIRMED&id=SonarSourceResearch_github-actions-blogpost&open=AZnJQ6iMRifC2IfrVD7h">SonarQube Cloud</a></p>
+<p>This finding showcases a straightforward vulnerability as the <code>github.head_ref</code> is taken from the untrusted branch name, which can contain a command injection payload. Following our report, the downstream project has <a target="_blank" rel="noopener" href="https://github.com/meshtastic/firmware/commit/e03f3de185e8a67bd08e7af0c3425989e4b6e0ec">fixed</a> the issue using the official best practices mitigation.</p>
+<h2 id="Command-injection-mitigation"><a href="#Command-injection-mitigation" class="headerlink" title="Command injection mitigation"></a>Command injection mitigation</h2><p>When looking at the <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/reference/security/secure-use#good-practices-for-mitigating-script-injection-attacks">official best practices for mitigating command injections</a>, GitHub recommends adding the untrusted fields into an environment variable and then using that in the command line. This will prevent the untrusted data from being interpreted as executable code by the shell, as the contents of the environment variable are typically passed as a single argument or value:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="attr">safe-echo-body:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-latest</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line">    <span class="bullet">-</span>  <span class="attr">env:</span></span><br><span class="line">        <span class="attr">BODY:</span> <span class="string">$&#123;&#123;</span> <span class="string">github.event.issue.body</span> <span class="string">&#125;&#125;</span></span><br><span class="line">      <span class="attr">run:</span> <span class="string">|</span></span><br><span class="line">        <span class="string">echo</span> <span class="string">&quot;$BODY&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Command-injection-mitigation-pitfall-CVE-2025-61584"><a href="#Command-injection-mitigation-pitfall-CVE-2025-61584" class="headerlink" title="Command injection mitigation pitfall - CVE-2025-61584"></a>Command injection mitigation pitfall - CVE-2025-61584</h2><p>Despite the comprehensive explanations given by GitHub, there is an interesting pitfall that developers might fall into. Especially when this pitfall is given as an <a target="_blank" rel="noopener" href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#using-the-env-context-to-access-environment-variable-values">example by GitHub in their official documentation</a>, not when using untrusted input:</p>
+<img src="/img/blogs/GitHub-actions/image1.png" style="width: 100%;"/>
+
+<p>Did you notice the subtle difference?</p>
+<p>The environment variables in the second example are used in the <code>run</code> command line as such: <code>run: echo &quot;$&#123;&#123; env.First_Name &#125;&#125;&quot;</code> instead of <code>run: echo &quot;$First_Name&quot;</code>. While in this case the First_Name environment variable isn’t controlled by an untrusted user, the interpolation here is performed in an unsafe manner because it uses GitHub Actions’ context and expression syntax (<code>$&#123;&#123; ...&#125;&#125;</code>) to insert the environment variable’s value <strong>before</strong> the job is sent to the runner’s shell for execution. This bypasses the shell’s built-in defense mechanism that typically handles environment variables, meaning that if this environment variable were user-controlled, this would have been a valid vulnerability.</p>
+<p>And to demonstrate this, SonarQube detected such a vulnerability in <a target="_blank" rel="noopener" href="https://github.com/serverless-dns/serverless-dns">serverless-dns</a>:</p>
+<img src="/img/blogs/GitHub-actions/image3.png" style="width: 100%;"/>
+
+<p>Try it yourself in <a target="_blank" rel="noopener" href="https://sonarcloud.io/project/issues?impactSoftwareQualities=SECURITY&issueStatuses=OPEN,CONFIRMED&id=SonarSourceResearch_github-actions-blogpost&open=AZnJQ6fARifC2IfrVD7e">SonarQube Cloud</a></p>
+<p>This was <a target="_blank" rel="noopener" href="https://github.com/serverless-dns/serverless-dns/commit/c5537dd7f203c59f2b86d1e295c2371f3533946a">fixed</a> following our report using the environment variable safely.</p>
+<h2 id="Code-execution"><a href="#Code-execution" class="headerlink" title="Code execution"></a>Code execution</h2><p>The final major vulnerability we will cover is <strong>Code Execution</strong> within GitHub Actions workflows. Unlike the direct and easily identifiable signs of <strong>Command Injection</strong> (e.g., untrusted input in a shell command), this vulnerability is often harder to detect as it relies on ambiguous commands, or third-party Actions being executed on user-controlled code.</p>
+<p>Consider the following workflow example with the SonarQube report, taken from an undisclosed project:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">name:</span> <span class="string">&lt;redacted&gt;</span></span><br><span class="line"><span class="attr">on:</span></span><br><span class="line">  <span class="attr">pull_request_target:</span></span><br><span class="line">    <span class="attr">types:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">opened</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">edited</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">synchronize</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">labeled</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">unlabeled</span></span><br><span class="line"></span><br><span class="line"><span class="attr">jobs:</span></span><br><span class="line">  <span class="string">&lt;redacted&gt;:</span></span><br><span class="line">    <span class="attr">runs-on:</span> <span class="string">ubuntu-22.04</span></span><br><span class="line">    <span class="attr">permissions:</span></span><br><span class="line">      <span class="attr">contents:</span> <span class="string">write</span></span><br><span class="line">    <span class="attr">steps:</span></span><br><span class="line"><span class="comment"># ...</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Checkout</span> <span class="string">Code</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions/checkout@v4</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">ref:</span> <span class="string">$&#123;&#123;github.event.pull_request.head.ref&#125;&#125;</span></span><br><span class="line">          <span class="attr">repository:</span> <span class="string">$&#123;&#123;github.event.pull_request.head.repo.full_name&#125;&#125;</span></span><br><span class="line"><span class="comment"># ...</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">Generate</span> <span class="string">manpage</span></span><br><span class="line">        <span class="attr">uses:</span> <span class="string">actions-rs/cargo@v1</span></span><br><span class="line">        <span class="attr">with:</span></span><br><span class="line">          <span class="attr">command:</span> <span class="string">run</span></span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+<img src="/img/blogs/GitHub-actions/image4.png" style="width: 100%;"/>
+While there is no obvious command injection flaw, the combination of three critical steps creates a high-severity vulnerability:
+
+<ol>
+<li><p>The <code>pull_request_target</code> trigger and elevated permissions - The workflow is triggered by the <code>pull_request_target</code> event. As previously discussed, this event is designed to run in the context of the base branch (the repository where the workflow resides), not the untrusted head branch.</p>
+</li>
+<li><p>But more crucially, the workflow checks out the untrusted code - By explicitly setting repository and ref to point to <code>github.event.pull_request.head.repo.full_name</code>, and <code>github.event.pull_request.head.ref</code>, it checks out the full, untrusted code from the contributor’s repository (the head branch) into the runner’s working directory.</p>
+</li>
+<li><p>The job then proceeds to execute a third-party Action, <a target="_blank" rel="noopener" href="https://github.com/actions-rs/cargo">actions-rs&#x2F;cargo@v1</a>, with the command <code>run</code>. This will execute Rust’s <a target="_blank" rel="noopener" href="https://doc.rust-lang.org/cargo/">cargo</a>  <a target="_blank" rel="noopener" href="https://doc.rust-lang.org/cargo/commands/cargo-run.html">run</a> command, which simply runs the current package. Since the “package” code is fully user-controlled, an attacker can write arbitrary Rust code that will then be executed</p>
+</li>
+</ol>
+<p>This case is a clear example of checkout code being executed. However, many times developers may not be aware of what the third-party GitHub Actions are actually doing behind the scenes. The hidden nature of this type of vulnerability makes it a far more insidious and challenging supply chain risk than traditional command injection. Because developers often trust the actions they import from the GitHub Marketplace or verified vendors, they may not scrutinize what those actions do when pointed at untrusted, user-controlled code.</p>
+<h1 id="Timeline"><a href="#Timeline" class="headerlink" title="Timeline"></a>Timeline</h1><table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2025-04-15</td>
+<td>We report all issues to various vendors</td>
+</tr>
+<tr>
+<td>2025-04-16</td>
+<td>meshtastic&#x2F;firmware confirms the issues</td>
+</tr>
+<tr>
+<td>2025-04-19</td>
+<td>serverless-dns confirms the issues</td>
+</tr>
+<tr>
+<td>2025-04-20</td>
+<td>meshtastic&#x2F;firmware releases <a target="_blank" rel="noopener" href="https://github.com/meshtastic/firmware/commit/e03f3de185e8a67bd08e7af0c3425989e4b6e0ec">patch</a></td>
+</tr>
+<tr>
+<td>2025-04-26</td>
+<td>serverless-dns releases <a target="_blank" rel="noopener" href="https://github.com/serverless-dns/serverless-dns/commit/c5537dd7f203c59f2b86d1e295c2371f3533946a">patch</a></td>
+</tr>
+<tr>
+<td>2025-06-10</td>
+<td>meshtastic&#x2F;firmware publishes <a target="_blank" rel="noopener" href="https://github.com/meshtastic/firmware/security/advisories/GHSA-6mwm-v2vv-pp96">GHSA-6mwm-v2vv-pp96</a> advisory</td>
+</tr>
+<tr>
+<td>2025-09-29</td>
+<td>serverless-dns publishes <a target="_blank" rel="noopener" href="https://github.com/serverless-dns/serverless-dns/security/advisories/GHSA-9g7x-737f-5xpc">GHSA-9g7x-737f-5xpc</a> advisory</td>
+</tr>
+</tbody></table>
+<h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><p>This blog post highlights the critical security risks inherent in using GitHub Actions and introduces SonarQube’s enhanced analysis capabilities designed to detect and help remediate these vulnerabilities directly within CI&#x2F;CD pipelines. We took a closer look at the technical details of some vulnerabilities and showcased the power of SonarQube by using real-world examples of vulnerabilities we found with it.</p>
+<p>A compromised action can lead to severe consequences, including the theft of credentials and the potential for a full-scale software supply chain attack, as demonstrated by the high-profile Nx “s1ngularity” incident, where a vulnerability allowed command injection and the theft of an npm publishing token. Understanding these risks is essential for developers.</p>
+
+        
+        <br />
+        <div id="comment-container">
+        </div>
+        <div id="disqus_thread"></div>
+        <div id="lv-container"></div>
+        <div class="giscus"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+
+
+<footer class="footer">
+    <ul class="list-inline text-center">
+        
+        <li>
+            <a target="_blank" href="https://twitter.com/YNizry">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-twitter"></i>
+                            </span>
+            </a>
+        </li>
+        
+        
+
+        
+
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://github.com/yaniv-git">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-github"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+        
+        <li>
+            <a target="_blank"  href="https://www.linkedin.com/in/yaniv-n-8b4a76193">
+                            <span class="fa-stack fa-lg">
+                                <i class="iconfont icon-linkedin"></i>
+                            </span>
+            </a>
+        </li>
+        
+
+    </ul>
+    
+    <p>
+    Theme <a target="_blank" rel="noopener" href="https://github.com/aircloud/hexo-theme-aircloud">AirCloud</a></p>
+</footer>
+
+
+
+
+</body>
+
+<script>
+    // We expose some of the variables needed by the front end
+    window.hexo_search_path = "search.json"
+    window.hexo_root = "/"
+    window.isPost = true
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+<script src="/js/index.js"></script>
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+</html>
