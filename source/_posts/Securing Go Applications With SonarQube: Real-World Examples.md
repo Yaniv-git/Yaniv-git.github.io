@@ -2,11 +2,15 @@
 title: "Securing Go Applications With SonarQube: Real-World Examples"
 date: 2025-08-07
 tags:
+	- "go"
 	- "arbitrary file write"
+	- "rce"
 	- "xss"
 advisory: false
-origin: 
-cves:
+origin: https://www.sonarsource.com/blog/securing-go-applications-with-sonarqube-real-world-examples/
+cves: 
+	- "CVE-2025-56760"
+	- "CVE-2025-56761"
 ---
 [Go](https://go.dev/) has become a language of choice for modern backend development, and its adoption in cloud-native and microservices architectures is growing rapidly. As Go's use grows, so does the demand for specialized security tools. That's why we at Sonar have enhanced our powerful static analysis engine to provide advanced security scanning for Go code.
 
